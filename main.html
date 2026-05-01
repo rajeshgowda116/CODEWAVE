@@ -1,0 +1,1715 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Main Navigation</title>
+  <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+  <!-- Font Imports for Roadmap -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300..700&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-y: auto;
+      /* Changed from hidden to auto for scrolling */
+      background:
+        radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.18), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(217, 70, 239, 0.16), transparent 30%),
+        linear-gradient(135deg, #050712, #090a12 48%, #02030a);
+      color: #f8fafc;
+      font-family:
+        'Outfit', sans-serif;
+      /* Updated font family */
+      position: relative;
+      /* For particles */
+    }
+
+    :root {
+      /* Define roadmap specific CSS variables here */
+      --bg-color: #0a0e27;
+      /* This will be overridden by body background */
+      --text-color: #f8fafc;
+      --primary-cyan: #00d9ff;
+      --primary-magenta: #ff00ff;
+      --primary-blue: #0066ff;
+      --glass-bg: rgba(26, 31, 58, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      /* Smoother transition easing */
+      --transition-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 80%);
+    }
+
+    .clip-source {
+      position: absolute;
+      width: 0;
+      height: 0;
+    }
+
+    .ghost-cursor {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .top-nav {
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      z-index: 10;
+      width: min(1120px, calc(100% - 2rem));
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.65rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      background: rgba(5, 8, 18, 0.58);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(22px);
+    }
+
+    .brand {
+      position: absolute;
+      left: 0.65rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: max-content;
+      padding-left: 0.45rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, #020617 0 62%, transparent 63%),
+        conic-gradient(from 320deg, #22d3ee, #2563eb, #a855f7, #22d3ee);
+      box-shadow:
+        0 0 26px rgba(34, 211, 238, 0.4),
+        0 0 42px rgba(168, 85, 247, 0.22),
+        inset 0 0 18px rgba(0, 0, 0, 0.65);
+      overflow: hidden;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      display: block;
+      filter: drop-shadow(0 0 7px rgba(34, 211, 238, 0.82));
+    }
+
+    .social-shell {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(24px);
+    }
+
+    .social-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    .social-link {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border: 1px solid color-mix(in srgb, var(--tone), white 24%);
+      border-radius: 14px;
+      clip-path: url(#squircleClip);
+      color: white;
+      background:
+        radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.28), transparent 32%),
+        linear-gradient(135deg, color-mix(in srgb, var(--tone), white 10%), color-mix(in srgb, var(--tone), black 32%));
+      box-shadow:
+        0 12px 28px color-mix(in srgb, var(--tone), transparent 70%),
+        inset 0 -8px 18px rgba(0, 0, 0, 0.24);
+      text-decoration: none;
+      transform: translateY(0) scale(1);
+      transition:
+        transform 220ms ease,
+        box-shadow 220ms ease,
+        filter 220ms ease;
+    }
+
+    .social-link:hover {
+      transform: translateY(-8px) scale(1.1);
+      filter: brightness(1.12);
+      box-shadow:
+        0 18px 42px color-mix(in srgb, var(--tone), transparent 52%),
+        inset 0 -8px 18px rgba(0, 0, 0, 0.18);
+    }
+
+    .social-link svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* Roadmap specific styles */
+    .moving-wave {
+      position: relative;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(to top, rgba(0, 102, 255, 0.3), transparent);
+      animation: wave-move 15s linear infinite alternate;
+      z-index: -2;
+      pointer-events: none;
+      filter: blur(30px);
+      opacity: 0.4;
+    }
+
+    @keyframes wave-move {
+      0% {
+        transform: translateX(0) scaleY(1);
+      }
+
+      50% {
+        transform: translateX(10%) scaleY(1.1);
+      }
+
+      100% {
+        transform: translateX(0) scaleY(1);
+      }
+    }
+
+    .particle {
+      position: absolute;
+      background-color: var(--primary-cyan);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: float 20s infinite ease-in-out;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0.6;
+      }
+
+      25% {
+        transform: translateY(-20vh) translateX(10vw);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: translateY(-40vh) translateX(-15vw);
+        opacity: 0.4;
+      }
+
+      75% {
+        transform: translateY(-60vh) translateX(5vw);
+        opacity: 0.7;
+      }
+
+      100% {
+        transform: translateY(-80vh) translateX(-10vw);
+        opacity: 0.6;
+      }
+    }
+
+    .roadmap-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+      position: relative;
+      z-index: 1;
+      padding-top: 8rem;
+      /* Adjust for fixed top nav */
+    }
+
+    .roadmap-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .roadmap-header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--primary-cyan) 0%, var(--primary-blue) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .roadmap-header p {
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      color: var(--text-color);
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .roadmap-tagline {
+      text-align: center;
+      margin-top: 6rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.3;
+      background: linear-gradient(135deg, var(--primary-magenta) 0%, var(--primary-cyan) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .roadmap-phases {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      position: relative;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--primary-cyan), var(--primary-blue));
+      transform: translateX(-50%);
+      z-index: -1;
+    }
+
+    .phase-card {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+      border-radius: 16px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 40px rgba(0, 217, 255, 0.1);
+      transition: all 0.5s var(--transition-smooth), transform 0.5s var(--transition-bounce), box-shadow 0.5s var(--transition-smooth), border-color 0.3s ease, opacity 0.6s var(--transition-smooth);
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    .phase-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .phase-card:nth-child(odd) {
+      flex-direction: row;
+      margin-right: 50%;
+    }
+
+    .phase-card:nth-child(even) {
+      flex-direction: row-reverse;
+      margin-left: 50%;
+    }
+
+    .phase-card-content {
+      flex: 1;
+    }
+
+    .phase-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, var(--primary-cyan), var(--primary-magenta));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .phase-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.8rem;
+      color: var(--primary-cyan);
+    }
+
+    .phase-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .phase-card li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .phase-card li::before {
+      content: '⚡';
+      position: absolute;
+      left: 0;
+      color: var(--primary-magenta);
+    }
+
+    .phase-card p.rule {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--primary-magenta);
+      margin-top: 1.5rem;
+    }
+
+    .phase-card .phase-weeks {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .phase-card .phase-goal {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 1rem;
+    }
+
+    .phase-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 50px rgba(0, 217, 255, 0.2);
+      border-color: var(--primary-cyan);
+    }
+
+    .timeline-node {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background-color: var(--primary-cyan);
+      border-radius: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      box-shadow: 0 0 12px var(--primary-cyan), 0 0 24px var(--primary-blue);
+      transition: background-color 0.4s var(--transition-ease), box-shadow 0.4s var(--transition-ease);
+    }
+
+    .timeline-node.active {
+      background-color: var(--primary-magenta);
+      box-shadow: 0 0 16px var(--primary-magenta), 0 0 32px var(--primary-magenta);
+    }
+
+    @media (max-width: 768px) {
+      .timeline-line {
+        left: 20px;
+        transform: translateX(0);
+      }
+
+      .phase-card {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-left: 60px;
+        margin-right: 0;
+        width: calc(100% - 80px);
+      }
+
+      .phase-card:nth-child(odd),
+      .phase-card:nth-child(even) {
+        margin-left: 60px;
+      }
+
+      .timeline-node {
+        left: 20px;
+        transform: translateX(-50%);
+      }
+    }
+
+    .roadmap-nav {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .roadmap-nav-item {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: all 0.3s var(--transition-ease);
+      position: relative;
+    }
+
+    .roadmap-nav-item:hover {
+      background-color: var(--primary-cyan);
+      border-color: var(--primary-cyan);
+      box-shadow: 0 0 8px var(--primary-cyan);
+    }
+
+    .roadmap-nav-item.active {
+      background-color: var(--primary-magenta);
+      border-color: var(--primary-magenta);
+      box-shadow: 0 0 12px var(--primary-magenta);
+      transform: scale(1.2);
+    }
+
+    .roadmap-nav-item::before {
+      content: attr(data-phase);
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      color: var(--text-color);
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.3s var(--transition-ease);
+      pointer-events: none;
+    }
+
+    .roadmap-nav-item:hover::before {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .roadmap-nav {
+        display: none;
+      }
+    }
+
+    /* Existing media queries */
+    @media (max-width: 760px) {
+      .top-nav {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .brand {
+        justify-content: center;
+        padding-left: 0;
+      }
+
+      .social-shell {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="ghost-cursor" class="ghost-cursor" aria-hidden="true"></div>
+
+  <svg class="clip-source" aria-hidden="true">
+    <defs>
+      <clipPath id="squircleClip" clipPathUnits="objectBoundingBox">
+        <path d="M 0,0.5 C 0,0 0,0 0.5,0 S 1,0 1,0.5 1,1 0.5,1 0,1 0,0.5"></path>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <nav class="top-nav" aria-label="Main navigation">
+    <a class="brand" href="main.html">
+      <span class="brand-mark" aria-hidden="true">
+        <div class="py-wraper">
+          <div class='py-str'></div>
+          <div class='py-top'></div>
+          <div class='py-topright'></div>
+          <div class='py-right'></div>
+          <div class='py-left'></div>
+          <div class='py-bottom'></div>
+          <div class='py-bottomleft'></div>
+          <div class='py-topleft'></div>
+          <div class='py-bottomright'></div>
+          <div class='py-leftcurvebox'></div>
+          <div class='py-leftcurve'></div>
+          <div class='py-leftcurve2'></div>
+          <div class='py-rightcurvebox'></div>
+          <div class='py-rightcurve'></div>
+          <div class='py-rightcurve2'></div>
+          <div class='py-circle1'></div>
+          <div class='py-circle2'></div>
+        </div>
+      </span>
+      <span class="brand-name">CodeWave</span>
+    </a>
+
+    <div class="social-shell" aria-label="Social links">
+      <a class="social-link" style="--tone: #6b7280" href="#" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.51 11.51 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.798 24 17.301 24 12c0-6.627-5.373-12-12-12z">
+          </path>
+        </svg>
+      </a>
+
+      <a class="social-link" style="--tone: #3776ab" href="#" aria-label="Python">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M12.01 1.705c-2.476 0-4.665.416-6.196.966-1.53.55-2.283 1.282-2.283 2.176v4.062h8.508v1.074H2.435c-.958 0-1.83.69-2.203 1.718C.001 13.336 0 15.116 0 15.116c0 1.93.003 3.755.244 5.378.232 1.564 1.157 2.378 2.228 2.378h3.33v-3.916c0-2.02 1.688-3.666 3.77-3.666h5.817c1.47 0 2.66-.882 2.66-1.968V7.575c0-1.085-1.19-1.968-2.66-1.968H5.97v-1.12c0-.583.565-1.127 1.564-1.512 1-.384 2.45-.632 4.477-.632 2.026 0 3.477.248 4.477.632.999.385 1.564.93 1.564 1.512v1.492h4.482v-1.55c0-.895-.752-1.626-2.282-2.176-1.53-.55-3.72-.966-6.196-.966m-3.414 1.905a1.233 1.233 0 1 1 0 2.466 1.233 1.233 0 0 1 0-2.466m10.74 5.617c.958 0 1.83.69 2.203 1.718.231 1.636.232 3.416.232 3.416 0 1.93-.003 3.755-.244 5.378-.232 1.564-1.157 2.378-2.228 2.378h-3.33v-3.916c0-2.02-1.688-3.666-3.77-3.666h-5.818c-1.47 0-2.66-.882-2.66-1.968v-5.748c0-1.085 1.19-1.968 2.66-1.968h9.42v1.12c0 .583-.565 1.127-1.564 1.512-1 .384-2.45.632-4.477.632-2.026 0-3.477-.248-4.477-.632-.999-.385-1.564-.93-1.564-1.512v-1.492h4.482v1.55c0 .895.752 1.626 2.282 2.176 1.53.55 3.72.966 6.196.966zm3.414 10.365a1.233 1.233 0 1 1 0 2.466 1.233 1.233 0 0 1 0-2.466z" />
+        </svg>
+      </a>
+
+      <a class="social-link" style="--tone: #4f46e5" href="#" aria-label="Discord">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 0 0 .0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 0 0-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 0 1-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 0 1 .0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 0 1 .0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 0 1-.0066.1276 12.2986 12.2986 0 0 1-1.873.8914.0766.0766 0 0 0-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 0 0 .0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0189 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189Z">
+          </path>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Roadmap Content -->
+  <div class="moving-wave"></div>
+  <div class="roadmap-container">
+    <header class="roadmap-header">
+      <h1>CodeWave Strong Python Roadmap</h1>
+      <p>A real, structured, build-focused roadmap you can actually put on your CodeWave site 🔥</p>
+    </header>
+
+    <div class="roadmap-phases">
+      <div class="timeline-line"></div>
+      <!-- Phase 1 -->
+      <section id="phase-1" class="phase-card">
+        <div class="timeline-node"></div>
+        <div class="phase-card-content">
+          <p class="phase-weeks">Phase 1 — Absolute Foundation (0 → 2 Weeks)</p>
+          <h2>Think like a programmer</h2>
+          <h3>Learn:</h3>
+          <ul>
+            <li>Variables, Data Types</li>
+            <li>Input / Output</li>
+            <li>Conditions (`if-else`)</li>
+            <li>Loops (`for`, `while`)</li>
+            <li>Functions</li>
+          </ul>
+          <h3>Build:</h3>
+          <ul>
+            <li>Calculator</li>
+            <li>Number guessing game</li>
+            <li>Simple quiz app</li>
+          </ul>
+          <p class="rule">👉 Rule: *Don’t just watch videos — code daily*</p>
+        </div>
+      </section>
+
+      <!-- Phase 2 -->
+      <section id="phase-2" class="phase-card">
+        <div class="timeline-node"></div>
+        <div class="phase-card-content">
+          <p class="phase-weeks">Phase 2 — Core Strength (2 → 5 Weeks)</p>
+          <h2>Write clean & structured code</h2>
+          <h3>Learn:</h3>
+          <ul>
+            <li>OOP (Classes, Objects, Inheritance)</li>
+            <li>File Handling</li>
+            <li>Exception Handling</li>
+            <li>Modules & Packages</li>
+          </ul>
+          <h3>Build:</h3>
+          <ul>
+            <li>Student management system</li>
+            <li>File-based note app</li>
+          </ul>
+          <p class="rule">👉 Rule: *Start writing bigger programs*</p>
+        </div>
+      </section>
+
+      <!-- Phase 3 -->
+      <section id="phase-3" class="phase-card">
+        <div class="timeline-node"></div>
+        <div class="phase-card-content">
+          <p class="phase-weeks">Phase 3 — Real-World Python (5 → 8 Weeks)</p>
+          <h2>Use Python for real problems</h2>
+          <h3>Learn:</h3>
+          <ul>
+            <li>Web Scraping (BeautifulSoup)</li>
+            <li>APIs (`requests`)</li>
+            <li>Automation (scripts, bots)</li>
+            <li>Basics of Flask</li>
+          </ul>
+          <h3>Build:</h3>
+          <ul>
+            <li>Weather app (API)</li>
+            <li>Instagram/website scraper</li>
+            <li>Auto file organizer</li>
+          </ul>
+          <p class="rule">👉 Rule: *If it solves a problem → it’s a project*</p>
+        </div>
+      </section>
+
+      <!-- Phase 4 -->
+      <section id="phase-4" class="phase-card">
+        <div class="timeline-node"></div>
+        <div class="phase-card-content">
+          <p class="phase-weeks">Phase 4 — Specialization (8+ Weeks)</p>
+          <h2>Become dangerous (specialize 🔥)</h2>
+          <p class="phase-goal">Choose ONE path:</p>
+          <h3>🌐 Web Development</h3>
+          <ul>
+            <li>Flask / Django</li>
+            <li>Build full websites</li>
+          </ul>
+          <h3>📊 Data Science</h3>
+          <ul>
+            <li>NumPy, Pandas, Matplotlib</li>
+          </ul>
+          <h3>🤖 Machine Learning / AI</h3>
+          <ul>
+            <li>Scikit-learn</li>
+            <li>Basics of models</li>
+          </ul>
+          <h3>⚙️ Automation / Tools</h3>
+          <ul>
+            <li>Bots, scripts, productivity tools</li>
+          </ul>
+          <h3>Build:</h3>
+          <ul>
+            <li>Portfolio projects (VERY important)</li>
+          </ul>
+          <p class="rule">👉 Rule: *Depth &gt; random learning*</p>
+        </div>
+      </section>
+
+      <!-- Phase 5 -->
+      <section id="phase-5" class="phase-card">
+        <div class="timeline-node"></div>
+        <div class="phase-card-content">
+          <p class="phase-weeks">Phase 5 — Pro Level (This is where most fail)</p>
+          <h2>Stand out from others</h2>
+          <h3>Do:</h3>
+          <ul>
+            <li>Build 3–5 REAL projects</li>
+            <li>Upload on GitHub</li>
+            <li>Learn basic Git</li>
+            <li>Contribute to open source</li>
+            <li>Start freelancing / internships</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <div class="roadmap-tagline">
+      <p>“From Zero to Powerful — Ride the CodeWave.” 🌊</p>
+      <p>“Learn. Build. Become Unstoppable.” 🔥</p>
+    </div>
+  </div>
+
+  <nav class="roadmap-nav">
+    <div class="roadmap-nav-item" data-phase="Phase 1"></div>
+    <div class="roadmap-nav-item" data-phase="Phase 2"></div>
+    <div class="roadmap-nav-item" data-phase="Phase 3"></div>
+    <div class="roadmap-nav-item" data-phase="Phase 4"></div>
+    <div class="roadmap-nav-item" data-phase="Phase 5"></div>
+  </nav>
+
+  <script type="module">
+    // Existing GhostCursor script
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+    const host = document.getElementById("ghost-cursor");
+
+    // Configuration Extracted from App.tsx Component parameters
+    const trailLength = 20;
+    const inertia = 0.4;
+    const grainIntensity = 0.05;
+    const bloomStrength = 0.5;
+    const bloomRadius = 0.7;
+    const bloomThreshold = 0;
+    const brightness = 1.2;
+    const color = '#B19EEF';
+    const edgeIntensity = 0;
+    const maxDevicePixelRatio = 0.5;
+    const fadeDelay = 200;
+    const fadeDuration = 1000;
+
+    const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    const pixelBudget = isTouch ? 0.9e6 : 1.3e6;
+
+    const baseVertexShader = `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 1.0);
+        }
+      `;
+
+    const fragmentShader = `
+        uniform float iTime;
+        uniform vec3  iResolution;
+        uniform vec2  iMouse;
+        uniform vec2  iPrevMouse[MAX_TRAIL_LENGTH];
+        uniform float iOpacity;
+        uniform float iScale;
+        uniform vec3  iBaseColor;
+        uniform float iBrightness;
+        uniform float iEdgeIntensity;
+
+        varying vec2  vUv;
+
+        float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7))) * 43758.5453123); }
+
+        float noise(vec2 p){
+          vec2 i = floor(p), f = fract(p);
+          f = f * f * (3. - 2. * f);
+          return mix(mix(hash(i + vec2(0.,0.)), hash(i + vec2(1.,0.)), f.x),
+                     mix(hash(i + vec2(0.,1.)), hash(i + vec2(1.,1.)), f.x), f.y);
+        }
+
+        float fbm(vec2 p){
+          float v = 0.0;
+          float a = 0.5;
+          mat2 m = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
+          for(int i=0;i<5;i++){
+            v += a * noise(p);
+            p = m * p * 2.0;
+            a *= 0.5;
+          }
+          return v;
+        }
+
+        vec3 tint1(vec3 base){ return mix(base, vec3(1.0), 0.15); }
+        vec3 tint2(vec3 base){ return mix(base, vec3(0.8, 0.9, 1.0), 0.25); }
+
+        vec4 blob(vec2 p, vec2 mousePos, float intensity, float activity) {
+          vec2 q = vec2(fbm(p * iScale + iTime * 0.1), fbm(p * iScale + vec2(5.2,1.3) + iTime * 0.1));
+          vec2 r = vec2(fbm(p * iScale + q * 1.5 + iTime * 0.15), fbm(p * iScale + q * 1.5 + vec2(8.3,2.8) + iTime * 0.15));
+          float smoke = fbm(p * iScale + r * 0.8);
+          
+          float radius = 0.5 + 0.3 * (1.0 / iScale);
+          float distFactor = 1.0 - smoothstep(0.0, radius * activity, length(p - mousePos));
+          float alpha = pow(smoke, 2.5) * distFactor;
+
+          vec3 c1 = tint1(iBaseColor);
+          vec3 c2 = tint2(iBaseColor);
+          vec3 color = mix(c1, c2, sin(iTime * 0.5) * 0.5 + 0.5);
+
+          return vec4(color * alpha * intensity, alpha * intensity);
+        }
+
+        void main() {
+          vec2 uv = (gl_FragCoord.xy / iResolution.xy * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
+          vec2 mouse = (iMouse * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
+          
+          vec3 colorAcc = vec3(0.0);
+          float alphaAcc = 0.0;
+          
+          vec4 b = blob(uv, mouse, 1.0, iOpacity);
+          colorAcc += b.rgb;
+          alphaAcc += b.a;
+
+          for (int i = 0; i < MAX_TRAIL_LENGTH; i++) {
+            vec2 pm = (iPrevMouse[i] * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
+            float t = 1.0 - float(i) / float(MAX_TRAIL_LENGTH);
+            t = pow(t, 2.0);
+            
+            if (t > 0.01) {
+              vec4 bt = blob(uv, pm, t * 0.8, iOpacity);
+              colorAcc += bt.rgb;
+              alphaAcc += bt.a;
+            }
+          }
+
+          colorAcc *= iBrightness;
+          
+          vec2 uv01 = gl_FragCoord.xy / iResolution.xy;
+          float edgeDist = min(min(uv01.x, 1.0 - uv01.x), min(uv01.y, 1.0 - uv01.y));
+          float distFromEdge = clamp(edgeDist * 2.0, 0.0, 1.0);
+          float k = clamp(iEdgeIntensity, 0.0, 1.0);
+          float edgeMask = mix(1.0 - k, 1.0, distFromEdge);
+          
+          float outAlpha = clamp(alphaAcc * iOpacity * edgeMask, 0.0, 1.0);
+          gl_FragColor = vec4(colorAcc, outAlpha);
+        }
+      `;
+
+    const FilmGrainShader = {
+      uniforms: {
+        tDiffuse: { value: null },
+        iTime: { value: 0 },
+        intensity: { value: grainIntensity }
+      },
+      vertexShader: `
+          varying vec2 vUv;
+          void main(){
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+      fragmentShader: `
+          uniform sampler2D tDiffuse;
+          uniform float iTime;
+          uniform float intensity;
+          varying vec2 vUv;
+          float hash1(float n){ return fract(sin(n)*43758.5453); }
+          void main(){
+            vec4 color = texture2D(tDiffuse, vUv);
+            float n = hash1(vUv.x*1000.0 + vUv.y*2000.0 + iTime) * 2.0 - 1.0;
+            color.rgb += n * intensity * color.rgb;
+            gl_FragColor = color;
+          }
+        `
+    };
+
+    const UnpremultiplyPass = new ShaderPass({
+      uniforms: { tDiffuse: { value: null } },
+      vertexShader: `
+          varying vec2 vUv;
+          void main(){
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+      fragmentShader: `
+          uniform sampler2D tDiffuse;
+          varying vec2 vUv;
+          void main(){
+            vec4 c = texture2D(tDiffuse, vUv);
+            float a = max(c.a, 1e-5);
+            vec3 straight = c.rgb / a;
+            gl_FragColor = vec4(clamp(straight, 0.0, 1.0), c.a);
+          }
+        `
+    });
+
+    function calculateScale(el) {
+      const r = el.getBoundingClientRect();
+      const base = 600;
+      const current = Math.min(Math.max(1, r.width), Math.max(1, r.height));
+      return Math.max(0.5, Math.min(2.0, current / base));
+    }
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !isTouch,
+      alpha: true,
+      depth: false,
+      stencil: false,
+      powerPreference: 'default',
+      premultipliedAlpha: false,
+      preserveDrawingBuffer: false
+    });
+
+    renderer.setClearColor(0x000000, 0);
+    renderer.domElement.style.pointerEvents = 'none';
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.background = 'transparent';
+
+    host.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const geom = new THREE.PlaneGeometry(2, 2);
+
+    const maxTrail = Math.max(1, Math.floor(trailLength));
+    const trailBuf = Array.from({ length: maxTrail }, () => new THREE.Vector2(0.5, 0.5));
+    let head = 0;
+
+    const baseColor = new THREE.Color(color);
+    const material = new THREE.ShaderMaterial({
+      defines: { MAX_TRAIL_LENGTH: maxTrail },
+      uniforms: {
+        iTime: { value: 0 },
+        iResolution: { value: new THREE.Vector3(1, 1, 1) },
+        iMouse: { value: new THREE.Vector2(0.5, 0.5) },
+        iPrevMouse: { value: trailBuf.map(v => v.clone()) },
+        iOpacity: { value: 1.0 },
+        iScale: { value: 1.0 },
+        iBaseColor: { value: new THREE.Vector3(baseColor.r, baseColor.g, baseColor.b) },
+        iBrightness: { value: brightness },
+        iEdgeIntensity: { value: edgeIntensity }
+      },
+      vertexShader: baseVertexShader,
+      fragmentShader,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
+
+    const mesh = new THREE.Mesh(geom, material);
+    scene.add(mesh);
+
+    const composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), bloomStrength, bloomRadius, bloomThreshold);
+    composer.addPass(bloomPass);
+
+    const filmPass = new ShaderPass(FilmGrainShader);
+    composer.addPass(filmPass);
+
+    composer.addPass(UnpremultiplyPass);
+
+    const resize = () => {
+      const rect = host.getBoundingClientRect();
+      const cssW = Math.max(1, Math.floor(rect.width));
+      const cssH = Math.max(1, Math.floor(rect.height));
+
+      const currentDPR = Math.min(window.devicePixelRatio || 1, maxDevicePixelRatio);
+      const need = cssW * cssH * currentDPR * currentDPR;
+      const scale = need <= pixelBudget ? 1 : Math.max(0.5, Math.min(1, Math.sqrt(pixelBudget / Math.max(1, need))));
+
+      const pixelRatio = currentDPR * scale;
+      renderer.setPixelRatio(pixelRatio);
+      renderer.setSize(cssW, cssH, false);
+      if (composer.setPixelRatio) composer.setPixelRatio(pixelRatio);
+      composer.setSize(cssW, cssH);
+
+      const wpx = Math.max(1, Math.floor(cssW * pixelRatio));
+      const hpx = Math.max(1, Math.floor(cssH * pixelRatio));
+
+      material.uniforms.iResolution.value.set(wpx, hpx, 1);
+      material.uniforms.iScale.value = calculateScale(host);
+      bloomPass.setSize(wpx, hpx);
+    };
+
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(host);
+
+    const start = performance.now();
+    let raf = null;
+    let pointerActive = false;
+    let running = false;
+    let lastMoveTime = performance.now();
+    let fadeOpacity = 1.0;
+    const currentMouse = new THREE.Vector2(0.5, 0.5);
+    const velocity = new THREE.Vector2(0, 0);
+
+    const animate = () => {
+      const now = performance.now();
+      const t = (now - start) / 1000;
+
+      if (pointerActive) {
+        velocity.set(
+          currentMouse.x - material.uniforms.iMouse.value.x,
+          currentMouse.y - material.uniforms.iMouse.value.y
+        );
+        material.uniforms.iMouse.value.copy(currentMouse);
+        fadeOpacity = 1.0;
+      } else {
+        velocity.multiplyScalar(inertia);
+        if (velocity.lengthSq() > 1e-6) {
+          material.uniforms.iMouse.value.add(velocity);
+        }
+
+        const dt = now - lastMoveTime;
+        if (dt > fadeDelay) {
+          const k = Math.min(1, (dt - fadeDelay) / fadeDuration);
+          fadeOpacity = Math.max(0, 1 - k);
+        }
+      }
+
+      head = (head + 1) % maxTrail;
+      trailBuf[head].copy(material.uniforms.iMouse.value);
+
+      const arr = material.uniforms.iPrevMouse.value;
+      for (let i = 0; i < maxTrail; i++) {
+        const srcIdx = (head - i + maxTrail) % maxTrail;
+        arr[i].copy(trailBuf[srcIdx]);
+      }
+
+      material.uniforms.iOpacity.value = fadeOpacity;
+      material.uniforms.iTime.value = t;
+      filmPass.uniforms.iTime.value = t;
+
+      composer.render();
+
+      if (!pointerActive && fadeOpacity <= 0.001) {
+        running = false;
+        raf = null;
+        return;
+      }
+
+      raf = requestAnimationFrame(animate);
+    };
+
+    const ensureLoop = () => {
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(animate);
+      }
+    };
+
+    const onPointerMove = (e) => {
+      const x = THREE.MathUtils.clamp((e.clientX) / window.innerWidth, 0, 1);
+      const y = THREE.MathUtils.clamp(1 - (e.clientY) / window.innerHeight, 0, 1);
+
+      currentMouse.set(x, y);
+      pointerActive = true;
+      lastMoveTime = performance.now();
+      ensureLoop();
+    };
+
+    const onPointerEnter = () => {
+      pointerActive = true;
+      ensureLoop();
+    };
+
+    const onPointerLeave = () => {
+      pointerActive = false;
+      lastMoveTime = performance.now();
+      ensureLoop();
+    };
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerenter', onPointerEnter, { passive: true });
+    window.addEventListener('pointerleave', onPointerLeave, { passive: true });
+
+    ensureLoop();
+
+    // Roadmap specific JavaScript
+    document.addEventListener('DOMContentLoaded', () => {
+      const phaseCards = document.querySelectorAll('.phase-card');
+      const timelineNodes = document.querySelectorAll('.timeline-node');
+      const roadmapNavItems = document.querySelectorAll('.roadmap-nav-item');
+      const roadmapNav = document.querySelector('.roadmap-nav');
+
+      // Generate floating particles
+      const numParticles = 30; // Number of particles
+      for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        const size = Math.random() * 3 + 1; // 1px to 4px
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${Math.random() * 100}vw`;
+        particle.style.top = `${Math.random() * 100}vh`;
+        particle.style.animationDelay = `${Math.random() * -20}s`; // Start at random points in animation
+        document.body.appendChild(particle);
+      }
+
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5 // Trigger when 50% of the item is visible
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const targetId = entry.target.id;
+          const navItem = document.querySelector(`.roadmap-nav-item[data-phase="${targetId.replace('-', ' ')}"]`);
+          const nodeIndex = Array.from(phaseCards).indexOf(entry.target);
+          const timelineNode = timelineNodes[nodeIndex];
+
+          if (entry.isIntersecting) {
+            navItem?.classList.add('active');
+            timelineNode?.classList.add('active');
+          } else {
+            navItem?.classList.remove('active');
+            timelineNode?.classList.remove('active');
+          }
+        });
+      }, observerOptions);
+
+      phaseCards.forEach(card => {
+        observer.observe(card);
+      });
+
+      roadmapNavItems.forEach((item, index) => {
+        item.addEventListener('click', () => {
+          const targetId = item.dataset.phase.replace(' ', '-');
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+      });
+
+      // Adjust timeline node positions dynamically
+      const updateTimelineNodes = () => {
+        const roadmapPhasesContainer = document.querySelector('.roadmap-phases');
+        if (!roadmapPhasesContainer) return;
+
+        const roadmapContainerRect = roadmapPhasesContainer.getBoundingClientRect();
+        phaseCards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect();
+          const node = timelineNodes[index];
+          if (node) {
+            // Calculate the vertical center of the card relative to the viewport
+            const cardCenterY = cardRect.top + window.scrollY + cardRect.height / 2;
+            // Calculate the vertical position of the node relative to the roadmap-phases container's top
+            const nodeTopInContainer = cardCenterY - (roadmapContainerRect.top + window.scrollY);
+            const topPercentage = (nodeTopInContainer / roadmapContainerRect.height) * 100;
+            node.style.top = `${topPercentage}%`;
+          }
+        });
+      };
+
+      // Initial update and update on scroll/resize
+      updateTimelineNodes();
+      window.addEventListener('scroll', updateTimelineNodes);
+      window.addEventListener('resize', updateTimelineNodes);
+    });
+  </script>
+</body>
+
+</html>
+max-width: 980px;
+margin: 0;
+font-size: clamp(3.5rem, 11vw, 9rem);
+line-height: 0.88;
+letter-spacing: 0;
+text-transform: uppercase;
+}
+
+.hero p {
+max-width: 620px;
+margin: 1.35rem 0 0;
+color: rgba(255, 255, 255, 0.66);
+font-size: clamp(1rem, 2vw, 1.25rem);
+line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+.top-nav {
+align-items: stretch;
+flex-direction: column;
+}
+
+.brand {
+justify-content: center;
+padding-left: 0;
+}
+
+.social-shell {
+justify-content: center;
+}
+}
+</style>
+</head>
+
+<body>
+  <div id="ghost-cursor" class="ghost-cursor" aria-hidden="true"></div>
+
+  <svg class="clip-source" aria-hidden="true">
+    <defs>
+      <clipPath id="squircleClip" clipPathUnits="objectBoundingBox">
+        <path d="M 0,0.5 C 0,0 0,0 0.5,0 S 1,0 1,0.5 1,1 0.5,1 0,1 0,0.5"></path>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <nav class="top-nav" aria-label="Main navigation">
+    <a class="brand" href="main.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg class="brand-logo" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="42" fill="#020617" stroke="url(#logoRing)" stroke-width="4" />
+          <path
+            d="M74 25C59 13 34 16 24 38 13 61 30 79 54 78c14-1 25-8 31-18-11 6-23 9-35 7-16-4-24-17-20-30 5-14 24-20 44-12Z"
+            fill="url(#logoWave)" />
+          <path d="M72 25c5 5 3 11-3 14-7 3-6 9 2 11 8 2 13 7 12 15 7-8 7-20-3-26-7-4-2-9-8-14Z"
+            fill="url(#logoSplash)" />
+          <path d="M43 47 33 56l10 9" stroke="url(#logoCode)" stroke-width="6" stroke-linecap="round"
+            stroke-linejoin="round" />
+          <path d="M58 43 50 70" stroke="url(#logoCode)" stroke-width="6" stroke-linecap="round" />
+          <path d="m66 47 10 9-10 9" stroke="url(#logoCode)" stroke-width="6" stroke-linecap="round"
+            stroke-linejoin="round" />
+          <defs>
+            <linearGradient id="logoRing" x1="18" y1="15" x2="82" y2="88" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#22d3ee" />
+              <stop offset="0.52" stop-color="#2563eb" />
+              <stop offset="1" stop-color="#a855f7" />
+            </linearGradient>
+            <linearGradient id="logoWave" x1="20" y1="18" x2="80" y2="84" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#67e8f9" />
+              <stop offset="0.46" stop-color="#06b6d4" />
+              <stop offset="0.78" stop-color="#2563eb" />
+              <stop offset="1" stop-color="#a855f7" />
+            </linearGradient>
+            <linearGradient id="logoSplash" x1="70" y1="20" x2="90" y2="70" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7dd3fc" />
+              <stop offset="1" stop-color="#22d3ee" />
+            </linearGradient>
+            <linearGradient id="logoCode" x1="33" y1="42" x2="79" y2="70" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#22d3ee" />
+              <stop offset="0.55" stop-color="#38bdf8" />
+              <stop offset="1" stop-color="#8b5cf6" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="py-wraper">
+          <div class='py-str'></div>
+          <div class='py-top'></div>
+          <div class='py-topright'></div>
+          <div class='py-right'></div>
+          <div class='py-left'></div>
+          <div class='py-bottom'></div>
+          <div class='py-bottomleft'></div>
+          <div class='py-topleft'></div>
+          <div class='py-bottomright'></div>
+          <div class='py-leftcurvebox'></div>
+          <div class='py-leftcurve'></div>
+          <div class='py-leftcurve2'></div>
+          <div class='py-rightcurvebox'></div>
+          <div class='py-rightcurve'></div>
+          <div class='py-rightcurve2'></div>
+          <div class='py-circle1'></div>
+          <div class='py-circle2'></div>
+        </div>
+      </span>
+      <span class="brand-name">CodeWave</span>
+    </a>
+
+    <div class="social-shell" aria-label="Social links">
+      <a class="social-link" style="--tone: #6b7280" href="#" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.51 11.51 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.798 24 17.301 24 12c0-6.627-5.373-12-12-12z">
+          </path>
+        </svg>
+      </a>
+
+      <a class="social-link" style="--tone: #3776ab" href="#" aria-label="Python">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M12.01 1.705c-2.476 0-4.665.416-6.196.966-1.53.55-2.283 1.282-2.283 2.176v4.062h8.508v1.074H2.435c-.958 0-1.83.69-2.203 1.718C.001 13.336 0 15.116 0 15.116c0 1.93.003 3.755.244 5.378.232 1.564 1.157 2.378 2.228 2.378h3.33v-3.916c0-2.02 1.688-3.666 3.77-3.666h5.817c1.47 0 2.66-.882 2.66-1.968V7.575c0-1.085-1.19-1.968-2.66-1.968H5.97v-1.12c0-.583.565-1.127 1.564-1.512 1-.384 2.45-.632 4.477-.632 2.026 0 3.477.248 4.477.632.999.385 1.564.93 1.564 1.512v1.492h4.482v-1.55c0-.895-.752-1.626-2.282-2.176-1.53-.55-3.72-.966-6.196-.966m-3.414 1.905a1.233 1.233 0 1 1 0 2.466 1.233 1.233 0 0 1 0-2.466m10.74 5.617c.958 0 1.83.69 2.203 1.718.231 1.636.232 3.416.232 3.416 0 1.93-.003 3.755-.244 5.378-.232 1.564-1.157 2.378-2.228 2.378h-3.33v-3.916c0-2.02-1.688-3.666-3.77-3.666h-5.818c-1.47 0-2.66-.882-2.66-1.968v-5.748c0-1.085 1.19-1.968 2.66-1.968h9.42v1.12c0 .583-.565 1.127-1.564 1.512-1 .384-2.45.632-4.477.632-2.026 0-3.477-.248-4.477-.632-.999-.385-1.564-.93-1.564-1.512v-1.492h4.482v1.55c0 .895.752 1.626 2.282 2.176 1.53.55 3.72.966 6.196.966zm3.414 10.365a1.233 1.233 0 1 1 0 2.466 1.233 1.233 0 0 1 0-2.466z" />
+        </svg>
+      </a>
+
+      <a class="social-link" style="--tone: #4f46e5" href="#" aria-label="Discord">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 0 0 .0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 0 0-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 0 1-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 0 1 .0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 0 1 .0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 0 1-.0066.1276 12.2986 12.2986 0 0 1-1.873.8914.0766.0766 0 0 0-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 0 0 .0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0189 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189Z">
+          </path>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <main class="hero">
+    <h1>Build Fast. Share Faster.</h1>
+    <p>A glassy top navigation with animated squircle social buttons, redesigned from the Uiverse dock into a full page
+      header.</p>
+  </main>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+    const host = document.getElementById("ghost-cursor");
+
+    // Configuration Extracted from App.tsx Component parameters
+    const trailLength = 20;
+    const inertia = 0.4;
+    const grainIntensity = 0.05;
+    const bloomStrength = 0.5;
+    const bloomRadius = 0.7;
+    const bloomThreshold = 0;
+    const brightness = 1.2;
+    const color = '#B19EEF';
+    const edgeIntensity = 0;
+    const maxDevicePixelRatio = 0.5;
+    const fadeDelay = 200;
+    const fadeDuration = 1000;
+
+    const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    const pixelBudget = isTouch ? 0.9e6 : 1.3e6;
+
+    const baseVertexShader = `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 1.0);
+        }
+      `;
+
+    const fragmentShader = `
+        uniform float iTime;
+        uniform vec3  iResolution;
+        uniform vec2  iMouse;
+        uniform vec2  iPrevMouse[MAX_TRAIL_LENGTH];
+        uniform float iOpacity;
+        uniform float iScale;
+        uniform vec3  iBaseColor;
+        uniform float iBrightness;
+        uniform float iEdgeIntensity;
+
+        varying vec2  vUv;
+
+        float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7))) * 43758.5453123); }
+
+        float noise(vec2 p){
+          vec2 i = floor(p), f = fract(p);
+          f = f * f * (3. - 2. * f);
+          return mix(mix(hash(i + vec2(0.,0.)), hash(i + vec2(1.,0.)), f.x),
+                     mix(hash(i + vec2(0.,1.)), hash(i + vec2(1.,1.)), f.x), f.y);
+        }
+
+        float fbm(vec2 p){
+          float v = 0.0;
+          float a = 0.5;
+          mat2 m = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
+          for(int i=0;i<5;i++){
+            v += a * noise(p);
+            p = m * p * 2.0;
+            a *= 0.5;
+          }
+          return v;
+        }
+
+        vec3 tint1(vec3 base){ return mix(base, vec3(1.0), 0.15); }
+        vec3 tint2(vec3 base){ return mix(base, vec3(0.8, 0.9, 1.0), 0.25); }
+
+        vec4 blob(vec2 p, vec2 mousePos, float intensity, float activity) {
+          vec2 q = vec2(fbm(p * iScale + iTime * 0.1), fbm(p * iScale + vec2(5.2,1.3) + iTime * 0.1));
+          vec2 r = vec2(fbm(p * iScale + q * 1.5 + iTime * 0.15), fbm(p * iScale + q * 1.5 + vec2(8.3,2.8) + iTime * 0.15));
+          float smoke = fbm(p * iScale + r * 0.8);
+          
+          float radius = 0.5 + 0.3 * (1.0 / iScale);
+          float distFactor = 1.0 - smoothstep(0.0, radius * activity, length(p - mousePos));
+          float alpha = pow(smoke, 2.5) * distFactor;
+
+          vec3 c1 = tint1(iBaseColor);
+          vec3 c2 = tint2(iBaseColor);
+          vec3 color = mix(c1, c2, sin(iTime * 0.5) * 0.5 + 0.5);
+
+          return vec4(color * alpha * intensity, alpha * intensity);
+        }
+
+        void main() {
+          vec2 uv = (gl_FragCoord.xy / iResolution.xy * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
+          vec2 mouse = (iMouse * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
+          
+          vec3 colorAcc = vec3(0.0);
+          float alphaAcc = 0.0;
+          
+          vec4 b = blob(uv, mouse, 1.0, iOpacity);
+          colorAcc += b.rgb;
+          alphaAcc += b.a;
+
+          for (int i = 0; i < MAX_TRAIL_LENGTH; i++) {
+            vec2 pm = (iPrevMouse[i] * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
+            float t = 1.0 - float(i) / float(MAX_TRAIL_LENGTH);
+            t = pow(t, 2.0);
+            
+            if (t > 0.01) {
+              vec4 bt = blob(uv, pm, t * 0.8, iOpacity);
+              colorAcc += bt.rgb;
+              alphaAcc += bt.a;
+            }
+          }
+
+          colorAcc *= iBrightness;
+          
+          vec2 uv01 = gl_FragCoord.xy / iResolution.xy;
+          float edgeDist = min(min(uv01.x, 1.0 - uv01.x), min(uv01.y, 1.0 - uv01.y));
+          float distFromEdge = clamp(edgeDist * 2.0, 0.0, 1.0);
+          float k = clamp(iEdgeIntensity, 0.0, 1.0);
+          float edgeMask = mix(1.0 - k, 1.0, distFromEdge);
+          
+          float outAlpha = clamp(alphaAcc * iOpacity * edgeMask, 0.0, 1.0);
+          gl_FragColor = vec4(colorAcc, outAlpha);
+        }
+      `;
+
+    const FilmGrainShader = {
+      uniforms: {
+        tDiffuse: { value: null },
+        iTime: { value: 0 },
+        intensity: { value: grainIntensity }
+      },
+      vertexShader: `
+          varying vec2 vUv;
+          void main(){
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+      fragmentShader: `
+          uniform sampler2D tDiffuse;
+          uniform float iTime;
+          uniform float intensity;
+          varying vec2 vUv;
+          float hash1(float n){ return fract(sin(n)*43758.5453); }
+          void main(){
+            vec4 color = texture2D(tDiffuse, vUv);
+            float n = hash1(vUv.x*1000.0 + vUv.y*2000.0 + iTime) * 2.0 - 1.0;
+            color.rgb += n * intensity * color.rgb;
+            gl_FragColor = color;
+          }
+        `
+    };
+
+    const UnpremultiplyPass = new ShaderPass({
+      uniforms: { tDiffuse: { value: null } },
+      vertexShader: `
+          varying vec2 vUv;
+          void main(){
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+      fragmentShader: `
+          uniform sampler2D tDiffuse;
+          varying vec2 vUv;
+          void main(){
+            vec4 c = texture2D(tDiffuse, vUv);
+            float a = max(c.a, 1e-5);
+            vec3 straight = c.rgb / a;
+            gl_FragColor = vec4(clamp(straight, 0.0, 1.0), c.a);
+          }
+        `
+    });
+
+    function calculateScale(el) {
+      const r = el.getBoundingClientRect();
+      const base = 600;
+      const current = Math.min(Math.max(1, r.width), Math.max(1, r.height));
+      return Math.max(0.5, Math.min(2.0, current / base));
+    }
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !isTouch,
+      alpha: true,
+      depth: false,
+      stencil: false,
+      powerPreference: 'default',
+      premultipliedAlpha: false,
+      preserveDrawingBuffer: false
+    });
+
+    renderer.setClearColor(0x000000, 0);
+    renderer.domElement.style.pointerEvents = 'none';
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.background = 'transparent';
+
+    host.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const geom = new THREE.PlaneGeometry(2, 2);
+
+    const maxTrail = Math.max(1, Math.floor(trailLength));
+    const trailBuf = Array.from({ length: maxTrail }, () => new THREE.Vector2(0.5, 0.5));
+    let head = 0;
+
+    const baseColor = new THREE.Color(color);
+    const material = new THREE.ShaderMaterial({
+      defines: { MAX_TRAIL_LENGTH: maxTrail },
+      uniforms: {
+        iTime: { value: 0 },
+        iResolution: { value: new THREE.Vector3(1, 1, 1) },
+        iMouse: { value: new THREE.Vector2(0.5, 0.5) },
+        iPrevMouse: { value: trailBuf.map(v => v.clone()) },
+        iOpacity: { value: 1.0 },
+        iScale: { value: 1.0 },
+        iBaseColor: { value: new THREE.Vector3(baseColor.r, baseColor.g, baseColor.b) },
+        iBrightness: { value: brightness },
+        iEdgeIntensity: { value: edgeIntensity }
+      },
+      vertexShader: baseVertexShader,
+      fragmentShader,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
+
+    const mesh = new THREE.Mesh(geom, material);
+    scene.add(mesh);
+
+    const composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), bloomStrength, bloomRadius, bloomThreshold);
+    composer.addPass(bloomPass);
+
+    const filmPass = new ShaderPass(FilmGrainShader);
+    composer.addPass(filmPass);
+
+    composer.addPass(UnpremultiplyPass);
+
+    const resize = () => {
+      const rect = host.getBoundingClientRect();
+      const cssW = Math.max(1, Math.floor(rect.width));
+      const cssH = Math.max(1, Math.floor(rect.height));
+
+      const currentDPR = Math.min(window.devicePixelRatio || 1, maxDevicePixelRatio);
+      const need = cssW * cssH * currentDPR * currentDPR;
+      const scale = need <= pixelBudget ? 1 : Math.max(0.5, Math.min(1, Math.sqrt(pixelBudget / Math.max(1, need))));
+
+      const pixelRatio = currentDPR * scale;
+      renderer.setPixelRatio(pixelRatio);
+      renderer.setSize(cssW, cssH, false);
+      if (composer.setPixelRatio) composer.setPixelRatio(pixelRatio);
+      composer.setSize(cssW, cssH);
+
+      const wpx = Math.max(1, Math.floor(cssW * pixelRatio));
+      const hpx = Math.max(1, Math.floor(cssH * pixelRatio));
+
+      material.uniforms.iResolution.value.set(wpx, hpx, 1);
+      material.uniforms.iScale.value = calculateScale(host);
+      bloomPass.setSize(wpx, hpx);
+    };
+
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(host);
+
+    const start = performance.now();
+    let raf = null;
+    let pointerActive = false;
+    let running = false;
+    let lastMoveTime = performance.now();
+    let fadeOpacity = 1.0;
+    const currentMouse = new THREE.Vector2(0.5, 0.5);
+    const velocity = new THREE.Vector2(0, 0);
+
+    const animate = () => {
+      const now = performance.now();
+      const t = (now - start) / 1000;
+
+      if (pointerActive) {
+        velocity.set(
+          currentMouse.x - material.uniforms.iMouse.value.x,
+          currentMouse.y - material.uniforms.iMouse.value.y
+        );
+        material.uniforms.iMouse.value.copy(currentMouse);
+        fadeOpacity = 1.0;
+      } else {
+        velocity.multiplyScalar(inertia);
+        if (velocity.lengthSq() > 1e-6) {
+          material.uniforms.iMouse.value.add(velocity);
+        }
+
+        const dt = now - lastMoveTime;
+        if (dt > fadeDelay) {
+          const k = Math.min(1, (dt - fadeDelay) / fadeDuration);
+          fadeOpacity = Math.max(0, 1 - k);
+        }
+      }
+
+      head = (head + 1) % maxTrail;
+      trailBuf[head].copy(material.uniforms.iMouse.value);
+
+      const arr = material.uniforms.iPrevMouse.value;
+      for (let i = 0; i < maxTrail; i++) {
+        const srcIdx = (head - i + maxTrail) % maxTrail;
+        arr[i].copy(trailBuf[srcIdx]);
+      }
+
+      material.uniforms.iOpacity.value = fadeOpacity;
+      material.uniforms.iTime.value = t;
+      filmPass.uniforms.iTime.value = t;
+
+      composer.render();
+
+      if (!pointerActive && fadeOpacity <= 0.001) {
+        running = false;
+        raf = null;
+        return;
+      }
+
+      raf = requestAnimationFrame(animate);
+    };
+
+    const ensureLoop = () => {
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(animate);
+      }
+    };
+
+    const onPointerMove = (e) => {
+      const x = THREE.MathUtils.clamp((e.clientX) / window.innerWidth, 0, 1);
+      const y = THREE.MathUtils.clamp(1 - (e.clientY) / window.innerHeight, 0, 1);
+
+      currentMouse.set(x, y);
+      pointerActive = true;
+      lastMoveTime = performance.now();
+      ensureLoop();
+    };
+
+    const onPointerEnter = () => {
+      pointerActive = true;
+      ensureLoop();
+    };
+
+    const onPointerLeave = () => {
+      pointerActive = false;
+      lastMoveTime = performance.now();
+      ensureLoop();
+    };
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerenter', onPointerEnter, { passive: true });
+    window.addEventListener('pointerleave', onPointerLeave, { passive: true });
+
+    ensureLoop();
+  </script>
+</body>
+
+</html>

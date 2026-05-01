@@ -1,0 +1,71 @@
+# Summary
+
+A high-end, cinematic dark mode landing page for a premium service brand. The design uses a deep navy background with vibrant cyan and magenta glows, modern geometric typography, and an interactive grid system. It focuses on immersion through parallax effects, custom cursor behavior, and smooth expanding transitions.
+
+# Style
+
+Cinematic dark luxury aesthetic featuring deep space themes. Primary font is Space Grotesk for bold, geometric headings, paired with Outfit for clean, legible body text. Palette is anchored by #0a0e27 (background) with accents of #00d9ff (cyan), #ff00ff (magenta), and #0066ff (blue). Visual effects include backdrop blur (10px-20px), linear gradients (135deg), and intense glowing box-shadows (rgba(0, 217, 255, 0.4)).
+
+## Spec
+
+Create a design with a background of #0a0e27. Use 'Space Grotesk' for display titles (64px-96px, 700+ weight, tight tracking) and 'Outfit' for body text (16px-18px, 1.6 line-height). Apply a gradient of linear-gradient(135deg, #00d9ff 0%, #0066ff 100%) to primary buttons and icons. Button shadows should be 0 10px 40px rgba(0, 217, 255, 0.4). Incorporate glassmorphism with background: rgba(26, 31, 58, 0.4), backdrop-filter: blur(20px), and 1px solid rgba(255, 255, 255, 0.1). All interactive elements must have a 300ms cubic-bezier(0.4, 0, 0.2, 1) transition. Background should feature floating particles (3px circles, #00d9ff) with subtle 20s float animations. Headers should use text-transparent and bg-clip-text with multi-color gradients for emphasis.
+
+# Layout & Structure
+
+Full-width editorial layout with a section-by-section vertical flow. Features an asymmetric services grid, overlapping testimonial cards, and a centralized vertical timeline for process visualization.
+
+## Navigation
+
+Sticky header with background: rgba(10, 14, 39, 0.8) and backdrop-filter: blur(10px). Logo on the left with a cyan-to-blue gradient on the brand name. Navigation links on the right with a hover color of #00d9ff and a rounded-full 'Book Demo' button.
+
+## Hero Section
+
+Centered layout with full-screen height. Headline uses staggered letter reveal animation (rotateX from -90 to 0 degrees). Features two buttons: primary gradient and secondary outline. Background contains a parallax particle system that reacts subtly to scroll.
+
+## Services Grid
+
+An asymmetric 2-3-2 tile pattern. Cards are 180px high initially with overflow: hidden. Each card features a 2x2 rounded-xl gradient icon. On click, the card expands to 400px via smooth height transition to reveal a detailed feature list with checkmark icons.
+
+## Trust Differentiators
+
+A 4-column layout where each item has a large (20x20) gradient background icon and centered text. Includes scroll-triggered fade-in and slide-up animations (30px offset).
+
+## Case Studies Portfolio
+
+A 2-column grid of rounded-3xl cards. Each card uses a subtle hover scale (1.02x) and an internal 2-column results sub-grid with large percentage callouts in cyan #00d9ff.
+
+## Glassmorphic Testimonials
+
+A grid of 3 cards where the center card is offset vertically. Each card uses backdrop-filter: blur(20px) and gains a magenta #ff00ff border glow on hover. Avatars are 14x14 circles with gradient backgrounds.
+
+## Process Timeline
+
+A vertical timeline for desktop that collapses to a single column for mobile. A central gradient line (#00d9ff to #0066ff) connects 4 steps. Each step alternates sides and is anchored by a glowing circular node.
+
+## FAQ Accordion
+
+A centered 4-xl container with rounded-2xl items. Background: rgba(26, 31, 58, 0.4). Active state reveals content via max-height transition and rotates a chevron icon 180 degrees.
+
+## Footer
+
+4-column grid with a newsletter signup input. Links have a hover color of #00d9ff. Social icons are contained in rounded-xl boxes with subtle 1px borders and hover background shifts.
+
+# Special Components
+
+## Interactive Service Tiles
+
+Expanding grid cards that reveal secondary content.
+
+Design a card with background: rgba(26, 31, 58, 0.6) and transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1). Initial max-height: 180px. Content inside includes a title and summary. On click/expand class, set max-height to 400px and set opacity of the hidden '.service-content' div to 1. Add a glowing cyan border of 1px solid rgba(0, 217, 255, 0.5) during expansion.
+
+## Dual-Element Custom Cursor
+
+A lagging ring and fixed center dot mouse replacement.
+
+Create a cursor with two parts: 1. A 20px ring with 2px border #00d9ff and mix-blend-mode: screen. 2. A 6px solid dot #00d9ff. The ring should follow the mouse with a 0.1s lag/easing, while the dot follows with 0.25s lag. On hover of interactive elements, the ring scales to 50px and changes color to #ff00ff.
+
+## Staggered Letter Reveal
+
+Text entry animation where characters flip into view.
+
+Break the H1 headline into individual span characters. Apply @keyframes that move from opacity 0, translateY(20px), and rotateX(-90deg) to full opacity and 0 transforms. Apply an animation-delay of 0.05s increments per character for a 'wave' reveal effect.

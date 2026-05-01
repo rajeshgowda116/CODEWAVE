@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Force Field Background</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --panel: rgba(6, 8, 12, 0.56);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --muted: rgba(255, 255, 255, 0.58);
+      --text: #f8fafc;
+      --hue: 210;
+      --accent: hsl(var(--hue), 100%, 64%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #02040a;
+      color: var(--text);
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    #force-field {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: #000;
+    }
+
+    #force-field canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .loading,
+    .error {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .error {
+      color: rgba(248, 113, 113, 0.85);
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 3rem 1.25rem;
+      pointer-events: none;
+    }
+
+    .hero {
+      width: min(980px, 100%);
+      text-align: center;
+      mix-blend-mode: difference;
+    }
+
+    h1 {
+      margin: 0;
+      color: #7dd3fc;
+      font-size: clamp(4rem, 13vw, 10.5rem);
+      line-height: 0.82;
+      letter-spacing: 0;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin: 1.6rem auto 0;
+      max-width: 760px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: clamp(0.94rem, 2vw, 1.35rem);
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.36);
+    }
+
+    .cta-area {
+      position: fixed;
+      left: 50%;
+      bottom: 5rem;
+      z-index: 4;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+    }
+
+      .btn-wrapper {
+      --rad: 32px;
+      --color-wrapper-border: hsl(var(--hue), 100%, 88%);
+      --color-btn-bg: hsl(var(--hue), 92%, 58%);
+      --color-btn-text: #03121f;
+      --color-btn-text-shadow: #e0f7ff;
+      --color-btn-inset-shadow: hsl(var(--hue), 78%, 28%);
+      --color-layer-a: #ffffff;
+      --color-layer-b: hsl(var(--hue), 92%, 48%);
+      --color-overlay-text: #03121f;
+      --color-overlay-glow: #ffffff;
+      --color-overlay-shadow: #0004;
+      --color-overlay-highlight: #fff5;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: clip;
+      overflow-clip-margin: 4px;
+      border: 2px solid var(--color-wrapper-border);
+      border-radius: var(--rad);
+      font-family: inherit;
+        font-size: clamp(1rem, 2.4vw, 1.5rem);
+        font-weight: 700;
+        text-decoration: none;
+        filter: saturate(0.85) brightness(1.45);
+      }
+
+    .gradient-btn {
+      position: relative;
+      z-index: 0;
+      padding: 12px 36px;
+      border: none;
+      border-radius: var(--rad);
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: 0.15rem;
+      color: var(--color-btn-text);
+      background-color: var(--color-btn-bg);
+      background-size: 200% 200%;
+      box-shadow: inset 0 0 10px 9px var(--color-btn-inset-shadow);
+      text-shadow: 0 1px 3px var(--color-btn-text-shadow);
+      cursor: pointer;
+      mix-blend-mode: color-dodge;
+      transition:
+        color 0.3s ease,
+        text-shadow 0.3s ease;
+    }
+
+    .gradient-btn::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--rad);
+      background-size: 200% 200%;
+      mix-blend-mode: difference;
+      z-index: 1;
+    }
+
+    .gradient-layer {
+      position: absolute;
+      pointer-events: none;
+      left: -160px;
+      width: 500%;
+      aspect-ratio: 1;
+      background: radial-gradient(ellipse at 65% 180%,
+          var(--color-layer-a),
+          var(--color-layer-b),
+          var(--color-layer-a),
+          var(--color-layer-b),
+          var(--color-layer-a),
+          var(--color-layer-b),
+          var(--color-layer-a),
+          var(--color-layer-b),
+          var(--color-layer-a),
+          var(--color-layer-b),
+          var(--color-layer-a));
+      mix-blend-mode: difference;
+      animation: rotate 8s linear infinite;
+    }
+
+    .gradient-layer:last-child {
+      mix-blend-mode: color-dodge;
+    }
+
+    .text-overlay {
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
+      padding: 12px 36px;
+      border-radius: var(--rad);
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: 0.15rem;
+      color: var(--color-overlay-text);
+      text-shadow: 0 0 4px var(--color-overlay-glow);
+      box-shadow:
+        inset 0 -4px 4px 0 var(--color-overlay-shadow),
+        inset 0 4px 4px 0 var(--color-overlay-highlight);
+      mix-blend-mode: multiply;
+      transition: transform 0.3s ease;
+      animation: opacityPulse 5s ease infinite;
+    }
+
+    .light {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      border-radius: 50px;
+      width: 80%;
+      height: 1.9rem;
+      aspect-ratio: 1;
+      background-color: #fff5;
+      filter: blur(5px);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .btn-wrapper:hover .text-overlay {
+      transform: scale(1.1);
+    }
+
+    .btn-wrapper:hover .gradient-btn,
+    .btn-wrapper:active .gradient-btn {
+      color: #0000;
+      text-shadow: 0 0 0 #0000;
+    }
+
+    .btn-wrapper:active .text-overlay {
+      transform: scale(0.95);
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.1;
+      }
+    }
+
+    @keyframes opacityPulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .stats {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 3;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 999px;
+      background: rgba(4, 6, 10, 0.4);
+      color: rgba(255, 255, 255, 0.45);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.73rem;
+      pointer-events: none;
+      backdrop-filter: blur(12px);
+    }
+
+    @media (max-width: 740px) {
+      body {
+        overflow-y: auto;
+      }
+
+      main {
+        min-height: 78vh;
+        padding-bottom: 2rem;
+      }
+
+      .stats {
+        top: 0.75rem;
+        right: 0.75rem;
+      }
+
+      .cta-area {
+        bottom: 3rem;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="force-field" aria-hidden="true"></div>
+  <div id="status" class="loading"></div>
+
+  <main>
+    <section class="hero" aria-label="Force Field Background demo">
+      <div class="eyebrow">Building Waves of Innovation Together....</div>
+      <h1>ᥴꪮᦔꫀ ᭙ꪖꪜꫀ</h1>
+      <p class="subtitle">
+        If you are member of code wave click the button
+      </p>
+    </section>
+  </main>
+
+  <div class="cta-area">
+    <a class="btn-wrapper" href="input.html" aria-label="Open input page">
+      <span class="gradient-layer"></span>
+      <span class="gradient-layer"></span>
+      <span class="gradient-btn">CLICK HERE</span>
+      <span class="text-overlay">CLICK HERE</span>
+      <span class="light"></span>
+    </a>
+  </div>
+
+  <div id="stats" class="stats">FPS: 60 | POINTS: 0</div>
+
+  <script>
+    const config = {
+      imageUrl:
+        "https://cdn.pixabay.com/photo/2024/12/13/20/29/alps-9266131_1280.jpg",
+      hue: 210,
+      saturation: 100,
+      threshold: 255,
+      minStroke: 2,
+      maxStroke: 6,
+      spacing: 8,
+      noiseScale: 0,
+      density: 0.62,
+      invertImage: true,
+      invertWireframe: true,
+      magnifierEnabled: true,
+      magnifierRadius: 107,
+      forceStrength: 30,
+      friction: 0.9,
+      restoreSpeed: 0.05,
+    };
+
+    const statusEl = document.getElementById("status");
+    const statsEl = document.getElementById("stats");
+
+    function updateAccent() {
+      document.documentElement.style.setProperty("--hue", config.hue);
+      document.documentElement.style.setProperty(
+        "--accent",
+        `hsl(${config.hue}, 100%, 64%)`,
+      );
+    }
+
+    updateAccent();
+
+    new p5((p) => {
+      let originalImg;
+      let img;
+      let palette = [];
+      let points = [];
+      let lastHue = -1;
+      let lastSaturation = -1;
+      let lastSpacing = -1;
+      let lastNoiseScale = -1;
+      let lastDensity = -1;
+      let lastInvertImage = null;
+      let magnifierX = 0;
+      let magnifierY = 0;
+      const magnifierInertia = 0.1;
+
+      p.preload = () => {
+        originalImg = p.loadImage(
+          config.imageUrl,
+          () => {
+            statusEl.remove();
+          },
+          () => {
+            statusEl.className = "error";
+            statusEl.textContent = "Failed to load image";
+          },
+        );
+      };
+
+      p.setup = () => {
+        const container = document.getElementById("force-field");
+        p.createCanvas(container.clientWidth, container.clientHeight);
+        magnifierX = p.width / 2;
+        magnifierY = p.height / 2;
+        processImage();
+        generatePalette(config.hue, config.saturation);
+        generatePoints();
+      };
+
+      p.windowResized = () => {
+        const container = document.getElementById("force-field");
+        p.resizeCanvas(container.clientWidth, container.clientHeight);
+        processImage();
+        generatePoints();
+      };
+
+      function processImage() {
+        if (!originalImg) return;
+        img = originalImg.get();
+        if (p.width > 0 && p.height > 0) img.resize(p.width, p.height);
+        img.filter(p.GRAY);
+
+        if (config.invertImage) {
+          img.loadPixels();
+          for (let i = 0; i < img.pixels.length; i += 4) {
+            img.pixels[i] = 255 - img.pixels[i];
+            img.pixels[i + 1] = 255 - img.pixels[i + 1];
+            img.pixels[i + 2] = 255 - img.pixels[i + 2];
+          }
+          img.updatePixels();
+        }
+
+        lastInvertImage = config.invertImage;
+      }
+
+      function generatePalette(hue, saturation) {
+        palette = [];
+        p.push();
+        p.colorMode(p.HSL);
+        for (let i = 0; i < 12; i++) {
+          const lightness = p.map(i, 0, 11, 95, 5);
+          palette.push(p.color(hue, saturation, lightness));
+        }
+        p.pop();
+        lastHue = hue;
+        lastSaturation = saturation;
+      }
+
+      function generatePoints() {
+        if (!img) return;
+        points = [];
+        const safeSpacing = Math.max(2, config.spacing);
+
+        for (let y = 0; y < img.height; y += safeSpacing) {
+          for (let x = 0; x < img.width; x += safeSpacing) {
+            if (p.random() > config.density) continue;
+
+            const nx = p.noise(x * config.noiseScale, y * config.noiseScale) - 0.5;
+            const ny =
+              p.noise((x + 500) * config.noiseScale, (y + 500) * config.noiseScale) -
+              0.5;
+            const px = x + nx * safeSpacing;
+            const py = y + ny * safeSpacing;
+
+            points.push({
+              pos: p.createVector(px, py),
+              originalPos: p.createVector(px, py),
+              vel: p.createVector(0, 0),
+            });
+          }
+        }
+
+        lastSpacing = config.spacing;
+        lastNoiseScale = config.noiseScale;
+        lastDensity = config.density;
+        updateStats();
+      }
+
+      function applyForceField(mx, my) {
+        if (!config.magnifierEnabled) return;
+        const cursor = p.createVector(mx, my);
+
+        for (const pt of points) {
+          const dir = p5.Vector.sub(pt.pos, cursor);
+          const d = dir.mag();
+
+          if (d < config.magnifierRadius) {
+            dir.normalize();
+            pt.vel.add(dir.mult(config.forceStrength / Math.max(1, d)));
+          }
+
+          pt.vel.mult(config.friction);
+          const restore = p5.Vector.sub(pt.pos, pt.originalPos).mult(
+            -config.restoreSpeed,
+          );
+          pt.vel.add(restore);
+          pt.pos.add(pt.vel);
+        }
+      }
+
+      function updateStats() {
+        statsEl.textContent = `FPS: ${Math.round(p.frameRate()) || 60} | POINTS: ${points.length
+          }`;
+      }
+
+      p.draw = () => {
+        if (!img) return;
+        p.background(0);
+        config.hue = (config.hue + 0.25) % 360;
+        updateAccent();
+
+        if (config.hue !== lastHue || config.saturation !== lastSaturation) {
+          generatePalette(config.hue, config.saturation);
+        }
+
+        if (config.invertImage !== lastInvertImage) {
+          processImage();
+        }
+
+        if (
+          config.spacing !== lastSpacing ||
+          config.noiseScale !== lastNoiseScale ||
+          config.density !== lastDensity
+        ) {
+          generatePoints();
+        }
+
+        const pointerActive =
+          p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height;
+        const targetX = pointerActive ? p.mouseX : p.width / 2;
+        const targetY = pointerActive ? p.mouseY : p.height / 2;
+        magnifierX = p.lerp(magnifierX, targetX, magnifierInertia);
+        magnifierY = p.lerp(magnifierY, targetY, magnifierInertia);
+
+        applyForceField(magnifierX, magnifierY);
+        img.loadPixels();
+        p.noFill();
+
+        for (const pt of points) {
+          const x = pt.pos.x;
+          const y = pt.pos.y;
+          const d = p.dist(x, y, magnifierX, magnifierY);
+          const px = p.constrain(p.floor(x), 0, img.width - 1);
+          const py = p.constrain(p.floor(y), 0, img.height - 1);
+          const brightness = img.pixels[(px + py * img.width) * 4];
+          if (brightness === undefined) continue;
+
+          const visible = config.invertWireframe
+            ? brightness < config.threshold
+            : brightness > config.threshold;
+
+          if (!visible) continue;
+
+          let shadeIndex = Math.floor(p.map(brightness, 0, 255, 0, palette.length - 1));
+          shadeIndex = p.constrain(shadeIndex, 0, palette.length - 1);
+          let strokeSize = p.map(brightness, 0, 255, config.minStroke, config.maxStroke);
+
+          if (config.magnifierEnabled && d < config.magnifierRadius) {
+            strokeSize *= p.map(d, 0, config.magnifierRadius, 2, 1);
+          }
+
+          p.stroke(palette[shadeIndex]);
+          p.strokeWeight(strokeSize);
+          p.point(x, y);
+        }
+
+        if (p.frameCount % 30 === 0) updateStats();
+      };
+    }, "force-field");
+  </script>
+</body>
+
+</html>
