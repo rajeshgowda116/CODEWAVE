@@ -13,6 +13,7 @@
         }
       }
     </script>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -27,9 +28,8 @@
         radial-gradient(circle at 85% 15%, rgba(217, 70, 239, 0.16), transparent 30%),
         linear-gradient(135deg, #050712, #090a12 48%, #02030a);
       color: #f8fafc;
-      font-family:
-        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -0.01em;
     }
 
     body::before {
@@ -193,20 +193,61 @@
     }
 
     .hero h1 {
-      max-width: 980px;
+      max-width: 1300px;
       margin: 0;
-      font-size: clamp(3.5rem, 11vw, 9rem);
-      line-height: 0.88;
-      letter-spacing: 0;
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2.5rem, 9vw, 7.5rem);
+      line-height: 1.1;
+      letter-spacing: -0.05em;
       text-transform: uppercase;
+      font-weight: 900;
+      background: linear-gradient(135deg, 
+        #fff 0%, 
+        #ffd700 25%, 
+        #ff69b4 50%, 
+        #22d3ee 75%, 
+        #fff 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-flow 3s linear infinite;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+    }
+
+    @keyframes gradient-flow {
+      0% {
+        background-position: 0% center;
+      }
+
+      100% {
+        background-position: 200% center;
+      }
+    }
+
+    @keyframes glitch-subtle {
+
+      0%,
+      100% {
+        transform: translate(0);
+      }
+
+      33% {
+        transform: translate(-2px, 1px);
+      }
+
+      66% {
+        transform: translate(2px, -1px);
+      }
     }
 
     .hero p {
       max-width: 620px;
-      margin: 1.35rem 0 0;
-      color: rgba(255, 255, 255, 0.66);
-      font-size: clamp(1rem, 2vw, 1.25rem);
+      margin: 2rem 0 0;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
       line-height: 1.6;
+      letter-spacing: 1px;
     }
 
     @media (max-width: 760px) {
@@ -218,11 +259,317 @@
       .brand {
         justify-content: center;
         padding-left: 0;
+        position: relative;
+        margin-bottom: 1rem;
       }
 
-      .social-shell {
+      .cyber-signboard {
         justify-content: center;
       }
+    }
+
+    /* Cyber Signboard Styles */
+    .cyber-signboard {
+      --primary-glow: #00f0ff;
+      --secondary-glow: #7000ff;
+      --inactive-color: #5c6b7f;
+      --bg-dark: #0f1016;
+      --switch-width: 520px; /* Increased width for 6 items */
+      --switch-height: 60px;
+      --padding: 6px;
+      --item-width: calc((var(--switch-width) - (var(--padding) * 2)) / 6);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+    }
+
+    .cyber-switch {
+      position: relative;
+      width: var(--switch-width);
+      height: var(--switch-height);
+      background: var(--bg-dark);
+      border-radius: 20px;
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.8),
+        inset 0 -1px 2px rgba(255, 255, 255, 0.05),
+        0 20px 40px -10px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      padding: var(--padding);
+      box-sizing: border-box;
+      overflow: hidden;
+      border: 1px solid #1f222e;
+    }
+
+    .cyber-switch input[type="radio"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .cyber-label {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 2;
+      position: relative;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .cyber-label .icon {
+      width: 24px;
+      height: 24px;
+      color: var(--inactive-color);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    }
+
+    .cyber-highlight {
+      position: absolute;
+      top: var(--padding);
+      left: var(--padding);
+      width: var(--item-width);
+      height: calc(var(--switch-height) - (var(--padding) * 2));
+      background: transparent;
+      z-index: 1;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .highlight-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      background: linear-gradient(145deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow:
+        0 0 20px var(--primary-glow),
+        inset 0 0 15px rgba(0, 240, 255, 0.2);
+      backdrop-filter: blur(4px);
+      position: relative;
+      animation: neon-pulse 3s infinite ease-in-out;
+    }
+
+    .highlight-inner::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 10%;
+      width: 80%;
+      height: 1px;
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(255, 255, 255, 0.8),
+          transparent);
+      opacity: 0.8;
+    }
+
+    #cyber-opt-1:checked~.cyber-highlight {
+      transform: translateX(0%);
+    }
+
+    #cyber-opt-1:checked~[for="cyber-opt-1"] .icon {
+      color: #fff;
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+      transform: scale(1.1);
+    }
+
+    #cyber-opt-2:checked~.cyber-highlight {
+      transform: translateX(100%);
+    }
+
+    #cyber-opt-2:checked~[for="cyber-opt-2"] .icon {
+      color: #fff;
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+      transform: scale(1.1);
+    }
+
+    #cyber-opt-3:checked~.cyber-highlight {
+      transform: translateX(200%);
+    }
+
+    #cyber-opt-3:checked~[for="cyber-opt-3"] .icon {
+      color: #fff;
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+      transform: scale(1.1);
+    }
+
+    /* State 4 - Road Map */
+    #cyber-opt-4:checked~.cyber-highlight {
+      transform: translateX(300%);
+    }
+
+    #cyber-opt-4:checked~[for="cyber-opt-4"] .icon {
+      color: #fff;
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+      transform: scale(1.1);
+    }
+
+    /* State 5 - Time/Schedule */
+    #cyber-opt-5:checked~.cyber-highlight {
+      transform: translateX(400%);
+    }
+
+    #cyber-opt-5:checked~[for="cyber-opt-5"] .icon {
+      color: #fff;
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+      transform: scale(1.1);
+    }
+
+    /* State 6 - Gemini Chat */
+    #cyber-opt-6:checked~.cyber-highlight {
+      transform: translateX(500%);
+    }
+
+    #cyber-opt-6:checked~[for="cyber-opt-6"] .icon {
+      color: #fff;
+      filter: drop-shadow(0 0 8px #ffd700); /* Golden glow for Gemini */
+      transform: scale(1.1);
+    }
+
+    .cyber-label:hover .icon {
+      color: #aeb9cc;
+    }
+
+    .glare {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      background: radial-gradient(circle at 50% -20%,
+          rgba(255, 255, 255, 0.1),
+          transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .cyber-label:hover .glare {
+      opacity: 1;
+    }
+
+    @keyframes neon-pulse {
+
+      0%,
+      100% {
+        box-shadow:
+          0 0 20px var(--primary-glow),
+          inset 0 0 15px rgba(0, 240, 255, 0.2);
+      }
+
+      50% {
+        box-shadow:
+          0 0 25px var(--primary-glow),
+          inset 0 0 20px rgba(0, 240, 255, 0.3);
+      }
+    /* Time Schedule Styles */
+    .schedule-section {
+      position: relative;
+      z-index: 5;
+      padding: 100px 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .schedule-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 3rem;
+      background: linear-gradient(to right, #00f0ff, #7000ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .schedule-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 2rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .schedule-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--primary-glow);
+      box-shadow: 0 20px 40px rgba(0, 240, 255, 0.1);
+    }
+
+    .schedule-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary-glow);
+      opacity: 0.5;
+    }
+
+    .card-time {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.9rem;
+      color: var(--primary-glow);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .card-event {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.5;
+    }
+
+    .schedule-card .status {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 8px;
+      height: 8px;
+      background: var(--primary-glow);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary-glow);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+      100% { opacity: 0.5; transform: scale(1); }
     }
   </style>
 </head>
@@ -299,36 +646,105 @@
       <span class="brand-name">CodeWave</span>
     </a>
 
-    <div class="social-shell" aria-label="Social links">
-      <a class="social-link" style="--tone: #6b7280" href="#" aria-label="GitHub">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path
-            d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.51 11.51 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.798 24 17.301 24 12c0-6.627-5.373-12-12-12z">
-          </path>
-        </svg>
-      </a>
+    <div class="cyber-signboard">
+      <div class="cyber-switch">
+        <input type="radio" name="cyber-nav" id="cyber-opt-1" checked>
+        <input type="radio" name="cyber-nav" id="cyber-opt-2">
+        <input type="radio" name="cyber-nav" id="cyber-opt-3">
+        <input type="radio" name="cyber-nav" id="cyber-opt-4">
+        <input type="radio" name="cyber-nav" id="cyber-opt-5">
+        <input type="radio" name="cyber-nav" id="cyber-opt-6">
 
-      <a class="social-link" style="--tone: #3776ab" href="#" aria-label="Python">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path
-            d="M12.01 1.705c-2.476 0-4.665.416-6.196.966-1.53.55-2.283 1.282-2.283 2.176v4.062h8.508v1.074H2.435c-.958 0-1.83.69-2.203 1.718C.001 13.336 0 15.116 0 15.116c0 1.93.003 3.755.244 5.378.232 1.564 1.157 2.378 2.228 2.378h3.33v-3.916c0-2.02 1.688-3.666 3.77-3.666h5.817c1.47 0 2.66-.882 2.66-1.968V7.575c0-1.085-1.19-1.968-2.66-1.968H5.97v-1.12c0-.583.565-1.127 1.564-1.512 1-.384 2.45-.632 4.477-.632 2.026 0 3.477.248 4.477.632.999.385 1.564.93 1.564 1.512v1.492h4.482v-1.55c0-.895-.752-1.626-2.282-2.176-1.53-.55-3.72-.966-6.196-.966m-3.414 1.905a1.233 1.233 0 1 1 0 2.466 1.233 1.233 0 0 1 0-2.466m10.74 5.617c.958 0 1.83.69 2.203 1.718.231 1.636.232 3.416.232 3.416 0 1.93-.003 3.755-.244 5.378-.232 1.564-1.157 2.378-2.228 2.378h-3.33v-3.916c0-2.02-1.688-3.666-3.77-3.666h-5.818c-1.47 0-2.66-.882-2.66-1.968v-5.748c0-1.085 1.19-1.968 2.66-1.968h9.42v1.12c0 .583-.565 1.127-1.564 1.512-1 .384-2.45.632-4.477.632-2.026 0-3.477-.248-4.477-.632-.999-.385-1.564-.93-1.564-1.512v-1.492h4.482v1.55c0 .895.752 1.626 2.282 2.176 1.53.55 3.72.966 6.196.966zm3.414 10.365a1.233 1.233 0 1 1 0 2.466 1.233 1.233 0 0 1 0-2.466z" />
-        </svg>
-      </a>
+        <div class="cyber-highlight">
+          <div class="highlight-inner"></div>
+        </div>
 
-      <a class="social-link" style="--tone: #4f46e5" href="#" aria-label="Discord">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path
-            d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 0 0 .0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 0 0-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 0 1-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 0 1 .0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 0 1 .0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 0 1-.0066.1276 12.2986 12.2986 0 0 1-1.873.8914.0766.0766 0 0 0-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 0 0 .0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0189 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189Z">
-          </path>
-        </svg>
-      </a>
+        <label class="cyber-label" for="cyber-opt-1">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <div class="glare"></div>
+        </label>
+        <label class="cyber-label" for="cyber-opt-2">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          <div class="glare"></div>
+        </label>
+        <label class="cyber-label" for="cyber-opt-3">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 6L9 3L15 6L21 3V18L15 21L9 18L3 21V6Z" />
+            <path d="M9 3V18" stroke-opacity="0.5" />
+            <path d="M15 6V21" stroke-opacity="0.5" />
+            <path d="M6 10C6 10 7 11 9 11C11 11 13 9 15 9C17 9 18 10 18 10" stroke-dasharray="2 2" stroke-width="1" />
+            <circle cx="6" cy="10" r="1" fill="currentColor" />
+            <circle cx="18" cy="10" r="1" fill="currentColor" />
+          </svg>
+          <div class="glare"></div>
+        </label>
+        <label class="cyber-label" for="cyber-opt-4">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <div class="glare"></div>
+        </label>
+        <label class="cyber-label" for="cyber-opt-5">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+          </svg>
+          <div class="glare"></div>
+        </label>
+        <label class="cyber-label" for="cyber-opt-6">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <div class="glare"></div>
+        </label>
+      </div>
     </div>
   </nav>
 
   <main class="hero">
-    <h1>𝓦𝓔𝓛𝓒𝓞𝓜𝓔 𝓣𝓞 𝓒𝓞𝓓𝓔 𝓦𝓐𝓥𝓔</h1>
-    <p></p>
+    <h1>Get Started with Code Wave</h1>
+    <p>Experience the next generation of creative coding and immersive web design.</p>
   </main>
+
+  <section class="schedule-section">
+    <h2 class="schedule-title">Today's Schedule</h2>
+    <div class="schedule-grid">
+      <div class="schedule-card">
+        <div class="status"></div>
+        <span class="card-time">09:00 AM — 11:30 AM</span>
+        <h3 class="card-event">System Initialization</h3>
+        <p class="card-desc">Kickstarting the core engine, syncing dependencies, and preparing the workspace for the morning wave.</p>
+      </div>
+
+      <div class="schedule-card" style="--primary-glow: #ff69b4;">
+        <div class="status"></div>
+        <span class="card-time">12:00 PM — 02:00 PM</span>
+        <h3 class="card-event">Creative Code Flow</h3>
+        <p class="card-desc">Deep diving into UI components, shaders, and animated logic to build the future of the web.</p>
+      </div>
+
+      <div class="schedule-card" style="--primary-glow: #7000ff;">
+        <div class="status"></div>
+        <span class="card-time">03:00 PM — 05:00 PM</span>
+        <h3 class="card-event">Prism Optimization</h3>
+        <p class="card-desc">Performance tuning, polishing gradients, and ensuring the zany aesthetic is pixel-perfect.</p>
+      </div>
+
+      <div class="schedule-card" style="--primary-glow: #ffd700;">
+        <div class="status"></div>
+        <span class="card-time">06:00 PM — 08:00 PM</span>
+        <h3 class="card-event">Final Wave Deployment</h3>
+        <p class="card-desc">Deploying updates to the main cloud and celebrating another successful coding session.</p>
+      </div>
+    </div>
+  </section>
 
   <script type="module">
     import * as THREE from 'three';

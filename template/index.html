@@ -135,7 +135,7 @@
       justify-content: center;
     }
 
-      .btn-wrapper {
+    .btn-wrapper {
       --rad: 32px;
       --color-wrapper-border: hsl(var(--hue), 100%, 88%);
       --color-btn-bg: hsl(var(--hue), 92%, 58%);
@@ -157,11 +157,11 @@
       border: 2px solid var(--color-wrapper-border);
       border-radius: var(--rad);
       font-family: inherit;
-        font-size: clamp(1rem, 2.4vw, 1.5rem);
-        font-weight: 700;
-        text-decoration: none;
-        filter: saturate(0.85) brightness(1.45);
-      }
+      font-size: clamp(1rem, 2.4vw, 1.5rem);
+      font-weight: 700;
+      text-decoration: none;
+      filter: saturate(0.85) brightness(1.45);
+    }
 
     .gradient-btn {
       position: relative;
@@ -360,7 +360,7 @@
   </main>
 
   <div class="cta-area">
-    <a class="btn-wrapper" href="input.html" aria-label="Open input page">
+    <a class="btn-wrapper" href="{% url 'codelogin' %}" aria-label="Open input page">
       <span class="gradient-layer"></span>
       <span class="gradient-layer"></span>
       <span class="gradient-btn">CLICK HERE</span>

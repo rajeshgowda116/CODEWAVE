@@ -1,559 +1,579 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Animated Input</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-        background: #010201;
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", sans-serif;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animated Input</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-      .hyperspeed-bg {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        background: #000;
-      }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #010201;
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
 
-      .hyperspeed-bg canvas {
-        display: block;
-        width: 100%;
-        height: 100%;
-      }
+    .hyperspeed-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: #000;
+    }
 
-      .input-card {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        gap: 1.25rem;
-        justify-items: center;
-        padding: 2rem;
-      }
+    .hyperspeed-bg canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
 
-      .input-form {
-        display: grid;
-        gap: 1.5rem;
-        justify-items: center;
-      }
+    .input-card {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 1.25rem;
+      justify-items: center;
+      padding: 2rem;
+    }
 
-      .input-label {
-        margin: 0 0 -0.35rem;
-        color: rgba(255, 255, 255, 0.86);
-        font-size: clamp(1rem, 2.2vw, 1.25rem);
-        font-weight: 800;
-        letter-spacing: 0;
-        text-align: center;
-      }
+    .input-form {
+      display: grid;
+      gap: 1.5rem;
+      justify-items: center;
+    }
 
-      #poda {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    .input-label {
+      margin: 0 0 -0.35rem;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      font-weight: 800;
+      letter-spacing: 0;
+      text-align: center;
+    }
 
-      #main {
-        position: relative;
+    #poda {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #main {
+      position: relative;
+    }
+
+    .white,
+    .border,
+    .darkBorderBg,
+    .glow {
+      max-height: 70px;
+      max-width: 314px;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      overflow: hidden;
+      z-index: -1;
+      border-radius: 12px;
+      filter: blur(3px);
+    }
+
+    .input {
+      width: 301px;
+      height: 56px;
+      border: none;
+      border-radius: 10px;
+      background-color: #010201;
+      color: white;
+      padding-inline: 59px;
+      font-size: 18px;
+    }
+
+    .input::placeholder {
+      color: #c0b9c0;
+    }
+
+    .input:focus {
+      outline: none;
+    }
+
+    #main:focus-within>#input-mask {
+      display: none;
+    }
+
+    #input-mask {
+      pointer-events: none;
+      width: 100px;
+      height: 20px;
+      position: absolute;
+      background: linear-gradient(90deg, transparent, black);
+      top: 18px;
+      left: 70px;
+    }
+
+    #pink-mask {
+      pointer-events: none;
+      width: 30px;
+      height: 20px;
+      position: absolute;
+      background: #cf30aa;
+      top: 10px;
+      left: 5px;
+      filter: blur(20px);
+      opacity: 0.8;
+      transition: all 2s;
+    }
+
+    #main:hover>#pink-mask {
+      opacity: 0;
+    }
+
+    .white {
+      max-height: 63px;
+      max-width: 307px;
+      border-radius: 10px;
+      filter: blur(2px);
+    }
+
+    .white::before {
+      content: "";
+      z-index: -2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(83deg);
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      filter: brightness(1.4);
+      background-image: conic-gradient(rgba(0, 0, 0, 0) 0%,
+          #a099d8,
+          rgba(0, 0, 0, 0) 8%,
+          rgba(0, 0, 0, 0) 50%,
+          #dfa2da,
+          rgba(0, 0, 0, 0) 58%);
+      animation: rotate 4s linear infinite;
+      transition: all 2s;
+    }
+
+    .border {
+      max-height: 59px;
+      max-width: 303px;
+      border-radius: 11px;
+      filter: blur(0.5px);
+    }
+
+    .border::before {
+      content: "";
+      z-index: -2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(70deg);
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      filter: brightness(1.3);
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-image: conic-gradient(#1c191c,
+          #402fb5 5%,
+          #1c191c 14%,
+          #1c191c 50%,
+          #cf30aa 60%,
+          #1c191c 64%);
+      animation: rotate 4s 0.1s linear infinite;
+      transition: all 2s;
+    }
+
+    .darkBorderBg {
+      max-height: 65px;
+      max-width: 312px;
+    }
+
+    .darkBorderBg::before {
+      content: "";
+      z-index: -2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(82deg);
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-image: conic-gradient(rgba(0, 0, 0, 0),
+          #18116a,
+          rgba(0, 0, 0, 0) 10%,
+          rgba(0, 0, 0, 0) 50%,
+          #6e1b60,
+          rgba(0, 0, 0, 0) 60%);
+      animation: rotate 4s 0.2s linear infinite;
+      transition: all 2s;
+    }
+
+    .glow {
+      overflow: hidden;
+      filter: blur(48px);
+      opacity: 0.9;
+      max-height: 190px;
+      max-width: 500px;
+    }
+
+    .glow::before {
+      content: "";
+      z-index: -2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(60deg);
+      position: absolute;
+      width: 999px;
+      height: 999px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-image: conic-gradient(#000,
+          #402fb5 5%,
+          #000 38%,
+          #000 50%,
+          #cf30aa 60%,
+          #000 87%);
+      animation: rotate 4s 0.3s linear infinite;
+      transition: all 2s;
+    }
+
+    #poda:hover>.darkBorderBg::before {
+      transform: translate(-50%, -50%) rotate(-98deg);
+    }
+
+    #poda:hover>.glow::before {
+      transform: translate(-50%, -50%) rotate(-120deg);
+    }
+
+    #poda:hover>.white::before {
+      transform: translate(-50%, -50%) rotate(-97deg);
+    }
+
+    #poda:hover>.border::before {
+      transform: translate(-50%, -50%) rotate(-110deg);
+    }
+
+    #poda:focus-within>.darkBorderBg::before {
+      transform: translate(-50%, -50%) rotate(442deg);
+      transition: all 4s;
+    }
+
+    #poda:focus-within>.glow::before {
+      transform: translate(-50%, -50%) rotate(420deg);
+      transition: all 4s;
+    }
+
+    #poda:focus-within>.white::before {
+      transform: translate(-50%, -50%) rotate(443deg);
+      transition: all 4s;
+    }
+
+    #poda:focus-within>.border::before {
+      transform: translate(-50%, -50%) rotate(430deg);
+      transition: all 4s;
+    }
+
+    @keyframes rotate {
+      100% {
+        transform: translate(-50%, -50%) rotate(450deg);
+      }
+    }
+
+    #filter-icon {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      max-height: 40px;
+      max-width: 38px;
+      height: 100%;
+      width: 100%;
+      isolation: isolate;
+      overflow: hidden;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #161329, black, #1d1b4b);
+      border: 1px solid transparent;
+    }
+
+    .filterBorder {
+      height: 42px;
+      width: 40px;
+      position: absolute;
+      overflow: hidden;
+      top: 7px;
+      right: 7px;
+      border-radius: 10px;
+    }
+
+    .filterBorder::before {
+      content: "";
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(90deg);
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      filter: brightness(1.35);
+      background-image: conic-gradient(rgba(0, 0, 0, 0),
+          #3d3a4f,
+          rgba(0, 0, 0, 0) 50%,
+          rgba(0, 0, 0, 0) 50%,
+          #3d3a4f,
+          rgba(0, 0, 0, 0) 100%);
+      animation: rotate 4s linear infinite;
+    }
+
+    #filter-icon svg {
+      display: block;
+    }
+
+    .gradient-button {
+      position: relative;
+      z-index: 1;
+      --move-x: 0px;
+      --move-y: 0px;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 50px;
+      overflow: hidden;
+      color: white;
+      background: transparent;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transform: translate(var(--move-x), var(--move-y));
+      transition: transform 0.24s ease;
+    }
+
+    .gradient-button:hover {
+      transform: translate(var(--move-x), var(--move-y)) scale(1.03);
+    }
+
+    .gradient-button::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg,
+          #ff6b6b,
+          #4ecdc4,
+          #45b7d1,
+          #96ceb4,
+          #feca57,
+          #ff9ff3,
+          #ff6b6b);
+      z-index: -2;
+      filter: blur(10px);
+      transform: rotate(0deg);
+      transition: transform 1.5s ease-in-out;
+    }
+
+    .gradient-button:hover::before {
+      transform: rotate(180deg);
+    }
+
+    .gradient-button::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      background: black;
+      border-radius: 47px;
+      z-index: -1;
+      filter: blur(5px);
+    }
+
+    .gradient-text {
+      color: transparent;
+      background: conic-gradient(from 0deg,
+          #ff6b6b,
+          #4ecdc4,
+          #45b7d1,
+          #96ceb4,
+          #feca57,
+          #ff9ff3,
+          #ff6b6b);
+      background-clip: text;
+      -webkit-background-clip: text;
+      filter: hue-rotate(0deg);
+    }
+
+    .gradient-button:hover .gradient-text {
+      animation: hue-rotating 2s linear infinite;
+    }
+
+    .gradient-button:active {
+      transform: translate(var(--move-x), var(--move-y)) scale(0.99);
+    }
+
+    @keyframes hue-rotating {
+      to {
+        filter: hue-rotate(360deg);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .input {
+        width: min(301px, calc(100vw - 3rem));
       }
 
       .white,
       .border,
       .darkBorderBg,
       .glow {
-        max-height: 70px;
-        max-width: 314px;
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        overflow: hidden;
-        z-index: -1;
-        border-radius: 12px;
-        filter: blur(3px);
+        width: min(314px, calc(100vw - 2.25rem));
       }
+    }
+  </style>
+</head>
 
-      .input {
-        width: 301px;
-        height: 56px;
-        border: none;
-        border-radius: 10px;
-        background-color: #010201;
-        color: white;
-        padding-inline: 59px;
-        font-size: 18px;
-      }
+<body>
+  <div id="hyperspeed" class="hyperspeed-bg" aria-hidden="true"></div>
 
-      .input::placeholder {
-        color: #c0b9c0;
-      }
+  <main class="input-card">
+    <form class="input-form" method="POST">
+      {% csrf_token %}
+      <p class="input-label">Text Add your Code</p>
 
-      .input:focus {
-        outline: none;
-      }
+      <div id="poda">
+        <div class="glow"></div>
+        <div class="darkBorderBg"></div>
+        <div class="white"></div>
+        <div class="border"></div>
 
-      #main:focus-within > #input-mask {
-        display: none;
-      }
+        <div id="main">
+          <input class="input" type="text" name="input-text" placeholder="Input text..." />
+          <div id="input-mask"></div>
+          <div id="pink-mask"></div>
 
-      #input-mask {
-        pointer-events: none;
-        width: 100px;
-        height: 20px;
-        position: absolute;
-        background: linear-gradient(90deg, transparent, black);
-        top: 18px;
-        left: 70px;
-      }
-
-      #pink-mask {
-        pointer-events: none;
-        width: 30px;
-        height: 20px;
-        position: absolute;
-        background: #cf30aa;
-        top: 10px;
-        left: 5px;
-        filter: blur(20px);
-        opacity: 0.8;
-        transition: all 2s;
-      }
-
-      #main:hover > #pink-mask {
-        opacity: 0;
-      }
-
-      .white {
-        max-height: 63px;
-        max-width: 307px;
-        border-radius: 10px;
-        filter: blur(2px);
-      }
-
-      .white::before {
-        content: "";
-        z-index: -2;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(83deg);
-        position: absolute;
-        width: 600px;
-        height: 600px;
-        background-repeat: no-repeat;
-        background-position: 0 0;
-        filter: brightness(1.4);
-        background-image: conic-gradient(
-          rgba(0, 0, 0, 0) 0%,
-          #a099d8,
-          rgba(0, 0, 0, 0) 8%,
-          rgba(0, 0, 0, 0) 50%,
-          #dfa2da,
-          rgba(0, 0, 0, 0) 58%
-        );
-        animation: rotate 4s linear infinite;
-        transition: all 2s;
-      }
-
-      .border {
-        max-height: 59px;
-        max-width: 303px;
-        border-radius: 11px;
-        filter: blur(0.5px);
-      }
-
-      .border::before {
-        content: "";
-        z-index: -2;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(70deg);
-        position: absolute;
-        width: 600px;
-        height: 600px;
-        filter: brightness(1.3);
-        background-repeat: no-repeat;
-        background-position: 0 0;
-        background-image: conic-gradient(
-          #1c191c,
-          #402fb5 5%,
-          #1c191c 14%,
-          #1c191c 50%,
-          #cf30aa 60%,
-          #1c191c 64%
-        );
-        animation: rotate 4s 0.1s linear infinite;
-        transition: all 2s;
-      }
-
-      .darkBorderBg {
-        max-height: 65px;
-        max-width: 312px;
-      }
-
-      .darkBorderBg::before {
-        content: "";
-        z-index: -2;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(82deg);
-        position: absolute;
-        width: 600px;
-        height: 600px;
-        background-repeat: no-repeat;
-        background-position: 0 0;
-        background-image: conic-gradient(
-          rgba(0, 0, 0, 0),
-          #18116a,
-          rgba(0, 0, 0, 0) 10%,
-          rgba(0, 0, 0, 0) 50%,
-          #6e1b60,
-          rgba(0, 0, 0, 0) 60%
-        );
-        animation: rotate 4s 0.2s linear infinite;
-        transition: all 2s;
-      }
-
-      .glow {
-        overflow: hidden;
-        filter: blur(48px);
-        opacity: 0.9;
-        max-height: 190px;
-        max-width: 500px;
-      }
-
-      .glow::before {
-        content: "";
-        z-index: -2;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(60deg);
-        position: absolute;
-        width: 999px;
-        height: 999px;
-        background-repeat: no-repeat;
-        background-position: 0 0;
-        background-image: conic-gradient(
-          #000,
-          #402fb5 5%,
-          #000 38%,
-          #000 50%,
-          #cf30aa 60%,
-          #000 87%
-        );
-        animation: rotate 4s 0.3s linear infinite;
-        transition: all 2s;
-      }
-
-      #poda:hover > .darkBorderBg::before {
-        transform: translate(-50%, -50%) rotate(-98deg);
-      }
-
-      #poda:hover > .glow::before {
-        transform: translate(-50%, -50%) rotate(-120deg);
-      }
-
-      #poda:hover > .white::before {
-        transform: translate(-50%, -50%) rotate(-97deg);
-      }
-
-      #poda:hover > .border::before {
-        transform: translate(-50%, -50%) rotate(-110deg);
-      }
-
-      #poda:focus-within > .darkBorderBg::before {
-        transform: translate(-50%, -50%) rotate(442deg);
-        transition: all 4s;
-      }
-
-      #poda:focus-within > .glow::before {
-        transform: translate(-50%, -50%) rotate(420deg);
-        transition: all 4s;
-      }
-
-      #poda:focus-within > .white::before {
-        transform: translate(-50%, -50%) rotate(443deg);
-        transition: all 4s;
-      }
-
-      #poda:focus-within > .border::before {
-        transform: translate(-50%, -50%) rotate(430deg);
-        transition: all 4s;
-      }
-
-      @keyframes rotate {
-        100% {
-          transform: translate(-50%, -50%) rotate(450deg);
-        }
-      }
-
-      #filter-icon {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2;
-        max-height: 40px;
-        max-width: 38px;
-        height: 100%;
-        width: 100%;
-        isolation: isolate;
-        overflow: hidden;
-        border-radius: 10px;
-        background: linear-gradient(180deg, #161329, black, #1d1b4b);
-        border: 1px solid transparent;
-      }
-
-      .filterBorder {
-        height: 42px;
-        width: 40px;
-        position: absolute;
-        overflow: hidden;
-        top: 7px;
-        right: 7px;
-        border-radius: 10px;
-      }
-
-      .filterBorder::before {
-        content: "";
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(90deg);
-        position: absolute;
-        width: 600px;
-        height: 600px;
-        background-repeat: no-repeat;
-        background-position: 0 0;
-        filter: brightness(1.35);
-        background-image: conic-gradient(
-          rgba(0, 0, 0, 0),
-          #3d3a4f,
-          rgba(0, 0, 0, 0) 50%,
-          rgba(0, 0, 0, 0) 50%,
-          #3d3a4f,
-          rgba(0, 0, 0, 0) 100%
-        );
-        animation: rotate 4s linear infinite;
-      }
-
-      #filter-icon svg {
-        display: block;
-      }
-
-      .gradient-button {
-        position: relative;
-        z-index: 1;
-        --move-x: 0px;
-        --move-y: 0px;
-        padding: 16px 32px;
-        border: none;
-        border-radius: 50px;
-        overflow: hidden;
-        color: white;
-        background: transparent;
-        font-size: 18px;
-        font-weight: 800;
-        cursor: pointer;
-        transform: translate(var(--move-x), var(--move-y));
-        transition: transform 0.24s ease;
-      }
-
-      .gradient-button:hover {
-        transform: translate(var(--move-x), var(--move-y)) scale(1.03);
-      }
-
-      .gradient-button::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: conic-gradient(
-          from 0deg,
-          #ff6b6b,
-          #4ecdc4,
-          #45b7d1,
-          #96ceb4,
-          #feca57,
-          #ff9ff3,
-          #ff6b6b
-        );
-        z-index: -2;
-        filter: blur(10px);
-        transform: rotate(0deg);
-        transition: transform 1.5s ease-in-out;
-      }
-
-      .gradient-button:hover::before {
-        transform: rotate(180deg);
-      }
-
-      .gradient-button::after {
-        content: "";
-        position: absolute;
-        inset: 3px;
-        background: black;
-        border-radius: 47px;
-        z-index: -1;
-        filter: blur(5px);
-      }
-
-      .gradient-text {
-        color: transparent;
-        background: conic-gradient(
-          from 0deg,
-          #ff6b6b,
-          #4ecdc4,
-          #45b7d1,
-          #96ceb4,
-          #feca57,
-          #ff9ff3,
-          #ff6b6b
-        );
-        background-clip: text;
-        -webkit-background-clip: text;
-        filter: hue-rotate(0deg);
-      }
-
-      .gradient-button:hover .gradient-text {
-        animation: hue-rotating 2s linear infinite;
-      }
-
-      .gradient-button:active {
-        transform: translate(var(--move-x), var(--move-y)) scale(0.99);
-      }
-
-      @keyframes hue-rotating {
-        to {
-          filter: hue-rotate(360deg);
-        }
-      }
-
-      @media (max-width: 420px) {
-        .input {
-          width: min(301px, calc(100vw - 3rem));
-        }
-
-        .white,
-        .border,
-        .darkBorderBg,
-        .glow {
-          width: min(314px, calc(100vw - 2.25rem));
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="hyperspeed" class="hyperspeed-bg" aria-hidden="true"></div>
-
-    <main class="input-card">
-      <form class="input-form">
-        <p class="input-label">Text Add your Code</p>
-
-        <div id="poda">
-          <div class="glow"></div>
-          <div class="darkBorderBg"></div>
-          <div class="white"></div>
-          <div class="border"></div>
-
-          <div id="main">
-            <input class="input" type="text" name="input-text" placeholder="Input text..." />
-            <div id="input-mask"></div>
-            <div id="pink-mask"></div>
-
-            <div class="filterBorder" aria-hidden="true"></div>
-            <button id="filter-icon" type="button" aria-label="Filter">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M4 6h16M7 12h10M10 18h4"
-                  stroke="#d8d2ff"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </button>
-          </div>
+          <div class="filterBorder" aria-hidden="true"></div>
+          <button id="filter-icon" type="button" aria-label="Filter">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M4 6h16M7 12h10M10 18h4" stroke="#d8d2ff" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
         </div>
+      </div>
 
-        <button class="gradient-button" type="submit">
-          <span class="gradient-text">SUBMIT</span>
-        </button>
-      </form>
-    </main>
+      <button class="gradient-button" type="submit">
+        <span class="gradient-text">SUBMIT</span>
+      </button>
+    </form>
+  </main>
 
-    <script>
-      const container = document.getElementById("hyperspeed");
-      const scene = new THREE.Scene();
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      const camera = new THREE.PerspectiveCamera(90, 1, 0.1, 10000);
-      const state = {
-        speed: 1.6,
-        targetSpeed: 1.6,
-        fov: 90,
-        targetFov: 90,
-        paletteIndex: 0,
-      };
+  <script>
+    const container = document.getElementById("hyperspeed");
+    const scene = new THREE.Scene();
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const camera = new THREE.PerspectiveCamera(90, 1, 0.1, 10000);
+    const state = {
+      speed: 1.6,
+      targetSpeed: 1.6,
+      fov: 90,
+      targetFov: 90,
+      paletteIndex: 0,
+    };
 
-      const palettes = [
-        { left: [0xd856bf, 0x6750a2, 0xc247ac], right: [0x03b3c3, 0x0e5ea5, 0x324555] },
-        { left: [0xff102a, 0xeb383e, 0xff102a], right: [0xdadafa, 0xbebae3, 0x8f97e4] },
-        { left: [0xdc5b20, 0xdca320, 0xdc2020], right: [0x334bf7, 0xe5e6ed, 0xbfc6f3] },
-        { left: [0xff5f73, 0xe74d60, 0xff102a], right: [0xa4e3e6, 0x80d1d4, 0x53c2c6] },
-        { left: [0x7d0d1b, 0xa90519, 0xff102a], right: [0xf1eece, 0xe6e2b1, 0xdfd98a] },
-        { left: [0xff322f, 0xa33010, 0xa81508], right: [0xfdfdf0, 0xf3dea0, 0xe2bb88] },
-      ];
+    const palettes = [
+      { left: [0xd856bf, 0x6750a2, 0xc247ac], right: [0x03b3c3, 0x0e5ea5, 0x324555] },
+      { left: [0xff102a, 0xeb383e, 0xff102a], right: [0xdadafa, 0xbebae3, 0x8f97e4] },
+      { left: [0xdc5b20, 0xdca320, 0xdc2020], right: [0x334bf7, 0xe5e6ed, 0xbfc6f3] },
+      { left: [0xff5f73, 0xe74d60, 0xff102a], right: [0xa4e3e6, 0x80d1d4, 0x53c2c6] },
+      { left: [0x7d0d1b, 0xa90519, 0xff102a], right: [0xf1eece, 0xe6e2b1, 0xdfd98a] },
+      { left: [0xff322f, 0xa33010, 0xa81508], right: [0xfdfdf0, 0xf3dea0, 0xe2bb88] },
+    ];
 
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(renderer.domElement);
-      scene.background = new THREE.Color(0x000000);
-      camera.position.z = 10;
-      camera.position.y = 2;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+    scene.background = new THREE.Color(0x000000);
+    camera.position.z = 10;
+    camera.position.y = 2;
 
-      const count = 2600;
-      const length = 460;
-      const geometry = new THREE.BufferGeometry();
-      const positions = new Float32Array(count * 6);
-      const colors = new Float32Array(count * 6);
-      const lanes = new Float32Array(count);
+    const count = 2600;
+    const length = 460;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 6);
+    const colors = new Float32Array(count * 6);
+    const lanes = new Float32Array(count);
 
-      function pickColor(index) {
-        const palette = palettes[state.paletteIndex];
-        const list = index % 2 === 0 ? palette.left : palette.right;
-        return new THREE.Color(list[Math.floor(Math.random() * list.length)]);
-      }
+    function pickColor(index) {
+      const palette = palettes[state.paletteIndex];
+      const list = index % 2 === 0 ? palette.left : palette.right;
+      return new THREE.Color(list[Math.floor(Math.random() * list.length)]);
+    }
 
-      function resetLine(i, startZ = Math.random() * length) {
-        const lane = (Math.random() - 0.5) * 2;
-        const side = Math.sign(lane || 1);
-        const radius = 7 + Math.random() * 26;
-        const theta = Math.random() * Math.PI * 2;
-        const x = Math.cos(theta) * radius + side * (3 + Math.random() * 9);
-        const y = Math.sin(theta) * radius * 0.42 - 1.5 + Math.random() * 5;
-        const lineLength = 15 + Math.random() * 70;
-        const idx = i * 6;
-        positions[idx] = x;
-        positions[idx + 1] = y;
-        positions[idx + 2] = -startZ;
-        positions[idx + 3] = x;
-        positions[idx + 4] = y;
-        positions[idx + 5] = -(startZ + lineLength);
-        lanes[i] = lane;
+    function resetLine(i, startZ = Math.random() * length) {
+      const lane = (Math.random() - 0.5) * 2;
+      const side = Math.sign(lane || 1);
+      const radius = 7 + Math.random() * 26;
+      const theta = Math.random() * Math.PI * 2;
+      const x = Math.cos(theta) * radius + side * (3 + Math.random() * 9);
+      const y = Math.sin(theta) * radius * 0.42 - 1.5 + Math.random() * 5;
+      const lineLength = 15 + Math.random() * 70;
+      const idx = i * 6;
+      positions[idx] = x;
+      positions[idx + 1] = y;
+      positions[idx + 2] = -startZ;
+      positions[idx + 3] = x;
+      positions[idx + 4] = y;
+      positions[idx + 5] = -(startZ + lineLength);
+      lanes[i] = lane;
 
+      const color = pickColor(i);
+      colors[idx] = color.r;
+      colors[idx + 1] = color.g;
+      colors[idx + 2] = color.b;
+      colors[idx + 3] = color.r;
+      colors[idx + 4] = color.g;
+      colors[idx + 5] = color.b;
+    }
+
+    for (let i = 0; i < count; i++) resetLine(i);
+
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.86,
+      blending: THREE.AdditiveBlending,
+    });
+    scene.add(new THREE.LineSegments(geometry, material));
+
+    function resize() {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+
+    function changePalette() {
+      state.paletteIndex = (state.paletteIndex + 1) % palettes.length;
+      state.targetSpeed = 2 + Math.random() * 1.7;
+      state.targetFov = 96 + Math.random() * 38;
+      for (let i = 0; i < count; i++) {
         const color = pickColor(i);
+        const idx = i * 6;
         colors[idx] = color.r;
         colors[idx + 1] = color.g;
         colors[idx + 2] = color.b;
@@ -561,124 +581,89 @@
         colors[idx + 4] = color.g;
         colors[idx + 5] = color.b;
       }
+      geometry.attributes.color.needsUpdate = true;
+    }
 
-      for (let i = 0; i < count; i++) resetLine(i);
+    function animate(time) {
+      requestAnimationFrame(animate);
+      state.speed += (state.targetSpeed - state.speed) * 0.025;
+      state.fov += (state.targetFov - state.fov) * 0.025;
+      camera.fov = state.fov;
+      camera.updateProjectionMatrix();
 
-      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-
-      const material = new THREE.LineBasicMaterial({
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.86,
-        blending: THREE.AdditiveBlending,
-      });
-      scene.add(new THREE.LineSegments(geometry, material));
-
-      function resize() {
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
+      const pos = geometry.attributes.position.array;
+      for (let i = 0; i < count; i++) {
+        const idx = i * 6;
+        const wobble = Math.sin(time * 0.0016 + pos[idx + 2] * 0.018) * 0.035;
+        pos[idx] += wobble * lanes[i];
+        pos[idx + 3] += wobble * lanes[i];
+        pos[idx + 2] += state.speed * 4.8;
+        pos[idx + 5] += state.speed * 4.8;
+        if (pos[idx + 2] > 45) resetLine(i, length);
       }
 
-      function changePalette() {
-        state.paletteIndex = (state.paletteIndex + 1) % palettes.length;
-        state.targetSpeed = 2 + Math.random() * 1.7;
-        state.targetFov = 96 + Math.random() * 38;
-        for (let i = 0; i < count; i++) {
-          const color = pickColor(i);
-          const idx = i * 6;
-          colors[idx] = color.r;
-          colors[idx + 1] = color.g;
-          colors[idx + 2] = color.b;
-          colors[idx + 3] = color.r;
-          colors[idx + 4] = color.g;
-          colors[idx + 5] = color.b;
-        }
-        geometry.attributes.color.needsUpdate = true;
+      geometry.attributes.position.needsUpdate = true;
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener("resize", resize);
+    window.addEventListener("pointerdown", () => {
+      state.targetSpeed = 5;
+      state.targetFov = 142;
+    });
+    window.addEventListener("pointerup", () => {
+      state.targetSpeed = 1.8;
+      state.targetFov = 94;
+    });
+
+    resize();
+    setInterval(changePalette, 4500);
+    animate(0);
+
+    const form = document.querySelector(".input-form");
+    const textInput = document.querySelector(".input");
+    const submitButton = document.querySelector(".gradient-button");
+    let dodgeIndex = 0;
+
+    const dodgePositions = [
+      { x: -90, y: 0 },
+      { x: 90, y: 0 },
+      { x: -55, y: -38 },
+      { x: 55, y: 38 },
+      { x: 0, y: -48 },
+      { x: 0, y: 42 },
+    ];
+
+    function hasCodeText() {
+      return textInput.value.trim().length > 0;
+    }
+
+    function moveSubmitButton() {
+      if (hasCodeText()) return;
+      const next = dodgePositions[dodgeIndex % dodgePositions.length];
+      dodgeIndex += 1;
+      submitButton.style.setProperty("--move-x", `${next.x}px`);
+      submitButton.style.setProperty("--move-y", `${next.y}px`);
+    }
+
+    textInput.addEventListener("input", () => {
+      if (hasCodeText()) {
+        submitButton.style.setProperty("--move-x", "0px");
+        submitButton.style.setProperty("--move-y", "0px");
       }
+    });
 
-      function animate(time) {
-        requestAnimationFrame(animate);
-        state.speed += (state.targetSpeed - state.speed) * 0.025;
-        state.fov += (state.targetFov - state.fov) * 0.025;
-        camera.fov = state.fov;
-        camera.updateProjectionMatrix();
+    submitButton.addEventListener("pointerenter", moveSubmitButton);
+    submitButton.addEventListener("pointerdown", moveSubmitButton);
 
-        const pos = geometry.attributes.position.array;
-        for (let i = 0; i < count; i++) {
-          const idx = i * 6;
-          const wobble = Math.sin(time * 0.0016 + pos[idx + 2] * 0.018) * 0.035;
-          pos[idx] += wobble * lanes[i];
-          pos[idx + 3] += wobble * lanes[i];
-          pos[idx + 2] += state.speed * 4.8;
-          pos[idx + 5] += state.speed * 4.8;
-          if (pos[idx + 2] > 45) resetLine(i, length);
-        }
-
-        geometry.attributes.position.needsUpdate = true;
-        renderer.render(scene, camera);
+    form.addEventListener("submit", (event) => {
+      if (!hasCodeText()) {
+        event.preventDefault();
+        moveSubmitButton();
+        textInput.focus();
       }
+    });
+  </script>
+</body>
 
-      window.addEventListener("resize", resize);
-      window.addEventListener("pointerdown", () => {
-        state.targetSpeed = 5;
-        state.targetFov = 142;
-      });
-      window.addEventListener("pointerup", () => {
-        state.targetSpeed = 1.8;
-        state.targetFov = 94;
-      });
-
-      resize();
-      setInterval(changePalette, 4500);
-      animate(0);
-
-      const form = document.querySelector(".input-form");
-      const textInput = document.querySelector(".input");
-      const submitButton = document.querySelector(".gradient-button");
-      let dodgeIndex = 0;
-
-      const dodgePositions = [
-        { x: -90, y: 0 },
-        { x: 90, y: 0 },
-        { x: -55, y: -38 },
-        { x: 55, y: 38 },
-        { x: 0, y: -48 },
-        { x: 0, y: 42 },
-      ];
-
-      function hasCodeText() {
-        return textInput.value.trim().length > 0;
-      }
-
-      function moveSubmitButton() {
-        if (hasCodeText()) return;
-        const next = dodgePositions[dodgeIndex % dodgePositions.length];
-        dodgeIndex += 1;
-        submitButton.style.setProperty("--move-x", `${next.x}px`);
-        submitButton.style.setProperty("--move-y", `${next.y}px`);
-      }
-
-      textInput.addEventListener("input", () => {
-        if (hasCodeText()) {
-          submitButton.style.setProperty("--move-x", "0px");
-          submitButton.style.setProperty("--move-y", "0px");
-        }
-      });
-
-      submitButton.addEventListener("pointerenter", moveSubmitButton);
-      submitButton.addEventListener("pointerdown", moveSubmitButton);
-
-      form.addEventListener("submit", (event) => {
-        if (!hasCodeText()) {
-          event.preventDefault();
-          moveSubmitButton();
-          textInput.focus();
-        }
-      });
-    </script>
-  </body>
 </html>

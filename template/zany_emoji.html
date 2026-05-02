@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zany Emoji Party!</title>
+    <style>
+        :root {
+            --emoji-yellow: #FFD700;
+            --emoji-orange: #FF8C00;
+            --emoji-pink: #FF69B4;
+            --bg-dark: #0a0a1a;
+            --accent-purple: #6a11cb;
+            --accent-blue: #2575fc;
+            --error-red: #ff4b2b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1a1a3a 0%, var(--bg-dark) 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            transition: transform 0.1s ease-out;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .bg-particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: float 15s infinite linear;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container */
+        .stage {
+            position: relative;
+            z-index: 10;
+            perspective: 1000px;
+        }
+
+        /* The Emoji */
+        .emoji-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            animation: bounce 2s infinite ease-in-out;
+            transform-style: preserve-3d;
+        }
+
+        .body {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle at 30% 30%, var(--emoji-yellow), var(--emoji-orange));
+            border-radius: 50%;
+            position: absolute;
+            top: 50px;
+            left: 25px;
+            box-shadow: inset -10px -10px 20px rgba(0, 0, 0, 0.2),
+                0 20px 50px rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+
+        /* Eyes */
+        .eye {
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            border: 2px solid #000;
+            overflow: hidden;
+        }
+
+        .eye-left {
+            width: 70px;
+            height: 70px;
+            top: 60px;
+            left: 50px;
+        }
+
+        .eye-right {
+            width: 90px;
+            height: 90px;
+            top: 45px;
+            right: 40px;
+        }
+
+        .pupil {
+            width: 25px;
+            height: 25px;
+            background: black;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: crazy-eyes 3s infinite linear;
+        }
+
+        /* Mouth & Tongue */
+        .mouth-container {
+            position: absolute;
+            top: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 80px;
+        }
+
+        .smile {
+            width: 150px;
+            height: 60px;
+            border-bottom: 8px solid #333;
+            border-radius: 0 0 100px 100px;
+            position: absolute;
+            left: 15px;
+            top: 0;
+        }
+
+        .tongue {
+            width: 50px;
+            height: 70px;
+            background: var(--emoji-pink);
+            border-radius: 0 0 30px 30px;
+            position: absolute;
+            right: 20px;
+            top: 45px;
+            transform-origin: top center;
+            animation: waggle 0.5s infinite ease-in-out;
+            box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .tongue::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.1);
+            left: 23px;
+            top: 10px;
+            border-radius: 2px;
+        }
+
+        /* Hands */
+        .arm {
+            position: absolute;
+            width: 15px;
+            height: 80px;
+            background: var(--emoji-orange);
+            z-index: 4;
+            border-radius: 10px;
+        }
+
+        .arm-left {
+            left: -20px;
+            top: 100px;
+            transform: rotate(-45deg);
+            animation: wave-left 1s infinite alternate ease-in-out;
+        }
+
+        .arm-right {
+            right: -20px;
+            top: 100px;
+            transform: rotate(45deg);
+            animation: wave-right 1s infinite alternate ease-in-out;
+        }
+
+        .hand {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: var(--emoji-yellow);
+            border-radius: 50%;
+            bottom: -30px;
+            left: -22px;
+        }
+
+        .finger {
+            position: absolute;
+            width: 12px;
+            height: 30px;
+            background: var(--emoji-yellow);
+            border-radius: 10px;
+            transform-origin: bottom center;
+        }
+
+        .f1 {
+            transform: rotate(-30deg);
+            top: -20px;
+            left: 5px;
+        }
+
+        .f2 {
+            transform: rotate(0deg);
+            top: -25px;
+            left: 24px;
+        }
+
+        .f3 {
+            transform: rotate(30deg);
+            top: -20px;
+            right: 5px;
+        }
+
+        /* Legs */
+        .leg {
+            position: absolute;
+            width: 15px;
+            height: 70px;
+            background: var(--emoji-orange);
+            bottom: 50px;
+            z-index: 4;
+        }
+
+        .leg-left {
+            left: 80px;
+        }
+
+        .leg-right {
+            right: 80px;
+        }
+
+        .foot {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            background: var(--emoji-yellow);
+            bottom: -20px;
+            left: -32px;
+            border-radius: 40px 40px 15px 15px;
+            box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Animations */
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.02);
+            }
+        }
+
+        @keyframes crazy-eyes {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg) translateX(15px);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg) translateX(15px);
+            }
+        }
+
+        @keyframes waggle {
+
+            0%,
+            100% {
+                transform: rotate(-10deg) scaleY(1);
+            }
+
+            50% {
+                transform: rotate(10deg) scaleY(1.1);
+            }
+        }
+
+        @keyframes wave-left {
+            from {
+                transform: rotate(-45deg);
+            }
+
+            to {
+                transform: rotate(-70deg);
+            }
+        }
+
+        @keyframes wave-right {
+            from {
+                transform: rotate(45deg);
+            }
+
+            to {
+                transform: rotate(70deg);
+            }
+        }
+
+        /* UI Elements */
+        .header {
+            position: absolute;
+            top: 50px;
+            text-align: center;
+            color: white;
+            width: 100%;
+            z-index: 20;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 2px 2px 0px var(--error-red), -2px -2px 0px var(--accent-blue);
+            animation: glitch 1s infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 2px 2px 0px var(--error-red), -2px -2px 0px var(--accent-blue);
+            }
+
+            25% {
+                text-shadow: -2px 2px 0px var(--error-red), 2px -2px 0px var(--accent-blue);
+            }
+
+            50% {
+                text-shadow: 2px -2px 0px var(--error-red), -2px 2px 0px var(--accent-blue);
+            }
+
+            75% {
+                text-shadow: -2px -2px 0px var(--error-red), 2px 2px 0px var(--accent-blue);
+            }
+
+            100% {
+                text-shadow: 2px 2px 0px var(--error-red), -2px -2px 0px var(--accent-blue);
+            }
+        }
+
+        .subtext {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
+        .btn-container {
+            position: absolute;
+            bottom: 60px;
+            display: flex;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-try {
+            background: linear-gradient(45deg, #ff4b2b, #ff416c);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 75, 43, 0.4);
+        }
+
+        .btn-try:hover {
+            transform: scale(1.1) rotate(-3deg);
+            box-shadow: 0 15px 40px rgba(255, 75, 43, 0.6);
+        }
+
+        .btn-party {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-party:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="header">
+        <h1>Oops! Wrong Code!</h1>
+        <p class="subtext">That wasn't quite right... want to try again?</p>
+    </div>
+
+    <div class="stage">
+        <div class="emoji-container" id="emoji">
+            <div class="body">
+                <div class="eye eye-left">
+                    <div class="pupil"></div>
+                </div>
+                <div class="eye eye-right">
+                    <div class="pupil" style="animation-delay: -1.5s;"></div>
+                </div>
+                <div class="mouth-container">
+                    <div class="smile"></div>
+                    <div class="tongue"></div>
+                </div>
+            </div>
+
+            <div class="arm arm-left">
+                <div class="hand">
+                    <div class="finger f1"></div>
+                    <div class="finger f2"></div>
+                    <div class="finger f3"></div>
+                </div>
+            </div>
+
+            <div class="arm arm-right">
+                <div class="hand">
+                    <div class="finger f1"></div>
+                    <div class="finger f2"></div>
+                    <div class="finger f3"></div>
+                </div>
+            </div>
+
+            <div class="leg leg-left">
+                <div class="foot"></div>
+            </div>
+            <div class="leg leg-right">
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn btn-try" onclick="tryAgain()">Try Again</button>
+    </div>
+
+    <script>
+        const particleContainer = document.getElementById('particles');
+        const colors = ['#FFD700', '#FF69B4', '#2575fc', '#6a11cb', '#ffffff', '#ff4b2b'];
+        const particles = [];
+        const particleCount = 30; // Tied to cursor
+
+        // Create background floating particles (the ones that keep coming)
+        for (let i = 0; i < 40; i++) {
+            const bp = document.createElement('div');
+            bp.className = 'bg-particle';
+            const size = Math.random() * 10 + 5;
+            bp.style.width = size + 'px';
+            bp.style.height = size + 'px';
+            bp.style.left = Math.random() * 100 + 'vw';
+            bp.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            bp.style.animationDelay = (Math.random() * 10) + 's';
+            bp.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particleContainer.appendChild(bp);
+        }
+
+        // Mouse position
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
+        // Create particles
+        for (let i = 0; i < particleCount; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 15 + 5;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particleContainer.appendChild(p);
+            
+            particles.push({
+                el: p,
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                vx: 0,
+                vy: 0,
+                size: size,
+                delay: i * 2 // Stagger the trail
+            });
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            const x = (window.innerWidth / 2 - e.pageX) / 20;
+            const y = (window.innerHeight / 2 - e.pageY) / 20;
+            document.getElementById('emoji').style.transform = `rotateY(${-x}deg) rotateX(${y}deg)`;
+        });
+
+        function animate() {
+            particles.forEach((p, index) => {
+                // Each particle follows the mouse with a slight delay/elasticity
+                const targetX = mouseX;
+                const targetY = mouseY;
+                
+                // Spring physics for "tied" effect
+                const dx = targetX - p.x;
+                const dy = targetY - p.y;
+                
+                const easing = 0.05 + (index / particleCount) * 0.1;
+                
+                p.x += dx * easing;
+                p.y += dy * easing;
+
+                // Add some chaotic offset so they don't overlap perfectly
+                const offset = Math.sin(Date.now() * 0.005 + index) * 20;
+                
+                p.el.style.left = `${p.x - p.size/2 + offset}px`;
+                p.el.style.top = `${p.y - p.size/2 + offset}px`;
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        function tryAgain() {
+            const emoji = document.getElementById('emoji');
+            emoji.style.transition = 'transform 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045)';
+            emoji.style.transform = 'scale(0) rotate(720deg)';
+            setTimeout(() => {
+                window.location.href = "{% url 'codelogin' %}";
+            }, 600);
+        }
+
+        function confetti() {
+            const emoji = document.getElementById('emoji');
+            emoji.style.animation = 'none';
+            emoji.offsetHeight;
+            emoji.style.animation = 'bounce 0.15s infinite ease-in-out';
+            setTimeout(() => {
+                emoji.style.animation = 'bounce 2s infinite ease-in-out';
+            }, 2000);
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(confetti, 500);
+        });
+    </script>
+</body>
+
+</html>
