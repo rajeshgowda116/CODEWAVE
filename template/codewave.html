@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeWave</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;600&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#000; overflow:hidden; width:100vw; height:100vh; font-family:'Inter',sans-serif; }
+  canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
+
+  .stats {
+    position:fixed; top:18px; right:24px; z-index:20;
+    border:1px solid rgba(180,180,180,0.28); border-radius:999px;
+    padding:6px 18px; font-size:12.5px; letter-spacing:0.07em;
+    color:#aaa; background:rgba(0,0,0,0.2); backdrop-filter:blur(6px);
+  }
+  .stats span { color:#0099ff; font-weight:600; }
+
+  .ui {
+    position:relative; z-index:10; width:100%; height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+
+  .eyebrow {
+    display:flex; align-items:center; gap:10px; margin-bottom:16px;
+    font-size:11px; letter-spacing:0.28em; color:#777; font-weight:600; text-transform:uppercase;
+  }
+  .eyebrow .dot { width:4px; height:4px; border-radius:50%; background:#555; }
+  .eyebrow .hl { color:#0099ff; }
+
+  .title {
+    font-family:'Orbitron',sans-serif;
+    font-size:clamp(58px,10.5vw,140px);
+    font-weight:900; line-height:1; letter-spacing:0.05em;
+    margin-bottom:24px; display:flex; user-select:none;
+  }
+  .title .c {
+    color:#fff;
+    text-shadow:0 0 20px #fff,0 0 50px rgba(255,255,255,.45),0 0 100px rgba(255,255,255,.15);
+  }
+  .title .w {
+    color:#0099ff;
+    text-shadow:0 0 20px #0099ff,0 0 50px rgba(0,153,255,.55),0 0 100px rgba(0,153,255,.2);
+  }
+
+  .sub {
+    display:flex; align-items:center; gap:12px; margin-bottom:40px;
+    font-size:15px; color:#888; letter-spacing:0.05em; font-weight:300;
+  }
+  .sub .ln { width:20px; height:1px; background:#333; }
+  .sub .hl { color:#0099ff; }
+
+  .btn {
+    display:flex; align-items:center; gap:12px;
+    border:1.5px solid #0099ff; border-radius:999px;
+    padding:15px 40px; background:transparent; color:#0099ff;
+    font-size:12.5px; font-weight:600; letter-spacing:0.2em;
+    text-transform:uppercase; cursor:pointer; transition:all .25s;
+    font-family:'Inter',sans-serif;
+  }
+  .btn:hover { background:rgba(0,153,255,.1); box-shadow:0 0 30px rgba(0,153,255,.28); }
+  .btn:active { transform:scale(.98); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="stats">FPS: <span id="fps">60</span> &nbsp;|&nbsp; POINTS: <span id="pts">0</span></div>
+
+<div class="ui">
+  <div class="eyebrow">
+    <div class="dot"></div>
+    BUILDING WAVES OF <span class="hl">INNOVATION</span> TOGETHER
+    <div class="dot"></div>
+  </div>
+  <div class="title"><span class="c">CODE</span><span class="w">WAVE</span></div>
+  <div class="sub">
+    <div class="ln"></div>
+    If you are member of <span class="hl">code wave</span> click the button
+    <div class="ln"></div>
+  </div>
+  <button class="btn" onclick="location.href='{% url 'login' %}'"><span>&lt;/&gt;</span> ACCESS PORTAL</button>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+let W, H, frame = 0, lastT = performance.now();
+
+// ─── Wave ribbons ────────────────────────────────────────────────────────────
+// Each "ribbon" is a sine-wave curve. We scatter dots ALONG the curve and
+// also perpendicular to it (giving each ribbon thickness/depth).
+// This produces the tight, banded, ocean-wave look from the reference.
+
+const NUM_RIBBONS  = 18;   // number of distinct wave ribbons
+const DOTS_PER_ROW = 280;  // dots along each ribbon (horizontal density)
+const RIBBON_LAYERS = 4;   // layers of thickness per ribbon (perpendicular)
+
+let ribbons = [];
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  buildRibbons();
+}
+
+function buildRibbons() {
+  ribbons = [];
+
+  // The wave band spans roughly from y=30% (top-back) to y=105% (bottom-front)
+  // giving a perspective-like spread. Front ribbons are brighter & bigger dots.
+  for (let ri = 0; ri < NUM_RIBBONS; ri++) {
+    const t = ri / (NUM_RIBBONS - 1);          // 0 = back, 1 = front
+
+    // Vertical position of this ribbon's midline (in screen %)
+    const midY = 0.28 + t * 0.72;             // 28% → 100%
+
+    // Each ribbon has its own frequency, amplitude, phase, speed
+    const freq    = 0.006 + Math.random() * 0.005;
+    const amp     = 25   + t * 80 + Math.random() * 30;  // front = bigger waves
+    const phase   = Math.random() * Math.PI * 2;
+    const speed   = 0.4  + Math.random() * 0.6;
+    const perpSpread = 6 + t * 18;            // thickness of ribbon in px
+
+    // Visual: front ribbons are brighter and dots are bigger
+    const baseBright = 0.25 + t * 0.75;
+    const dotSize    = 0.5  + t * 1.6;
+    const baseAlpha  = 0.2  + t * 0.8;
+
+    const dots = [];
+    for (let di = 0; di < DOTS_PER_ROW; di++) {
+      const nx = di / (DOTS_PER_ROW - 1);     // 0..1 across width
+      for (let li = 0; li < RIBBON_LAYERS; li++) {
+        const lt = li / (RIBBON_LAYERS - 1);  // 0..1 across thickness
+        // perpendicular offset (stacked layers)
+        const perpOff = (lt - 0.5) * perpSpread * 2;
+
+        dots.push({
+          nx,
+          perpOff,
+          // Individual jitter
+          jx: (Math.random() - 0.5) * (W / DOTS_PER_ROW) * 0.6,
+          jy: (Math.random() - 0.5) * 3,
+          // Vary brightness/alpha slightly per dot
+          bright: baseBright * (0.6 + Math.random() * 0.4),
+          alpha:  Math.min(baseAlpha * (0.5 + Math.random() * 0.5 + lt * 0.4), 1),
+          size:   Math.max(0.4, dotSize * (0.6 + Math.random() * 0.6 + lt * 0.3)),
+          phaseShift: Math.random() * 0.4,
+        });
+      }
+    }
+
+    ribbons.push({ midY, freq, amp, phase, speed, dots });
+  }
+
+  const total = ribbons.reduce((s, r) => s + r.dots.length, 0);
+  document.getElementById('pts').textContent = total.toLocaleString();
+}
+
+function draw(ts) {
+  const dt = ts - lastT; lastT = ts;
+  document.getElementById('fps').textContent = Math.round(1000 / Math.max(dt, 1));
+
+  // ── Background ─────────────────────────────────────────────────────────────
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  // Cool dark vignette in lower portion (matches the reference's dark bottom)
+  const bg = ctx.createRadialGradient(W/2, H*0.85, 0, W/2, H*0.85, W*0.85);
+  bg.addColorStop(0,   'rgba(0,15,35,0.55)');
+  bg.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  frame++;
+  const T = frame * 0.007;
+
+  // ── Draw ribbons back to front ──────────────────────────────────────────────
+  for (const rib of ribbons) {
+    const baseY = rib.midY * H;
+
+    for (const d of rib.dots) {
+      const x = d.nx * W + d.jx;
+
+      // Main wave shape: 3 harmonics for complex ocean look
+      const wave =
+        Math.sin(x * rib.freq          + T * rib.speed        + rib.phase + d.phaseShift) * rib.amp +
+        Math.sin(x * rib.freq * 2.1    - T * rib.speed * 0.55 + rib.phase * 0.7)          * rib.amp * 0.38 +
+        Math.sin(x * rib.freq * 0.45   + T * rib.speed * 0.35 + rib.phase * 1.3)          * rib.amp * 0.25 +
+        Math.sin(x * rib.freq * 4.2    + T * rib.speed * 1.4  + rib.phase * 0.3)          * rib.amp * 0.10;
+
+      const y = baseY + wave + d.perpOff + d.jy;
+
+      if (y < -8 || y > H + 8) continue;
+
+      // Pulse brightness slightly over time
+      const pulse = 0.7 + 0.3 * Math.abs(Math.sin(T * rib.speed * 0.6 + d.nx * 3.14 + d.phaseShift));
+      const lum   = d.bright * pulse;
+
+      const R = Math.round(0 * lum);
+      const G = Math.round(153 * lum);
+      const B = Math.round(255 * lum);
+
+      ctx.beginPath();
+      ctx.arc(x, y, d.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${R},${G},${B},${d.alpha})`;
+      ctx.fill();
+    }
+  }
+
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(draw);
+
+// --- Scroll/Swipe/Drag Gesture Detection to Navigate to login.html ---
+let startX = 0;
+let startY = 0;
+let isDragging = false;
+
+// 1. Mouse Wheel & Trackpad Scrolling
+window.addEventListener('wheel', function(e) {
+  if (Math.abs(e.deltaY) > 5 || Math.abs(e.deltaX) > 5) {
+    window.location.href = "{% url 'login' %}";
+  }
+}, { passive: true });
+
+// 2. Touch Events (Mobile Scroll/Swipe)
+window.addEventListener('touchstart', function(e) {
+  startX = e.changedTouches[0].screenX;
+  startY = e.changedTouches[0].screenY;
+}, { passive: true });
+
+window.addEventListener('touchend', function(e) {
+  const endX = e.changedTouches[0].screenX;
+  const endY = e.changedTouches[0].screenY;
+  detectGesture(startX, startY, endX, endY);
+}, { passive: true });
+
+// 3. Mouse Events (Desktop Dragging)
+window.addEventListener('mousedown', function(e) {
+  startX = e.screenX;
+  startY = e.screenY;
+  isDragging = true;
+});
+
+window.addEventListener('mouseup', function(e) {
+  if (isDragging) {
+    const endX = e.screenX;
+    const endY = e.screenY;
+    detectGesture(startX, startY, endX, endY);
+    isDragging = false;
+  }
+});
+
+function detectGesture(x1, y1, x2, y2) {
+  const diffX = x2 - x1;
+  const diffY = y2 - y1;
+  const minDistance = 45; // minimum movement to trigger transition
+
+  // If gesture exceeds threshold in any direction, navigate
+  if (Math.abs(diffX) > minDistance || Math.abs(diffY) > minDistance) {
+    window.location.href = "{% url 'login' %}";
+  }
+}
+</script>
+</body>
+</html>

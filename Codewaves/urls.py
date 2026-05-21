@@ -24,3 +24,4 @@ urlpatterns = [
     path('',views.index,name='index'),
     path('waves/',include('waves.urls')),
 ]
+

@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Custom 404 page
+handler404 = 'Codewaves.views.custom_404'
+
+
 
 # Application definition
 

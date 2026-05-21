@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 - Page Not Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg0: #02030a;
+      --bg1: #090a12;
+      --panel: rgba(6, 8, 12, 0.56);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --muted: rgba(255, 255, 255, 0.58);
+      --text: #f8fafc;
+      --accent: #22d3ee;
+      --accent2: #a855f7;
+      --danger: #fb7185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(34, 211, 238, 0.22), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(168, 85, 247, 0.22), transparent 30%),
+        linear-gradient(135deg, var(--bg0), var(--bg1) 48%, #02030a);
+      color: var(--text);
+    }
+
+    .grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 80%);
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem 1.25rem;
+    }
+
+    .card {
+      width: min(860px, 100%);
+      border-radius: 28px;
+      padding: 2.25rem 1.75rem;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.42),
+        inset 0 0 18px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(22px);
+      text-align: center;
+    }
+
+    .kicker {
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .code {
+      font-size: clamp(5rem, 10vw, 7.5rem);
+      line-height: 0.9;
+      margin: 0;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--danger), var(--accent2), var(--accent));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
+    }
+
+    h1 {
+      margin: 0.75rem 0 0.75rem;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 0 auto;
+      max-width: 56ch;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.75rem;
+    }
+
+    a.btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.9rem 1.25rem;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+    }
+
+    a.btn.primary {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.24), rgba(168, 85, 247, 0.24));
+      border-color: rgba(34, 211, 238, 0.35);
+    }
+
+    a.btn:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .meta {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    @media (max-width: 520px) {
+      body {
+        overflow-y: auto;
+      }
+
+      .wrap {
+        padding: 1.25rem 1rem;
+      }
+
+      .card {
+        padding: 1.75rem 1.15rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grid" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="title">
+      <div class="kicker">Page Not Found</div>
+      <p class="code">404</p>
+      <h1 id="title">That route doesn’t exist</h1>
+      <p>The page you’re looking for may have been renamed, moved, or never existed.</p>
+
+      <div class="actions">
+        <a class="btn primary" href="{% url 'index' %}">Go to Home</a>
+        <a class="btn" href="javascript:history.back()">Go Back</a>
+      </div>
+
+      <div class="meta">Tip: Try opening “/” or “/waves/main”.</div>
+    </div>
+  </div>
+</body>
+
+</html>
