@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.index,name='index'),
     path('waves/',include('waves.urls')),
+    path('user/',include('User.urls')),
 ]
 

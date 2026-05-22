@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeWave - Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #030408;
+      --card-bg: rgba(10, 12, 22, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #00e5ff;
+      --gradient-brand: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 85% 15%, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.05) 30%, var(--bg-dark) 70%), var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      padding: 2rem;
+      position: relative;
+    }
+
+    /* --- Left Panel --- */
+    .left-panel {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2rem 4rem 2rem 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      color: var(--text-main);
+      margin-bottom: 2rem;
+      user-select: none;
+    }
+
+    .logo-icon {
+      color: var(--accent-blue);
+      font-weight: 700;
+      filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+    }
+
+    .logo span {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-content {
+      margin: auto 0;
+    }
+
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.5rem, 4.5vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: 0.04em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+
+    .brand-title .white-text {
+      color: var(--text-main);
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+    }
+
+    .brand-title .gradient-text {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #d946ef);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.35));
+    }
+
+    .brand-slogan {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+    }
+
+    .brand-slogan .slogan-white {
+      color: var(--text-main);
+    }
+
+    .brand-slogan .slogan-cyan {
+      color: var(--accent-cyan);
+      text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+    }
+
+    .brand-slogan .slogan-purple {
+      color: #d946ef;
+      text-shadow: 0 0 10px rgba(217, 70, 239, 0.3);
+    }
+
+    .brand-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 440px;
+      margin-bottom: 2rem;
+    }
+
+    /* Floating Waves and Keywords */
+    .visual-wrapper {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .laptop-glow {
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, rgba(0,0,0,0) 70%);
+      filter: blur(25px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .neon-waves {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .wave-path {
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      opacity: 0.65;
+    }
+
+    .wave-path.blue {
+      stroke: url(#blue-gradient);
+      stroke-dasharray: 800;
+      stroke-dashoffset: 800;
+      animation: animateWave 10s linear infinite;
+    }
+
+    .wave-path.purple {
+      stroke: url(#purple-gradient);
+      stroke-dasharray: 800;
+      stroke-dashoffset: 800;
+      animation: animateWave 12s linear infinite reverse;
+    }
+
+    @keyframes animateWave {
+      0% { stroke-dashoffset: 800; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .tech-keyword {
+      position: absolute;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      z-index: 10;
+      user-select: none;
+      filter: drop-shadow(0 0 6px currentColor);
+      transition: transform 0.3s ease;
+    }
+
+    .tech-keyword:hover {
+      transform: scale(1.2) translateY(-3px) !important;
+      cursor: default;
+    }
+
+    .float-py   { top: 18%; left: 4%; animation: floatKey 5s ease-in-out infinite; }
+    .float-java { top: 12%; right: 28%; animation: floatKey 5.5s ease-in-out infinite 1s; }
+    .float-cpp  { top: 5%; right: 8%; animation: floatKey 6s ease-in-out infinite 2s; font-size: 1.1rem; }
+    .float-html { top: 62%; left: 8%; animation: floatKey 4.8s ease-in-out infinite 0.5s; }
+    .float-css  { top: 58%; left: 45%; animation: floatKey 5.2s ease-in-out infinite 1.5s; }
+    .float-js   { top: 48%; right: 26%; animation: floatKey 5.8s ease-in-out infinite 0.8s; }
+    .float-tag1 { top: 32%; left: 32%; animation: floatKey 6s ease-in-out infinite 2s; font-size: 0.95rem; }
+    .float-tag2 { top: 65%; right: 18%; animation: floatKey 6.5s ease-in-out infinite 1.2s; font-size: 0.95rem; }
+
+    @keyframes floatKey {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* Floating Code Editor */
+    .mini-editor {
+      position: absolute;
+      bottom: -15px;
+      left: 14%;
+      width: 220px;
+      background: rgba(10, 12, 22, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      z-index: 12;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      animation: floatKey 8s ease-in-out infinite 0.8s;
+    }
+
+    .editor-header {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .editor-header .dot {
+      width: 5.5px;
+      height: 5.5px;
+      border-radius: 50%;
+    }
+
+    .editor-header .red    { background: #ef4444; }
+    .editor-header .yellow { background: #f59e0b; }
+    .editor-header .green  { background: #10b981; }
+
+    .editor-code {
+      color: #94a3b8;
+    }
+
+    .c-key  { color: #f472b6; }
+    .c-name { color: #38bdf8; }
+    .c-func { color: #c084fc; }
+
+    /* Quote Card */
+    .quote-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 480px;
+      margin-top: auto;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .quote-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .quote-mark {
+      font-size: 2.5rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      color: var(--accent-purple);
+      line-height: 0.8;
+      user-select: none;
+    }
+
+    .quote-body {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .quote-body p {
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+
+    .quote-body span {
+      font-size: 0.78rem;
+      color: var(--accent-purple);
+      font-weight: 500;
+    }
+
+    .quote-decor {
+      color: rgba(217, 70, 239, 0.45);
+      font-family: monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-left: 1rem;
+      filter: drop-shadow(0 0 6px rgba(217, 70, 239, 0.7));
+      user-select: none;
+    }
+
+    .footer-text {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.75rem;
+      margin-top: 2rem;
+      user-select: none;
+    }
+
+    .footer-text span {
+      color: var(--accent-purple);
+      font-weight: 600;
+    }
+
+    /* --- Right Panel (Register Card) --- */
+    .right-panel {
+      flex: 0.95;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-top: 1px solid rgba(139, 92, 246, 0.25);
+      border-left: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 24px;
+      backdrop-filter: blur(24px);
+      padding: 2.5rem 2.25rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Subtitle glow effect on the card corner */
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), rgba(139, 92, 246, 0.5), transparent);
+      z-index: 1;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px auto;
+      color: var(--accent-purple);
+      filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.3));
+    }
+
+    .card-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .card-title .gradient-title {
+      background: linear-gradient(135deg, #a855f7, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      letter-spacing: 0.03em;
+    }
+
+    .input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      transition: color 0.3s ease;
+    }
+
+    .input-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 46px;
+      background: #090b11;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding-left: 44px;
+      padding-right: 44px;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      font-family: inherit;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-input::placeholder {
+      color: #475569;
+    }
+
+    .form-input:focus {
+      border-color: rgba(99, 102, 241, 0.7);
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+      background: #0b0e16;
+    }
+
+    .form-input:focus ~ .input-icon {
+      color: var(--accent-blue);
+    }
+
+    /* Valid Checkmark Styling */
+    .valid-checkmark {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #10b981;
+      display: none;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .valid-checkmark svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Display green checkmark when field is valid and not empty */
+    .form-input:not(:placeholder-shown):valid ~ .valid-checkmark {
+      display: flex;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row .col {
+      flex: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: color 0.3s ease;
+      background: none;
+      border: none;
+      outline: none;
+      padding: 4px;
+    }
+
+    .toggle-password svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .toggle-password:hover {
+      color: var(--text-main);
+    }
+
+    /* Strength Indicator */
+    .strength-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: -4px;
+      margin-bottom: 0.8rem;
+      padding: 0 2px;
+    }
+
+    .strength-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .strength-val {
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .strength-meter {
+      display: flex;
+      gap: 4px;
+      height: 4px;
+      width: 100px;
+    }
+
+    .strength-meter .bar {
+      flex: 1;
+      background: #1e293b;
+      border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+
+    .strength-meter .bar.active {
+      background: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+    }
+
+    .login-btn {
+      width: 100%;
+      height: 48px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      margin-top: 0.5rem;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5), 0 0 15px rgba(59, 130, 246, 0.3);
+      background: linear-gradient(90deg, #9333ea, #2563eb);
+    }
+
+    .login-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Socials Separator */
+    .separator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1.5rem 0;
+      width: 100%;
+    }
+
+    .separator::before,
+    .separator::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(51, 65, 85, 0.6), transparent);
+    }
+
+    .separator span {
+      padding: 0 12px;
+      color: #475569;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* Social Buttons with Labels */
+    .social-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .social-btn {
+      flex: 1;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .social-btn svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.25s ease;
+    }
+
+    .social-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 5px 15px rgba(99, 102, 241, 0.15);
+    }
+
+    .social-btn:hover svg {
+      transform: scale(1.1);
+    }
+
+    /* Register Prompt */
+    .register-prompt {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .register-link {
+      color: var(--accent-purple);
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 5px;
+      transition: color 0.25s ease, text-shadow 0.25s ease;
+    }
+
+    .register-link:hover {
+      color: #c084fc;
+      text-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
+      text-decoration: underline;
+    }
+
+    /* --- Responsive Queries --- */
+    @media (max-width: 992px) {
+      body {
+        overflow-y: auto;
+      }
+      .container {
+        flex-direction: column;
+        padding: 1.5rem;
+        height: auto;
+        min-height: 100vh;
+      }
+      .left-panel {
+        padding: 1rem 1rem 3rem 1rem;
+        align-items: center;
+        text-align: center;
+      }
+      .brand-desc {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .quote-card {
+        margin: 2rem auto 0 auto;
+      }
+      .right-panel {
+        padding: 0;
+      }
+      .login-card {
+        padding: 2.5rem 1.75rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0.75rem;
+      }
+      .brand-title {
+        font-size: 2.2rem;
+      }
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      .login-card {
+        padding: 2rem 1.25rem;
+        border-radius: 20px;
+      }
+      .social-row {
+        gap: 6px;
+      }
+      .social-btn {
+        font-size: 0.72rem;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Left Section: Branding & Graphic -->
+    <div class="left-panel">
+      
+      <!-- Top Logo -->
+      <div class="logo">
+        <span class="logo-icon">&lt;/&gt;</span>
+        <span>CODEWAVE</span>
+      </div>
+      
+      <!-- Content Area -->
+      <div class="brand-content">
+        <h1 class="brand-title">
+          <span class="white-text">CODE</span>
+          <span class="gradient-text">WAVE</span>
+        </h1>
+        <div class="brand-slogan">
+          <span class="slogan-white">We Code.</span> 
+          <span class="slogan-cyan">We Crash.</span> 
+          <span class="slogan-purple">We Repeat.</span>
+        </div>
+        <p class="brand-desc">
+          Join a community of passionate developers, build amazing projects and grow together.
+        </p>
+        
+        <!-- Animated Neon Waves & Keywords -->
+        <div class="visual-wrapper">
+          <div class="laptop-glow"></div>
+          
+          <!-- SVGs Wave paths -->
+          <svg class="neon-waves" viewBox="0 0 500 300">
+            <defs>
+              <linearGradient id="blue-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.1"/>
+                <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#00e5ff" stop-opacity="0.1"/>
+              </linearGradient>
+              <linearGradient id="purple-gradient" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.1"/>
+                <stop offset="50%" stop-color="#d946ef" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.1"/>
+              </linearGradient>
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            
+            <!-- Animated curves -->
+            <path class="wave-path blue" filter="url(#glow)" d="M 10,150 C 90,80 180,220 270,140 C 350,70 420,180 500,130" />
+            <path class="wave-path purple" filter="url(#glow)" d="M 10,120 C 120,200 220,90 320,180 C 400,240 450,130 500,160" />
+          </svg>
+          
+          <!-- Floating Keyword Badges -->
+          <div class="tech-keyword float-py" style="color: #00e5ff;">PYTHON</div>
+          <div class="tech-keyword float-java" style="color: #8b5cf6;">JAVA</div>
+          <div class="tech-keyword float-cpp" style="color: #3b82f6;">C++</div>
+          <div class="tech-keyword float-html" style="color: #ef4444;">HTML</div>
+          <div class="tech-keyword float-css" style="color: #2563eb;">CSS</div>
+          <div class="tech-keyword float-js" style="color: #f59e0b;">JAVA SCRIPT</div>
+          <div class="tech-keyword float-tag1" style="color: #8b5cf6; font-family: monospace;">&lt;/&gt;</div>
+          <div class="tech-keyword float-tag2" style="color: #3b82f6; font-family: monospace;">&lt;/&gt;</div>
+
+          <!-- Code Editor Window -->
+          <div class="mini-editor">
+            <div class="editor-header">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <div class="editor-code">
+              <div><span class="c-key">while</span> (<span class="c-name">success</span>) {</div>
+              <div>&nbsp;&nbsp;<span class="c-func">code</span>();</div>
+              <div>&nbsp;&nbsp;<span class="c-func">learn</span>();</div>
+              <div>&nbsp;&nbsp;<span class="c-func">repeat</span>();</div>
+              <div>}</div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Quote Card at Bottom -->
+      <div class="quote-card">
+        <div class="quote-info">
+          <span class="quote-mark">“</span>
+          <div class="quote-body">
+            <p>First, solve the problem. Then, write the code.</p>
+            <span>— John Johnson</span>
+          </div>
+        </div>
+        <div class="quote-decor">{...}</div>
+      </div>
+      
+      <!-- Footer Info -->
+      <p class="footer-text">© 2025 <span>CodeWave</span>. All rights reserved.</p>
+      
+    </div>
+    
+    <!-- Right Section: Registration Panel -->
+    <div class="right-panel">
+      
+      <div class="login-card">
+        
+        <!-- Registration Icon -->
+        <div class="card-icon">
+          <!-- User Plus SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+        </div>
+
+        <!-- Header -->
+        <div class="card-header">
+          <h2 class="card-title">Create Your <span class="gradient-title">Account</span></h2>
+          <p class="card-subtitle">Start your coding journey with CodeWave 🌊</p>
+        </div>
+        
+        <!-- Form -->
+        <form method="POST" action="">
+          {% csrf_token %}
+          
+          <!-- Username -->
+          <div class="form-group">
+            <label for="username" class="form-label">Username</label>
+            <div class="input-wrapper">
+              <input type="text" id="username" name="username" class="form-input" placeholder="Choose a username" required minlength="3" autocomplete="username">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+              <span class="valid-checkmark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <div class="input-wrapper">
+              <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required autocomplete="email">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </span>
+              <span class="valid-checkmark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Password & Confirm Password Row -->
+          <div class="form-row">
+            <!-- Password -->
+            <div class="form-group col">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-wrapper">
+                <input type="password" id="password" name="password" class="form-input" placeholder="Create password" required autocomplete="new-password">
+                <span class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </span>
+                <button type="button" id="togglePassword" class="toggle-password" aria-label="Toggle password visibility">
+                  <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group col">
+              <label for="confirm_password" class="form-label">Confirm Password</label>
+              <div class="input-wrapper">
+                <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Confirm password" required autocomplete="new-password">
+                <span class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </span>
+                <button type="button" id="toggleConfirmPassword" class="toggle-password" aria-label="Toggle password visibility">
+                  <svg id="eyeConfirmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Password Strength Meter -->
+          <div class="strength-container">
+            <span class="strength-label">Password strength: <span id="strengthText" class="strength-val">Strong</span></span>
+            <div class="strength-meter">
+              <span class="bar active" id="bar1"></span>
+              <span class="bar active" id="bar2"></span>
+              <span class="bar active" id="bar3"></span>
+            </div>
+          </div>
+
+          <!-- College / University -->
+          <div class="form-group">
+            <label for="college" class="form-label">College / University</label>
+            <div class="input-wrapper">
+              <input type="text" id="college" name="college" class="form-input" placeholder="Enter your college name" required>
+              <span class="input-icon">
+                <!-- Temple/School SVG -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+                </svg>
+              </span>
+              <span class="valid-checkmark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="form-group">
+            <label for="skills" class="form-label">Skills (comma separated)</label>
+            <div class="input-wrapper">
+              <input type="text" id="skills" name="skills" class="form-input" placeholder="e.g. Python, JavaScript, Web Development" required>
+              <span class="input-icon">
+                <!-- Brackets </> SVG -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+              </span>
+              <span class="valid-checkmark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Submit Button -->
+          <button type="submit" class="login-btn">
+            <!-- Rocket SVG -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.5 16.5c-1.5 1.26-2 3.5-2 3.5s2.24-.5 3.5-2"></path>
+              <path d="M22 2c-1.92 0-7.39 3.82-9.42 5.86-2.03 2.03-5.86 7.5-5.86 9.42 0 1.3.56 2.4 1.5 3.12.72.94 1.82 1.5 3.12 1.5 1.92 0 7.39-3.82 9.42-5.86 2.03-2.03 5.86-7.5 5.86-9.42 0-1.3-.56-2.4-1.5-3.12-.72-.94-1.82-1.5-3.12-1.5z"></path>
+              <circle cx="15" cy="9" r="2"></circle>
+              <path d="M9 15l-3-3M12 12l-3-3"></path>
+            </svg>
+            Create Account
+          </button>
+          
+        </form>
+        
+        <!-- Social Login Separator -->
+        <div class="separator">
+          <span>or sign up with</span>
+        </div>
+        
+        <!-- Social Row -->
+        <div class="social-row">
+          
+          <!-- Google -->
+          <button class="social-btn" aria-label="Sign up with Google">
+            <svg viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.87-2.6-2.3-4.53-6.16-4.53z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            Google
+          </button>
+          
+          <!-- GitHub -->
+          <button class="social-btn" aria-label="Sign up with GitHub">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+            GitHub
+          </button>
+
+          <!-- Discord -->
+          <button class="social-btn" aria-label="Sign up with Discord">
+            <svg viewBox="0 0 127.14 96.36" fill="#5865F2">
+              <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,52.88,6.83,77.19,77.19,0,0,0,49.58,0,105.15,105.15,0,0,0,19.14,8.07C3,32.22-1.39,55.76.42,78.89a105.78,105.78,0,0,0,32,16.14,77.89,77.89,0,0,0,6.72-11,68.6,68.6,0,0,1-10.64-5.12c.91-.67,1.81-1.37,2.65-2.1a75.22,75.22,0,0,0,62.26,0c.84.73,1.74,1.43,2.65,2.1a68.86,68.86,0,0,1-10.64,5.12,78.19,78.19,0,0,0,6.72,11,105.78,105.78,0,0,0,32-16.14C128.83,55.76,124.12,32.22,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.88,46,53.88,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.12,46,96.12,53,91,65.69,84.69,65.69Z"/>
+            </svg>
+            Discord
+          </button>
+          
+        </div>
+        
+        <!-- Registration Prompt -->
+        <p class="register-prompt">
+          Already have an account?<a href="{% url 'login' %}" class="register-link">Log in</a>
+        </p>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+
+  <script>
+    // Password toggle visibility functionality
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    toggleBtn.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      if (type === 'text') {
+        eyeIcon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        `;
+      } else {
+        eyeIcon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        `;
+      }
+    });
+
+    // Confirm Password toggle visibility
+    const confirmInput = document.getElementById('confirm_password');
+    const toggleConfirmBtn = document.getElementById('toggleConfirmPassword');
+    const eyeConfirmIcon = document.getElementById('eyeConfirmIcon');
+
+    toggleConfirmBtn.addEventListener('click', () => {
+      const type = confirmInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      confirmInput.setAttribute('type', type);
+      if (type === 'text') {
+        eyeConfirmIcon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        `;
+      } else {
+        eyeConfirmIcon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        `;
+      }
+    });
+
+    // Interactive Password Strength Meter
+    const strengthText = document.getElementById('strengthText');
+    const bar1 = document.getElementById('bar1');
+    const bar2 = document.getElementById('bar2');
+    const bar3 = document.getElementById('bar3');
+
+    passwordInput.addEventListener('input', () => {
+      const val = passwordInput.value;
+      let strength = 0;
+
+      if (val.length >= 6) {
+        strength = 1; // Weak
+        if (/[a-zA-Z]/.test(val) && /[0-9]/.test(val)) {
+          strength = 2; // Medium
+        }
+        if (/[A-Z]/.test(val) && /[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val)) {
+          strength = 3; // Strong
+        }
+      }
+
+      // Update UI
+      bar1.className = 'bar';
+      bar2.className = 'bar';
+      bar3.className = 'bar';
+      
+      if (val.length === 0) {
+        strengthText.textContent = '';
+        strengthText.style.color = 'var(--text-muted)';
+      } else if (strength === 1) {
+        strengthText.textContent = 'Weak';
+        strengthText.style.color = '#ef4444';
+        bar1.classList.add('active');
+        bar1.style.background = '#ef4444';
+        bar1.style.boxShadow = '0 0 6px rgba(239, 68, 68, 0.4)';
+      } else if (strength === 2) {
+        strengthText.textContent = 'Medium';
+        strengthText.style.color = '#f59e0b';
+        bar1.classList.add('active');
+        bar2.classList.add('active');
+        bar1.style.background = '#f59e0b';
+        bar2.style.background = '#f59e0b';
+        bar1.style.boxShadow = '0 0 6px rgba(245, 158, 11, 0.4)';
+        bar2.style.boxShadow = '0 0 6px rgba(245, 158, 11, 0.4)';
+      } else if (strength === 3) {
+        strengthText.textContent = 'Strong';
+        strengthText.style.color = '#10b981';
+        bar1.classList.add('active');
+        bar2.classList.add('active');
+        bar3.classList.add('active');
+        bar1.style.background = '#10b981';
+        bar2.style.background = '#10b981';
+        bar3.style.background = '#10b981';
+        bar1.style.boxShadow = '0 0 6px rgba(16, 185, 129, 0.4)';
+        bar2.style.boxShadow = '0 0 6px rgba(16, 185, 129, 0.4)';
+        bar3.style.boxShadow = '0 0 6px rgba(16, 185, 129, 0.4)';
+      }
+    });
+
+    // Custom Validation logic to compare passwords
+    const form = document.querySelector('form');
+    form.addEventListener('submit', (e) => {
+      if (passwordInput.value !== confirmInput.value) {
+        e.preventDefault();
+        alert("Passwords do not match!");
+      }
+    });
+
+    // --- Gestures for Navigation: Drag or scroll up/down to return to Index (codewave) ---
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+
+    function getScrollStatus() {
+      const isAtTop = window.scrollY <= 5;
+      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 12;
+      return { isAtTop, isAtBottom };
+    }
+
+    window.addEventListener('wheel', function(e) {
+      const { isAtTop, isAtBottom } = getScrollStatus();
+      // Scroll Up at top -> go to index
+      if (e.deltaY < -15 && isAtTop) {
+        window.location.href = "{% url 'index' %}";
+      }
+      // Scroll Down at bottom -> go to index
+      else if (e.deltaY > 15 && isAtBottom) {
+        window.location.href = "{% url 'index' %}";
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchstart', function(e) {
+      startX = e.changedTouches[0].screenX;
+      startY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    window.addEventListener('touchend', function(e) {
+      const endX = e.changedTouches[0].screenX;
+      const endY = e.changedTouches[0].screenY;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
+      const minDistance = 55;
+      const { isAtTop, isAtBottom } = getScrollStatus();
+
+      // Swipe DOWN (scroll up gesture) at top -> go to index
+      if (diffY > minDistance && Math.abs(diffY) > Math.abs(diffX) && isAtTop) {
+        window.location.href = "{% url 'index' %}";
+      }
+      // Swipe UP (scroll down gesture) at bottom -> go to index
+      else if (diffY < -minDistance && Math.abs(diffY) > Math.abs(diffX) && isAtBottom) {
+        window.location.href = "{% url 'index' %}";
+      }
+    }, { passive: true });
+
+    window.addEventListener('mousedown', function(e) {
+      startX = e.screenX;
+      startY = e.screenY;
+      isDragging = true;
+    });
+
+    window.addEventListener('mouseup', function(e) {
+      if (isDragging) {
+        const endX = e.screenX;
+        const endY = e.screenY;
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+        const minDistance = 55;
+        const { isAtTop, isAtBottom } = getScrollStatus();
+
+        // Drag DOWN (scroll up gesture) at top -> go to index
+        if (diffY > minDistance && Math.abs(diffY) > Math.abs(diffX) && isAtTop) {
+          window.location.href = "{% url 'index' %}";
+        }
+        // Drag UP (scroll down gesture) at bottom -> go to index
+        else if (diffY < -minDistance && Math.abs(diffY) > Math.abs(diffX) && isAtBottom) {
+          window.location.href = "{% url 'index' %}";
+        }
+        isDragging = false;
+      }
+    });
+  </script>
+</body>
+</html>
