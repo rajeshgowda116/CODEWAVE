@@ -422,7 +422,7 @@
           <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
           Home
         </a>
-        <a href="#" class="nav-link">
+        <a href="{% url 'roadmap' %}" class="nav-link">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           Roadmaps
         </a>
@@ -511,6 +511,19 @@
   </footer>
 
   <script>
+    // Dynamically highlight current navbar link based on current path
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPath = window.location.pathname;
+      const navLinks = document.querySelectorAll('nav .nav-link');
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href !== '#' && currentPath.includes(href)) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        }
+      });
+    });
+
     // Chatbot navigation integration helper
     document.getElementById('openChatbotBtn').addEventListener('click', function(e) {
       e.preventDefault();

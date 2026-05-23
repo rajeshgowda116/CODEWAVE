@@ -1,0 +1,3446 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CodeWave - AI Roadmap Generator{% endblock %}
+
+{% block extra_css %}
+<!-- Google Fonts for Poppins -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* Design Tokens & Layout overrides */
+  :root {
+    --font-heading: 'Orbitron', sans-serif;
+    --font-main: 'Poppins', 'Inter', sans-serif;
+    --glass-bg: rgba(6, 10, 26, 0.65);
+    --glass-border: rgba(99, 102, 241, 0.15);
+    --neon-blue: #3b82f6;
+    --neon-cyan: #06b6d4;
+    --neon-purple: #a855f7;
+    --neon-pink: #ec4899;
+  }
+
+  body {
+    font-family: var(--font-main);
+  }
+
+  .roadmap-page-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 1.5rem 0 5rem 0;
+    position: relative;
+  }
+
+  /* Header Branding */
+  .roadmap-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    position: relative;
+  }
+
+  .roadmap-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+
+  .roadmap-title span {
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue), var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.3));
+  }
+
+  .roadmap-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 750px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Multi-Step Wizard Container */
+  .wizard-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 3rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 
+      0 20px 50px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .wizard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    opacity: 0.8;
+  }
+
+  /* Step Progress Bar */
+  .step-progress-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3.5rem;
+    position: relative;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .step-progress-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+
+  .step-progress-fill {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 0%;
+    height: 2.5px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    transform: translateY(-50%);
+    z-index: 2;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px var(--neon-cyan);
+  }
+
+  .step-node {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #060913;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--text-muted);
+    z-index: 3;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+  }
+
+  .step-node.active {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    background: #020306;
+  }
+
+  .step-node.completed {
+    border-color: var(--neon-purple);
+    color: #ffffff;
+    background: var(--neon-purple);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+  }
+
+  .step-label {
+    position: absolute;
+    top: calc(100% + 8px);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-muted);
+    transition: color 0.3s;
+  }
+
+  .step-node.active .step-label {
+    color: var(--neon-cyan);
+  }
+
+  .step-node.completed .step-label {
+    color: var(--neon-purple);
+  }
+
+  /* Wizard Steps Contents */
+  .step-panel {
+    display: none;
+    animation: fadeInStep 0.4s ease forwards;
+  }
+
+  .step-panel.active {
+    display: block;
+  }
+
+  @keyframes fadeInStep {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Step Title Styles */
+  .step-title-group {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .step-panel-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .step-panel-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* Step Form Inputs - Glassmorphic */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-element {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-element label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    letter-spacing: 0.03em;
+  }
+
+  .form-input-text, .form-select {
+    background: rgba(4, 6, 15, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    height: 52px;
+    padding: 0 1rem;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .form-input-text:focus, .form-select:focus {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+    background: rgba(4, 6, 15, 0.95);
+  }
+
+  .form-select option {
+    background: #030409;
+    color: white;
+  }
+
+  /* Step 2: Career Interests Grid */
+  .interests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+
+  .interest-card {
+    background: rgba(4, 6, 15, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .interest-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .interest-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.25rem;
+    transition: transform 0.3s;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.1));
+  }
+
+  .interest-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #e2e8f0;
+    line-height: 1.3;
+  }
+
+  .interest-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 8px 25px rgba(6, 182, 212, 0.12);
+  }
+
+  .interest-card:hover .interest-icon {
+    transform: scale(1.15);
+  }
+
+  .interest-card.selected {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: var(--neon-purple);
+    box-shadow: 
+      0 0 20px rgba(168, 85, 247, 0.2),
+      inset 0 0 12px rgba(168, 85, 247, 0.1);
+  }
+
+  .interest-card.selected::before {
+    opacity: 1;
+  }
+
+  .interest-card.selected .interest-name {
+    color: #ffffff;
+  }
+
+  /* Step 3: Skill Level Cards */
+  .skill-level-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 850px;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .skill-level-card {
+    background: rgba(4, 6, 15, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 2.5rem 1.5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .skill-level-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 10px 25px rgba(6, 182, 212, 0.15);
+  }
+
+  .skill-level-emoji {
+    font-size: 3rem;
+  }
+
+  .skill-level-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .skill-level-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .skill-level-card.selected {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+  }
+
+  /* Step 4: Existing Skills Chips */
+  .skills-chips-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.85rem;
+    max-width: 850px;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .skill-chip {
+    padding: 0.65rem 1.25rem;
+    background: rgba(4, 6, 15, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 99px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .skill-chip:hover {
+    border-color: var(--neon-cyan);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+  }
+
+  .skill-chip.selected {
+    background: rgba(6, 182, 212, 0.12);
+    border-color: var(--neon-cyan);
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+  }
+
+  /* Step 5: Learning Time Selection */
+  .time-options-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 900px;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .time-card {
+    background: rgba(4, 6, 15, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .time-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--neon-cyan);
+  }
+
+  .time-card-icon {
+    font-size: 2.2rem;
+  }
+
+  .time-card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: white;
+  }
+
+  .time-card.selected {
+    background: rgba(168, 85, 247, 0.08);
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+  }
+
+  /* Step 6: Goal Selection */
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    max-width: 850px;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .goal-card {
+    background: rgba(4, 6, 15, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .goal-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--neon-cyan);
+  }
+
+  .goal-emoji {
+    font-size: 2.2rem;
+  }
+
+  .goal-title {
+    font-weight: 600;
+    color: white;
+  }
+
+  .goal-card.selected {
+    background: rgba(236, 72, 153, 0.08);
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.25);
+  }
+
+  /* Wizard Navigation Buttons */
+  .wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 2rem;
+  }
+
+  .btn-wizard {
+    padding: 0.8rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    outline: none;
+    border: none;
+  }
+
+  .btn-prev {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+  }
+
+  .btn-prev:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.25);
+  }
+
+  .btn-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 6px 20px rgba(6, 182, 212, 0.4),
+      0 0 15px rgba(59, 130, 246, 0.2);
+  }
+
+  /* --- AI GENERATION ANIMATION --- */
+  .ai-loader-panel {
+    display: none;
+    text-align: center;
+    padding: 5rem 2rem;
+  }
+
+  .ai-loader-circle {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 3rem auto;
+  }
+
+  .circular-spinner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid rgba(6, 182, 212, 0.1);
+    border-top: 3px solid var(--neon-cyan);
+    border-right: 3px solid var(--neon-purple);
+    animation: spinLoader 1.5s linear infinite;
+  }
+
+  @keyframes spinLoader {
+    to { transform: rotate(360deg); }
+  }
+
+  .circular-logo {
+    position: absolute;
+    inset: 12px;
+    background: #030409;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.25);
+  }
+
+  .ai-terminal {
+    background: #020205;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.88rem;
+    text-align: left;
+    height: 140px;
+    overflow-y: hidden;
+    position: relative;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+  }
+
+  .ai-terminal::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+  }
+
+  .terminal-line {
+    margin-bottom: 0.5rem;
+    color: var(--neon-cyan);
+    opacity: 0;
+    animation: typeLine 0.5s ease forwards;
+  }
+
+  @keyframes typeLine {
+    to { opacity: 1; }
+  }
+
+  .loader-progress-bar {
+    width: 100%;
+    max-width: 500px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 99px;
+    margin: 2rem auto;
+    overflow: hidden;
+  }
+
+  .loader-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    border-radius: 99px;
+    box-shadow: 0 0 10px var(--neon-cyan);
+    transition: width 0.1s linear;
+  }
+
+  /* --- GENERATED ROADMAP VIEW --- */
+  .roadmap-output-panel {
+    display: none;
+    animation: fadeReveal 0.6s ease forwards;
+  }
+
+  @keyframes fadeReveal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Dashboard Header */
+  .dashboard-header-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  }
+
+  .db-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .db-meta-badge {
+    align-self: flex-start;
+    padding: 0.25rem 0.75rem;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .db-heading {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    color: white;
+    font-weight: 800;
+  }
+
+  .db-desc {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+  }
+
+  .db-actions {
+    display: flex;
+    gap: 0.85rem;
+  }
+
+  .btn-action {
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.4);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-action:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--neon-cyan);
+    transform: translateY(-1px);
+  }
+
+  .btn-action.btn-save-db {
+    background: linear-gradient(135deg, var(--neon-purple), #8b5cf6);
+    border: none;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+  }
+
+  .btn-action.btn-save-db:hover {
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Two Column Dashboard Grid */
+  .roadmap-dashboard-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* Left Panel: Statistics and Achievements */
+  .db-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Progress tracker card */
+  .progress-tracker-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  }
+
+  .tracker-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .radial-progress-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .radial-svg {
+    width: 140px;
+    height: 140px;
+    transform: rotate(-90deg);
+  }
+
+  .radial-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.04);
+    stroke-width: 8;
+  }
+
+  .radial-fill {
+    fill: none;
+    stroke: url(#progress-gradient);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 440;
+    stroke-dashoffset: 440;
+    transition: stroke-dashoffset 0.8s ease;
+  }
+
+  .radial-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .percentage-val {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+  }
+
+  .percentage-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stats-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .stat-item-box {
+    background: rgba(4, 6, 15, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .stat-item-box:hover {
+    border-color: rgba(99, 102, 241, 0.15);
+  }
+
+  .stat-box-val {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-box-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* Streak and badges cards */
+  .achievements-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  }
+
+  .badges-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .badge-item {
+    background: rgba(4, 6, 15, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.4;
+    transition: all 0.4s;
+    filter: grayscale(1);
+  }
+
+  .badge-item.unlocked {
+    opacity: 1;
+    filter: grayscale(0);
+    border-color: rgba(168, 85, 247, 0.25);
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
+  }
+
+  .badge-icon {
+    font-size: 1.8rem;
+  }
+
+  .badge-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .badge-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .badge-status {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+
+  .badge-item.unlocked .badge-status {
+    color: var(--neon-cyan);
+    font-weight: 600;
+  }
+
+  /* Practice Platforms Recommendations */
+  .practice-platforms-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  }
+
+  .platforms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: 1.25rem;
+  }
+
+  .platform-card {
+    background: rgba(4, 6, 15, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+  }
+
+  .platform-card:hover {
+    border-color: var(--neon-cyan);
+    background: rgba(4, 6, 15, 0.65);
+  }
+
+  .platform-name {
+    font-weight: 600;
+    color: white;
+    font-size: 0.9rem;
+  }
+
+  .platform-rec-text {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .btn-practice {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    color: var(--neon-cyan);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-practice:hover {
+    background: var(--neon-cyan);
+    color: #030409;
+    box-shadow: 0 0 10px var(--neon-cyan);
+  }
+
+  /* Right Panel: Interactive Timeline & Daily Plan */
+  .db-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .timeline-container-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  }
+
+  /* Interactive Vertical Timeline styling */
+  .timeline-flow {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-left: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .timeline-flow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 7px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .timeline-phase-group {
+    position: relative;
+    margin-bottom: 2.5rem;
+  }
+
+  .timeline-phase-indicator {
+    position: absolute;
+    left: -2rem;
+    top: -2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 5;
+  }
+
+  .phase-bullet {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #090e1a;
+    border: 3px solid var(--neon-purple);
+    box-shadow: 0 0 8px var(--neon-purple);
+  }
+
+  .phase-header-title {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--neon-purple);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .day-node-list {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .day-card {
+    background: rgba(4, 6, 15, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .day-card::after {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: -1.75rem;
+    width: 10px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .day-card:hover {
+    border-color: rgba(99, 102, 241, 0.2);
+    transform: translateX(4px);
+    background: rgba(4, 6, 15, 0.5);
+  }
+
+  .day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .day-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .check-wrapper {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .day-card.completed-day .check-wrapper {
+    border-color: var(--neon-cyan);
+    background: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+  }
+
+  .check-icon {
+    display: none;
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: #030409;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .day-card.completed-day .check-icon {
+    display: block;
+  }
+
+  .day-number-tag {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #cbd5e1;
+  }
+
+  .day-topic-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: white;
+    margin-left: 4px;
+    transition: color 0.2s;
+  }
+
+  .day-card.completed-day .day-topic-name {
+    color: #64748b;
+    text-decoration: line-through;
+  }
+
+  .day-meta-tags {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .difficulty-tag {
+    font-size: 0.68rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .difficulty-tag.beg { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+  .difficulty-tag.int { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+  .difficulty-tag.adv { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+  .time-tag {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* Expandable Day details content */
+  .day-details {
+    display: none;
+    margin-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1rem;
+    animation: slideDownDetails 0.3s ease forwards;
+  }
+
+  @keyframes slideDownDetails {
+    from { opacity: 0; max-height: 0; overflow: hidden; }
+    to { opacity: 1; max-height: 500px; }
+  }
+
+  .day-card.expanded-day .day-details {
+    display: block;
+  }
+
+  .details-objectives {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .details-objectives strong {
+    color: white;
+  }
+
+  /* Resource Cards Grid */
+  .day-resources-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .resource-item-card {
+    background: rgba(2, 2, 5, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .youtube-mock-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .youtube-play-icon {
+    width: 32px;
+    height: 32px;
+    background: #ef4444;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+  }
+
+  .youtube-play-icon svg {
+    width: 14px;
+    height: 14px;
+    fill: white;
+    margin-left: 2px;
+  }
+
+  .resource-card-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    line-height: 1.3;
+  }
+
+  .btn-resource-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.4rem 0;
+    transition: all 0.2s;
+  }
+
+  .btn-resource-link:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--neon-purple);
+    color: white;
+  }
+
+  /* Projects Section inside Dashboard */
+  .projects-dashboard-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  }
+
+  .project-tiers {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 0.75rem;
+  }
+
+  .tier-tab {
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.25s;
+  }
+
+  .tier-tab:hover {
+    color: white;
+  }
+
+  .tier-tab.active {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--neon-purple);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .projects-tier-container {
+    display: none;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .projects-tier-container.active {
+    display: flex;
+  }
+
+  .project-card {
+    background: rgba(4, 6, 15, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+
+  .project-card:hover {
+    border-color: var(--neon-purple);
+  }
+
+  .project-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .project-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .project-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 1rem;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .project-tag {
+    font-size: 0.68rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-muted);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  /* --- FLOATING AI MENTOR PANEL --- */
+  .ai-mentor-floating {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+  }
+
+  .ai-mentor-avatar-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+    border: none;
+    cursor: pointer;
+    box-shadow: 
+      0 8px 30px rgba(6, 182, 212, 0.4),
+      0 0 15px rgba(6, 182, 212, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .ai-mentor-avatar-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 
+      0 12px 35px rgba(6, 182, 212, 0.55),
+      0 0 20px rgba(6, 182, 212, 0.4);
+  }
+
+  .ai-mentor-avatar-btn svg {
+    width: 28px;
+    height: 28px;
+    color: #030409;
+  }
+
+  .ai-mentor-chatbox {
+    display: none;
+    position: absolute;
+    bottom: 76px;
+    right: 0;
+    width: 380px;
+    height: 480px;
+    background: rgba(9, 11, 26, 0.95);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(15px);
+    overflow: hidden;
+    flex-direction: column;
+    animation: chatOpenAnim 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes chatOpenAnim {
+    from { opacity: 0; transform: translateY(20px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .mentor-chat-header {
+    background: rgba(99, 102, 241, 0.12);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mentor-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mentor-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+  }
+
+  .mentor-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .mentor-close-btn {
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+
+  .mentor-close-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+  }
+
+  .mentor-chat-logs {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .mentor-msg {
+    display: flex;
+    gap: 8px;
+    max-width: 85%;
+  }
+
+  .mentor-msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(6, 182, 212, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .mentor-msg-avatar svg {
+    width: 16px;
+    height: 16px;
+    color: var(--neon-cyan);
+  }
+
+  .mentor-msg-bubble {
+    padding: 0.65rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .mentor-msg.incoming {
+    align-self: flex-start;
+  }
+
+  .mentor-msg.incoming .mentor-msg-bubble {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    color: #e2e8f0;
+  }
+
+  .mentor-msg.outgoing {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .mentor-msg.outgoing .mentor-msg-bubble {
+    background: rgba(168, 85, 247, 0.25);
+    border: 1px solid rgba(168, 85, 247, 0.1);
+    color: white;
+  }
+
+  .mentor-quick-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0.75rem 1rem;
+    background: rgba(2, 2, 5, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.02);
+  }
+
+  .quick-prompt-btn {
+    padding: 0.4rem 0.75rem;
+    background: rgba(30, 41, 59, 0.2);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    color: var(--neon-cyan);
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .quick-prompt-btn:hover {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: var(--neon-cyan);
+  }
+
+  .mentor-chat-input-wrapper {
+    display: flex;
+    padding: 0.5rem;
+    background: rgba(2, 2, 5, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mentor-chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 0.82rem;
+    font-family: inherit;
+    padding: 0.5rem;
+  }
+
+  .mentor-chat-send-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--neon-purple);
+    border: none;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .mentor-chat-send-btn:hover {
+    background: #8b5cf6;
+  }
+
+  .mentor-chat-send-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  /* Toast Notification Alerts */
+  .toast-container {
+    position: fixed;
+    top: 5rem;
+    right: 2rem;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .neon-toast {
+    background: rgba(10, 12, 25, 0.95);
+    border: 1px solid var(--neon-cyan);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    color: white;
+    font-size: 0.88rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  @keyframes toastIn {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Share Modal */
+  .share-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 10100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .share-modal.active {
+    display: flex;
+  }
+
+  .share-modal-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    width: 440px;
+    padding: 2rem;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    position: relative;
+  }
+
+  .share-modal-title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .share-copy-box {
+    display: flex;
+    background: rgba(2, 2, 5, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .share-url-text {
+    flex: 1;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-copy-url {
+    background: var(--neon-cyan);
+    border: none;
+    border-radius: 6px;
+    color: #030409;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-copy-url:hover {
+    background: #22d3ee;
+    box-shadow: 0 0 10px var(--neon-cyan);
+  }
+
+  .share-socials {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .share-social-btn {
+    color: var(--text-muted);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .share-social-btn:hover {
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .share-social-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  /* Custom Print Layout Styles */
+  @media print {
+    body {
+      background: white !important;
+      color: black !important;
+    }
+    header, footer, .ai-mentor-floating, .wizard-card, .ai-loader-panel, .db-actions, .check-wrapper, .btn-practice, .btn-resource-link {
+      display: none !important;
+    }
+    .roadmap-page-container {
+      padding: 0 !important;
+    }
+    .roadmap-dashboard-grid {
+      grid-template-columns: 1fr !important;
+      gap: 1.5cm !important;
+    }
+    .progress-tracker-card, .achievements-card, .practice-platforms-card, .timeline-container-card, .projects-dashboard-card {
+      background: none !important;
+      border: 1px solid #ccc !important;
+      box-shadow: none !important;
+      page-break-inside: avoid;
+    }
+    .day-card {
+      background: none !important;
+      border: 1px solid #ddd !important;
+      color: black !important;
+    }
+    .day-topic-name, .project-name, .badge-name {
+      color: black !important;
+    }
+    .day-details {
+      display: block !important;
+    }
+  }
+
+  /* Responsive Design adjustments */
+  @media (max-width: 900px) {
+    .roadmap-dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .time-options-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .skill-level-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .goals-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="roadmap-page-container">
+
+  <!-- Heading Section -->
+  <header class="roadmap-header">
+    <div class="db-meta-badge" style="margin-bottom: 0.5rem;">AI ROADMAPS</div>
+    <h1 class="roadmap-title">AI-Powered Personalized <span>Roadmap Generator</span> 🚀</h1>
+    <p class="roadmap-subtitle">
+      Tell us about your goals and skills. Our AI will analyze your profile and compile a completely personalized learning roadmap tailored just for you.
+    </p>
+  </header>
+
+  <!-- Toast Notification alerts -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Wizard Form Panel Container -->
+  <section class="wizard-card" id="wizardContainer">
+    <!-- Step Node Progress Bar -->
+    <div class="step-progress-wrapper">
+      <div class="step-progress-line"></div>
+      <div class="step-progress-fill" id="progressFill"></div>
+      
+      <div class="step-node active" data-step="1">
+        1
+        <span class="step-label">Basic</span>
+      </div>
+      <div class="step-node" data-step="2">
+        2
+        <span class="step-label">Interest</span>
+      </div>
+      <div class="step-node" data-step="3">
+        3
+        <span class="step-label">Level</span>
+      </div>
+      <div class="step-node" data-step="4">
+        4
+        <span class="step-label">Skills</span>
+      </div>
+      <div class="step-node" data-step="5">
+        5
+        <span class="step-label">Time</span>
+      </div>
+      <div class="step-node" data-step="6">
+        6
+        <span class="step-label">Goal</span>
+      </div>
+    </div>
+
+    <!-- Wizard panels -->
+    <!-- STEP 1: Basic Information -->
+    <div class="step-panel active" data-panel="1">
+      <div class="step-title-group">
+        <h2 class="step-panel-title">👤 Step 1: Basic Information</h2>
+        <p class="step-panel-desc">We need a few details to tailor the roadmap structure.</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-element">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" class="form-input-text" placeholder="John Doe">
+        </div>
+        <div class="form-element">
+          <label for="college">College / University</label>
+          <input type="text" id="college" class="form-input-text" placeholder="IIT Bombay, Stanford...">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-element">
+          <label for="branch">Branch / Department</label>
+          <input type="text" id="branch" class="form-input-text" placeholder="Computer Science, Mechanical...">
+        </div>
+        <div class="form-element">
+          <label for="currentYear">Current Year</label>
+          <select id="currentYear" class="form-select">
+            <option value="">Select Year</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Career Interest -->
+    <div class="step-panel" data-panel="2">
+      <div class="step-title-group">
+        <h2 class="step-panel-title">🎯 Step 2: Career Interest</h2>
+        <p class="step-panel-desc">Select one or more paths that excite you the most.</p>
+      </div>
+
+      <div class="interests-grid" id="interestsGrid">
+        <div class="interest-card" data-val="Web Development">
+          <span class="interest-icon">🌐</span>
+          <span class="interest-name">Web Development</span>
+        </div>
+        <div class="interest-card" data-val="AI / Machine Learning">
+          <span class="interest-icon">🧠</span>
+          <span class="interest-name">AI / Machine Learning</span>
+        </div>
+        <div class="interest-card" data-val="Data Science">
+          <span class="interest-icon">📊</span>
+          <span class="interest-name">Data Science</span>
+        </div>
+        <div class="interest-card" data-val="Cyber Security">
+          <span class="interest-icon">🛡️</span>
+          <span class="interest-name">Cyber Security</span>
+        </div>
+        <div class="interest-card" data-val="App Development">
+          <span class="interest-icon">📱</span>
+          <span class="interest-name">App Development</span>
+        </div>
+        <div class="interest-card" data-val="Cloud Computing">
+          <span class="interest-icon">☁️</span>
+          <span class="interest-name">Cloud Computing</span>
+        </div>
+        <div class="interest-card" data-val="DevOps">
+          <span class="interest-icon">♾️</span>
+          <span class="interest-name">DevOps</span>
+        </div>
+        <div class="interest-card" data-val="UI/UX Design">
+          <span class="interest-icon">🎨</span>
+          <span class="interest-name">UI/UX Design</span>
+        </div>
+        <div class="interest-card" data-val="Blockchain">
+          <span class="interest-icon">⛓️</span>
+          <span class="interest-name">Blockchain</span>
+        </div>
+        <div class="interest-card" data-val="Game Development">
+          <span class="interest-icon">🎮</span>
+          <span class="interest-name">Game Development</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Current Skill Level -->
+    <div class="step-panel" data-panel="3">
+      <div class="step-title-group">
+        <h2 class="step-panel-title">📊 Step 3: Current Skill Level</h2>
+        <p class="step-panel-desc">Where are you starting from in your engineering journey?</p>
+      </div>
+
+      <div class="skill-level-row" id="skillLevelGrid">
+        <div class="skill-level-card" data-val="Beginner">
+          <span class="skill-level-emoji">🌱</span>
+          <span class="skill-level-title">Beginner</span>
+          <span class="skill-level-desc">New to programming or this domain. Starting from absolute scratch.</span>
+        </div>
+        <div class="skill-level-card" data-val="Intermediate">
+          <span class="skill-level-emoji">🚀</span>
+          <span class="skill-level-title">Intermediate</span>
+          <span class="skill-level-desc">Know the syntax/basics, built minor scripts or console projects before.</span>
+        </div>
+        <div class="skill-level-card" data-val="Advanced">
+          <span class="skill-level-emoji">⚡</span>
+          <span class="skill-level-title">Advanced</span>
+          <span class="skill-level-desc">Experience in database building or API handling. Ready for complex architectures.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Existing Skills -->
+    <div class="step-panel" data-panel="4">
+      <div class="step-title-group">
+        <h2 class="step-panel-title">🧠 Step 4: Existing Skills</h2>
+        <p class="step-panel-desc">Select any languages/frameworks you already possess knowledge in.</p>
+      </div>
+
+      <div class="skills-chips-wrapper" id="skillsChipsWrapper">
+        <div class="skill-chip" data-val="Python">🐍 Python</div>
+        <div class="skill-chip" data-val="Java">☕ Java</div>
+        <div class="skill-chip" data-val="C++">👾 C++</div>
+        <div class="skill-chip" data-val="JavaScript">🟨 JavaScript</div>
+        <div class="skill-chip" data-val="HTML">🏷️ HTML</div>
+        <div class="skill-chip" data-val="CSS">🎨 CSS</div>
+        <div class="skill-chip" data-val="React">⚛️ React</div>
+        <div class="skill-chip" data-val="Django">🎸 Django</div>
+        <div class="skill-chip" data-val="SQL">🛢️ SQL</div>
+        <div class="skill-chip" data-val="Git & GitHub">🐙 Git & GitHub</div>
+        <div class="skill-chip" data-val="Machine Learning">🤖 Machine Learning</div>
+        <div class="skill-chip" data-val="Data Structures">📦 Data Structures</div>
+        <div class="skill-chip" data-val="Others">💡 Others</div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Learning Time -->
+    <div class="step-panel" data-panel="5">
+      <div class="step-title-group">
+        <h2 class="step-panel-title">⏰ Step 5: Learning Time</h2>
+        <p class="step-panel-desc">How much commitment can you allocate to this roadmap daily?</p>
+      </div>
+
+      <div class="time-options-grid" id="timeGrid">
+        <div class="time-card" data-val="1 Hour Daily">
+          <span class="time-card-icon">⚡</span>
+          <span class="time-card-title">1 Hour Daily</span>
+        </div>
+        <div class="time-card" data-val="2 Hours Daily">
+          <span class="time-card-icon">🔥</span>
+          <span class="time-card-title">2 Hours Daily</span>
+        </div>
+        <div class="time-card" data-val="3+ Hours Daily">
+          <span class="time-card-icon">🌌</span>
+          <span class="time-card-title">3+ Hours Daily</span>
+        </div>
+        <div class="time-card" data-val="Weekend Learning">
+          <span class="time-card-icon">📅</span>
+          <span class="time-card-title">Weekend Learning</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6: Goal -->
+    <div class="step-panel" data-panel="6">
+      <div class="step-title-group">
+        <h2 class="step-panel-title">🎯 Step 6: Goal</h2>
+        <p class="step-panel-desc">What is your ultimate objective for completing this curriculum?</p>
+      </div>
+
+      <div class="goals-grid" id="goalsGrid">
+        <div class="goal-card" data-val="Internship">
+          <span class="goal-emoji">💼</span>
+          <span class="goal-title">Internship</span>
+        </div>
+        <div class="goal-card" data-val="Placement">
+          <span class="goal-emoji">🎓</span>
+          <span class="goal-title">Placement</span>
+        </div>
+        <div class="goal-card" data-val="Freelancing">
+          <span class="goal-emoji">💰</span>
+          <span class="goal-title">Freelancing</span>
+        </div>
+        <div class="goal-card" data-val="Startup">
+          <span class="goal-emoji">🦄</span>
+          <span class="goal-title">Startup</span>
+        </div>
+        <div class="goal-card" data-val="Open Source Contribution">
+          <span class="goal-emoji">🌱</span>
+          <span class="goal-title">Open Source</span>
+        </div>
+        <div class="goal-card" data-val="Skill Improvement">
+          <span class="goal-emoji">💪</span>
+          <span class="goal-title">Skill Mastery</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wizard Navigation Action Bar -->
+    <div class="wizard-actions">
+      <button class="btn-wizard btn-prev" id="btnPrev" style="visibility: hidden;">
+        <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        Previous
+      </button>
+      <button class="btn-wizard btn-next" id="btnNext">
+        Next
+        <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- --- AI GENERATOR LOADING SCREEN --- -->
+  <section class="wizard-card ai-loader-panel" id="aiLoaderPanel">
+    <div class="ai-loader-circle">
+      <div class="circular-spinner"></div>
+      <div class="circular-logo">🌊</div>
+    </div>
+    
+    <h2 style="font-family: var(--font-heading); color: white; margin-bottom: 0.5rem; font-size: 1.5rem;">AI COMPILING YOUR ROADMAP</h2>
+    <p class="step-panel-desc" style="margin-bottom: 2rem;">Compiling customized assets based on your skills, interests and goals...</p>
+    
+    <div class="ai-terminal" id="terminalConsole">
+      <div class="terminal-line" style="animation-delay: 0.2s;">> Initializing CodeWave AI Analyzer...</div>
+    </div>
+
+    <div class="loader-progress-bar">
+      <div class="loader-progress-fill" id="loaderFill"></div>
+    </div>
+    <div style="font-family: var(--font-heading); color: var(--neon-cyan); font-size: 0.95rem; font-weight: 700;" id="loaderPercentage">0%</div>
+  </section>
+
+  <!-- --- GENERATED ROADMAP VIEW --- -->
+  <section class="roadmap-output-panel" id="roadmapOutputPanel">
+    
+    <!-- Dashboard header card -->
+    <div class="dashboard-header-card">
+      <div class="db-title-block">
+        <span class="db-meta-badge" id="outputMetaBadge">WEB DEV - BEGINNER</span>
+        <h2 class="db-heading" id="outputHeading">AI/ML Internship Roadmap for Beginners</h2>
+        <p class="db-desc" id="outputSubtitle">Roadmap duration: 90 Days | Created for Rajesh Gowda (College of Engineering)</p>
+      </div>
+
+      <div class="db-actions">
+        <button class="btn-action" onclick="window.print()">
+          <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+          PDF
+        </button>
+        <button class="btn-action" id="btnShare">
+          <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7L15.9 7.35c.53.47 1.21.77 1.97.77 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.34 6.82 9.04 6 9.04c-1.66 0-3 1.34-3 3s1.34 3 3 3c.82 0 1.5-.3 2.04-.77l7.97 4.64c-.05.22-.09.45-.09.68 0 1.66 1.3 3 3 3s3-1.34 3-3-1.34-3-3-3z"/></svg>
+          Share
+        </button>
+        <button class="btn-action btn-save-db" id="btnSaveRoadmap">
+          <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+          Save Roadmap
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Grid Content -->
+    <div class="roadmap-dashboard-grid">
+      
+      <!-- Left column stats and achievements -->
+      <div class="db-left-column">
+        
+        <!-- Progress percentages -->
+        <div class="progress-tracker-card">
+          <h3 class="tracker-title">
+            <svg style="width:18px;height:18px;fill:currentColor;color:var(--neon-cyan)" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            Learning Progress
+          </h3>
+          
+          <div class="radial-progress-wrapper">
+            <svg class="radial-svg">
+              <circle class="radial-bg" cx="70" cy="70" r="55"></circle>
+              <circle class="radial-fill" id="radialProgressCircle" cx="70" cy="70" r="55"></circle>
+            </svg>
+            <div class="radial-text">
+              <div class="percentage-val" id="progressPercentageText">0%</div>
+              <div class="percentage-label">Completed</div>
+            </div>
+          </div>
+
+          <div class="stats-list">
+            <div class="stat-item-box">
+              <div class="stat-box-val" id="statCompletedTopics">0</div>
+              <div class="stat-box-label">Topics Finished</div>
+            </div>
+            <div class="stat-item-box">
+              <div class="stat-box-val" id="statRemainingTopics">15</div>
+              <div class="stat-box-label">Topics Remaining</div>
+            </div>
+            <div class="stat-item-box" style="grid-column: span 2;">
+              <div class="stat-box-val" id="statLearningStreak">🔥 1 Day Streak</div>
+              <div class="stat-box-label">Continuous Learning</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Badges & Achievements -->
+        <div class="achievements-card">
+          <h3 class="tracker-title">
+            <svg style="width:18px;height:18px;fill:currentColor;color:var(--neon-purple)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+            Achievements Unlocked
+          </h3>
+          
+          <div class="badges-grid">
+            <div class="badge-item" id="badgeExplorer">
+              <span class="badge-icon">🥉</span>
+              <div class="badge-info">
+                <span class="badge-name">Explorer</span>
+                <span class="badge-status">Locked</span>
+              </div>
+            </div>
+            
+            <div class="badge-item" id="badgeLearner">
+              <span class="badge-icon">🥈</span>
+              <div class="badge-info">
+                <span class="badge-name">Learner</span>
+                <span class="badge-status">Locked</span>
+              </div>
+            </div>
+
+            <div class="badge-item" id="badgeMaster">
+              <span class="badge-icon">🥇</span>
+              <div class="badge-info">
+                <span class="badge-name">Master</span>
+                <span class="badge-status">Locked</span>
+              </div>
+            </div>
+
+            <div class="badge-item" id="badgeReady">
+              <span class="badge-icon">🏆</span>
+              <div class="badge-info">
+                <span class="badge-name">Ready</span>
+                <span class="badge-status">Locked</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Practice platforms recommendations -->
+        <div class="practice-platforms-card">
+          <h3 class="tracker-title">
+            <svg style="width:18px;height:18px;fill:currentColor;color:var(--neon-cyan)" viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+            Practice Sandbox
+          </h3>
+          
+          <div class="platforms-list" id="platformsList">
+            <!-- Populated dynamically based on interest -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right column Interactive Timeline -->
+      <div class="db-right-column">
+        
+        <!-- Timeline Card -->
+        <div class="timeline-container-card">
+          <h3 class="tracker-title">
+            <svg style="width:18px;height:18px;fill:currentColor;color:var(--neon-cyan)" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            Interactive Syllabus Timeline
+          </h3>
+
+          <div class="timeline-flow" id="timelineFlowContainer">
+            <!-- Populated dynamically by generator JS -->
+          </div>
+        </div>
+
+        <!-- Projects Dashboard -->
+        <div class="projects-dashboard-card">
+          <h3 class="tracker-title">
+            <svg style="width:18px;height:18px;fill:currentColor;color:var(--neon-purple)" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+            Curated Project Portfolio
+          </h3>
+
+          <div class="project-tiers">
+            <div class="tier-tab active" data-tier="beginner">Beginner</div>
+            <div class="tier-tab" data-tier="intermediate">Intermediate</div>
+            <div class="tier-tab" data-tier="advanced">Advanced</div>
+          </div>
+
+          <!-- Project grids -->
+          <div class="projects-tier-container active" id="projects-beginner"></div>
+          <div class="projects-tier-container" id="projects-intermediate"></div>
+          <div class="projects-tier-container" id="projects-advanced"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- --- FLOATING AI MENTOR PANEL --- -->
+  <div class="ai-mentor-floating">
+    <button class="ai-mentor-avatar-btn" id="btnMentorToggle">
+      <!-- Chatbot icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="10" x="3" y="11" rx="2" ry="2"/>
+        <path d="M12 2v4M12 5H7M12 5h5M8 15h.01M16 15h.01"/>
+      </svg>
+    </button>
+
+    <div class="ai-mentor-chatbox" id="mentorChatbox">
+      <div class="mentor-chat-header">
+        <div class="mentor-title-group">
+          <div class="mentor-dot"></div>
+          <span class="mentor-name">CodeWave AI Mentor</span>
+        </div>
+        <button class="mentor-close-btn" id="btnMentorClose">✕</button>
+      </div>
+
+      <div class="mentor-chat-logs" id="mentorChatLogs">
+        <div class="mentor-msg incoming">
+          <div class="mentor-msg-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="10" x="3" y="11" rx="2" ry="2"/><path d="M12 2v4M12 5H7M12 5h5M8 15h.01M16 15h.01"/></svg>
+          </div>
+          <div class="mentor-msg-bubble">
+            Hello! I am your CodeWave AI Mentor. I have analyzed your roadmap. How can I guide you today?
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick prompts chips -->
+      <div class="mentor-quick-prompts">
+        <button class="quick-prompt-btn" data-query="next">What to learn next?</button>
+        <button class="quick-prompt-btn" data-query="projects">Suggest projects</button>
+        <button class="quick-prompt-btn" data-query="ready">Am I internship ready?</button>
+        <button class="quick-prompt-btn" data-query="interview">Generate interview Qs</button>
+      </div>
+
+      <div class="mentor-chat-input-wrapper">
+        <input type="text" class="mentor-chat-input" id="mentorChatInput" placeholder="Ask your mentor a question...">
+        <button class="mentor-chat-send-btn" id="btnMentorSend">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal Layout -->
+  <div class="share-modal" id="shareModal">
+    <div class="share-modal-card">
+      <h4 class="share-modal-title">Share Your Roadmap 🚀</h4>
+      <p class="step-panel-desc" style="margin-bottom:1rem;">Your personalized CodeWave curriculum is saved. Copy the link below to share your learning goals with friends.</p>
+      
+      <div class="share-copy-box">
+        <span class="share-url-text" id="shareUrlText">https://codewave.dev/waves/roadmap/?id=1</span>
+        <button class="btn-copy-url" id="btnCopyUrl">Copy Link</button>
+      </div>
+
+      <div class="share-socials">
+        <a class="share-social-btn" id="shareTwitter" href="#" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+        </a>
+        <a class="share-social-btn" id="shareLinkedIn" href="#" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+        </a>
+        <button class="btn-prev" onclick="document.getElementById('shareModal').classList.remove('active')" style="padding:0.4rem 1rem; border-radius:6px; font-size:0.8rem; border:1px solid rgba(255,255,255,0.05); background:none; color:white; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Check if a roadmap has been passed down by context to load dynamically
+  const LOADED_ROADMAP_ID = "{{ loaded_roadmap_id|default:'' }}";
+</script>
+
+<!-- The Roadmap Engine JavaScript logic -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const careerRoadmaps = {
+      'Web Development': {
+        title: "Full-Stack Web Developer Roadmap",
+        badge: "Web Dev - Beginner",
+        duration: "30 Days",
+        platforms: [
+          { name: "LeetCode", rec: "Practice JavaScript, Arrays & Strings tasks" },
+          { name: "Exercism", rec: "Complete the JavaScript and HTML tracks" },
+          { name: "GeeksforGeeks", rec: "Learn CSS Flexbox and Grid tutorials" }
+        ],
+        phases: [
+          {
+            name: "Phase 1: HTML & CSS Essentials",
+            days: [
+              { id: "wd-d1", day: "Day 1", topic: "Semantic HTML5 Structure", time: "1.5 Hours", difficulty: "Beg", obj: "Understand the structure of document, semantic components and headers.", video: "HTML Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=OkT5f1-3mP0", doc: "https://developer.mozilla.org/en-US/docs/Web/HTML", blog: "MDN HTML Guide", notes: "https://www.w3schools.com/html/" },
+              { id: "wd-d2", day: "Day 2", topic: "HTML Forms & Input Validation", time: "2 Hours", difficulty: "Beg", obj: "Master input tags, textareas, drop-downs, buttons, and form validation.", video: "HTML Forms Tutorial", videoUrl: "https://www.youtube.com/watch?v=fNcJuPIZ2WE", doc: "https://developer.mozilla.org/en-US/docs/Learn/Forms", blog: "CSS-Tricks Guide to Forms", notes: "https://www.w3schools.com/html/html_forms.asp" },
+              { id: "wd-d3", day: "Day 3", topic: "CSS Basics & Selectors", time: "2 Hours", difficulty: "Beg", obj: "Learn CSS syntax, selectors (class, id, attribute), colors, and fonts.", video: "CSS Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=1Rs2ND1ryYc", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS", blog: "CSS Basics on MDN", notes: "https://www.w3schools.com/css/" },
+              { id: "wd-d4", day: "Day 4", topic: "CSS Box Model, Margin & Padding", time: "1.5 Hours", difficulty: "Beg", obj: "Deep dive into margin, border, padding, height, width, and box-sizing.", video: "CSS Box Model Tutorial", videoUrl: "https://www.youtube.com/watch?v=n4R2E7O-NLY", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model", blog: "Learn Layout CSS Box Model", notes: "https://css-tricks.com/the-css-box-model/" },
+              { id: "wd-d5", day: "Day 5", topic: "CSS Flexbox Layouts", time: "2.5 Hours", difficulty: "Beg", obj: "Align items horizontally and vertically using flex containers.", video: "CSS Flexbox Course", videoUrl: "https://www.youtube.com/watch?v=fYq5JSgRpx0", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout", blog: "A Complete Guide to Flexbox", notes: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/" },
+              { id: "wd-d6", day: "Day 6", topic: "CSS Grid Layouts", time: "2.5 Hours", difficulty: "Beg", obj: "Create multi-dimensional grid structures and templates.", video: "CSS Grid Tutorial", videoUrl: "https://www.youtube.com/watch?v=8gK1M-s1Qwg", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout", blog: "A Complete Guide to CSS Grid", notes: "https://css-tricks.com/snippets/css/complete-guide-grid/" },
+              { id: "wd-d7", day: "Day 7", topic: "Responsive Web Design & Media Queries", time: "2 Hours", difficulty: "Beg", obj: "Apply mobile-first styling and viewport configuration.", video: "Responsive Web Design Tutorial", videoUrl: "https://www.youtube.com/watch?v=srvUrASg0MY", doc: "https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design", blog: "Responsive Design Best Practices", notes: "https://web.dev/responsive-web-design-basics/" }
+            ]
+          },
+          {
+            name: "Phase 2: JavaScript Core Fundamentals",
+            days: [
+              { id: "wd-d8", day: "Day 8", topic: "JavaScript Variables & Data Types", time: "2 Hours", difficulty: "Beg", obj: "Learn let/const, strings, numbers, booleans, and null/undefined.", video: "JavaScript Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=W6NZfCO5SIk", doc: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types", blog: "JS Variables Explained", notes: "https://javascript.info/variables" },
+              { id: "wd-d9", day: "Day 9", topic: "JS Control Flow & Loops", time: "2 Hours", difficulty: "Beg", obj: "Write if-statements, switch cases, for, while, and do-while loops.", video: "JS Loops and Control Flow", videoUrl: "https://www.youtube.com/watch?v=s9wW2PpJsmQ", doc: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Control_flow_and_error_handling", blog: "Loops and Iteration", notes: "https://javascript.info/while-for" },
+              { id: "wd-d10", day: "Day 10", topic: "JS Functions, Scope & Closures", time: "2.5 Hours", difficulty: "Int", obj: "Define functions, arrow functions, lexical scopes, and closures.", video: "JS Functions Course", videoUrl: "https://www.youtube.com/watch?v=PkZNo7MFNFg", doc: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions", blog: "Understanding JS Scope", notes: "https://javascript.info/function-basics" },
+              { id: "wd-d11", day: "Day 11", topic: "DOM Selection & DOM Manipulation", time: "2.5 Hours", difficulty: "Int", obj: "Select, traverse, and modify HTML elements dynamically.", video: "JS DOM Crash Course", videoUrl: "https://www.youtube.com/watch?v=5fb2aPlgoys", doc: "https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model", blog: "Intro to DOM manipulation", notes: "https://javascript.info/dom-nodes" },
+              { id: "wd-d12", day: "Day 12", topic: "DOM Events & Event Listeners", time: "2 Hours", difficulty: "Int", obj: "Attach click, hover, submit, and keyboard event handlers.", video: "DOM Events and Event Listeners", videoUrl: "https://www.youtube.com/watch?v=gdI1tV6V14U", doc: "https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener", blog: "Event Bubbling and Capturing", notes: "https://javascript.info/introduction-browser-events" },
+              { id: "wd-d13", day: "Day 13", topic: "Asynchronous JS: Callbacks & Promises", time: "3 Hours", difficulty: "Int", obj: "Master the event loop, callback hell, and Promise states.", video: "Asynchronous JavaScript Explained", videoUrl: "https://www.youtube.com/watch?v=exBgWAIeIeg", doc: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises", blog: "JavaScript Promises Simplified", notes: "https://javascript.info/promise-basics" },
+              { id: "wd-d14", day: "Day 14", topic: "Fetch API & Async/Await", time: "3 Hours", difficulty: "Int", obj: "Perform AJAX network calls, parse JSON response, and catch errors.", video: "Fetch API and Async/Await", videoUrl: "https://www.youtube.com/watch?v=drKGsElgQ7M", doc: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch", blog: "Fetching API Data in JS", notes: "https://javascript.info/async-await" }
+            ]
+          },
+          {
+            name: "Phase 3: React.js SPA Development",
+            days: [
+              { id: "wd-d15", day: "Day 15", topic: "React Intro & JSX Elements", time: "2.5 Hours", difficulty: "Int", obj: "Set up React projects, understand component building blocks & JSX.", video: "ReactJS Full Course for Beginners", videoUrl: "https://www.youtube.com/watch?v=Ke90Tje7VS0", doc: "https://react.dev/learn", blog: "Introducing JSX", notes: "https://react.dev/learn/writing-markup-with-jsx" },
+              { id: "wd-d16", day: "Day 16", topic: "React Components & Props", time: "2 Hours", difficulty: "Int", obj: "Create reusable functional components and pass props dynamically.", video: "React Components and Props", videoUrl: "https://www.youtube.com/watch?v=hQAHJsKyN0s", doc: "https://react.dev/learn/passing-props-to-a-component", blog: "Thinking in React Components", notes: "https://react.dev/learn/your-first-component" },
+              { id: "wd-d17", day: "Day 17", topic: "React State Management (useState)", time: "3 Hours", difficulty: "Int", obj: "Configure component state and handle user interactive updates.", video: "React useState Hook Tutorial", videoUrl: "https://www.youtube.com/watch?v=O6P86uwfdR0", doc: "https://react.dev/reference/react/useState", blog: "React useState Guide", notes: "https://react.dev/learn/state-a-components-memory" },
+              { id: "wd-d18", day: "Day 18", topic: "React Side Effects (useEffect)", time: "3 Hours", difficulty: "Int", obj: "Fetch server data and set up event listener cleanups in useEffect.", video: "React useEffect Hook Tutorial", videoUrl: "https://www.youtube.com/watch?v=0ZJgIjIuY7U", doc: "https://react.dev/reference/react/useEffect", blog: "Synchronizing with Effects", notes: "https://react.dev/learn/synchronizing-with-effects" },
+              { id: "wd-d19", day: "Day 19", topic: "React Router V6 Navigation", time: "3 Hours", difficulty: "Int", obj: "Configure page routing, links, dynamic routes, and navigation hooks.", video: "React Router V6 Complete Tutorial", videoUrl: "https://www.youtube.com/watch?v=Ul3y1LXxzdU", doc: "https://reactrouter.com/en/main", blog: "React Router Beginners Guide", notes: "https://reactrouter.com/en/main/start/tutorial" },
+              { id: "wd-d20", day: "Day 20", topic: "React Context API Global State", time: "3 Hours", difficulty: "Int", obj: "Share global application state across nested tree nodes without prop drilling.", video: "React Context API Tutorial", videoUrl: "https://www.youtube.com/watch?v=5LrDIWkK-D0", doc: "https://react.dev/reference/react/useContext", blog: "State Management in React", notes: "https://react.dev/learn/passing-data-deeply-with-context" }
+            ]
+          },
+          {
+            name: "Phase 4: Backend Engineering with Node & Express",
+            days: [
+              { id: "wd-d21", day: "Day 21", topic: "Node.js Basics & Module System", time: "2 Hours", difficulty: "Int", obj: "Understand V8 Engine, require/import modules, and File System API.", video: "Node.js Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=TlB_eWDSMt4", doc: "https://nodejs.org/en/docs", blog: "Node.js Architecture Guide", notes: "https://nodejs.org/en/learn/getting-started/introduction-to-nodejs" },
+              { id: "wd-d22", day: "Day 22", topic: "Express.js Server Setup", time: "2.5 Hours", difficulty: "Int", obj: "Install Express, listen on ports, and manage response content types.", video: "Express.js Crash Course", videoUrl: "https://www.youtube.com/watch?v=SccSCuHh5Hc", doc: "https://expressjs.com/en/starter/installing.html", blog: "Hello World in Express", notes: "https://expressjs.com/en/guide/routing.html" },
+              { id: "wd-d23", day: "Day 23", topic: "REST API Design & Route Parameters", time: "3 Hours", difficulty: "Int", obj: "Build GET, POST, PUT, DELETE REST API endpoints with status codes.", video: "Build a REST API in Node.js", videoUrl: "https://www.youtube.com/watch?v=-MTSQjw5DrM", doc: "https://expressjs.com/en/guide/routing.html", blog: "Best practices for REST API design", notes: "https://restfulapi.net/" },
+              { id: "wd-d24", day: "Day 24", topic: "Express Middleware Flow", time: "2.5 Hours", difficulty: "Int", obj: "Learn app-level, router-level, error-handling, and third-party middlewares.", video: "Express Middleware Tutorial", videoUrl: "https://www.youtube.com/watch?v=lY6icfarp2A", doc: "https://expressjs.com/en/guide/using-middleware.html", blog: "Writing middleware for Express", notes: "https://expressjs.com/en/guide/writing-middleware.html" }
+            ]
+          },
+          {
+            name: "Phase 5: Databases, Security & Cloud Deployment",
+            days: [
+              { id: "wd-d25", day: "Day 25", topic: "SQL Databases & PostgreSQL Basics", time: "3 Hours", difficulty: "Adv", obj: "Create schemas, write SELECT, JOIN, INSERT, and UPDATE queries.", video: "SQL & Database Tutorial", videoUrl: "https://www.youtube.com/watch?v=HXV3zeQKqGY", doc: "https://www.postgresql.org/docs/", blog: "SQL vs NoSQL Comparison", notes: "https://www.w3schools.com/sql/" },
+              { id: "wd-d26", day: "Day 26", topic: "NoSQL Databases & MongoDB Basics", time: "3 Hours", difficulty: "Adv", obj: "Understand document storage, collections, document filtering, and aggregations.", video: "MongoDB Crash Course", videoUrl: "https://www.youtube.com/watch?v=ExcRbA71_18", doc: "https://www.mongodb.com/docs/", blog: "Introduction to MongoDB", notes: "https://www.mongodb.com/docs/manual/introduction/" },
+              { id: "wd-d27", day: "Day 27", topic: "Mongoose ODM with Express", time: "3 Hours", difficulty: "Adv", obj: "Define schemas, models, validation rules, and run queries in Node.", video: "Mongoose Crash Course", videoUrl: "https://www.youtube.com/watch?v=DXUAOS1OdEs", doc: "https://mongoosejs.com/docs/guide.html", blog: "Connecting Express to Mongo via Mongoose", notes: "https://mongoosejs.com/docs/index.html" },
+              { id: "wd-d28", day: "Day 28", topic: "User Auth, Bcrypt & JWT Hashing", time: "3.5 Hours", difficulty: "Adv", obj: "Secure logins using password hashing and JSON Web Tokens.", video: "JWT Auth Tutorial", videoUrl: "https://www.youtube.com/watch?v=mbsmsi7l3r4", doc: "https://jwt.io/introduction", blog: "Secure authentication patterns", notes: "https://jwt.io/" },
+              { id: "wd-d29", day: "Day 29", topic: "Git & Collaborative Workflows", time: "2 Hours", difficulty: "Beg", obj: "Manage git branches, commits, merges, push to GitHub, and handle conflicts.", video: "Git & GitHub Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=apGV9AdZyms", doc: "https://git-scm.com/doc", blog: "GitHub Flow Explained", notes: "https://git-scm.com/book/en/v2" },
+              { id: "wd-d30", day: "Day 30", topic: "Cloud Deployments & Performance Audits", time: "3 Hours", difficulty: "Adv", obj: "Deploy to Render and Vercel. Optimize bundle sizes and load times.", video: "MERN Stack Deployment Tutorial", videoUrl: "https://www.youtube.com/watch?v=2a0GIIk2014", doc: "https://render.com/docs", blog: "Optimizing web performance", notes: "https://web.dev/measure/" }
+            ]
+          }
+        ],
+        projects: {
+          beginner: [
+            { name: "Responsive Developer Portfolio", desc: "Build a multi-section developer portfolio displaying skills, projects, and a glassmorphic contact form.", tags: ["HTML5", "CSS3 Layouts", "JavaScript"], diff: "Beginner", time: "5 Days" }
+          ],
+          intermediate: [
+            { name: "Glassmorphic E-Commerce Frontend", desc: "Construct a React application representing a modern store with catalog filtering, shopping cart, and state management.", tags: ["React", "CSS Variables", "Local Storage"], diff: "Intermediate", time: "10 Days" }
+          ],
+          advanced: [
+            { name: "Real-time Developer Collaboration Hub", desc: "Implement a full stack system containing user auth, custom profiles, project boards, and real-time chatting APIs.", tags: ["React", "Node.js", "Express", "MongoDB", "Socket.io"], diff: "Advanced", time: "20 Days" }
+          ]
+        }
+      },
+      'AI / Machine Learning': {
+        title: "Artificial Intelligence & ML Specialist",
+        badge: "AI/ML - Beginner",
+        duration: "30 Days",
+        platforms: [
+          { name: "Kaggle", rec: "Participate in Beginner tabular prediction contests" },
+          { name: "Exercism", rec: "Solve the Python numerical track" },
+          { name: "GeeksforGeeks", rec: "Study Calculus and Statistics for ML" }
+        ],
+        phases: [
+          {
+            name: "Phase 1: Python & Numerical Foundations",
+            days: [
+              { id: "ai-d1", day: "Day 1", topic: "Python Setup & Variable Basics", time: "2 Hours", difficulty: "Beg", obj: "Set up Jupyter notebook, learn variables, numbers, strings, and operators.", video: "Python for Beginners", videoUrl: "https://www.youtube.com/watch?v=kqtD5dpn9C8", doc: "https://docs.python.org/3/", blog: "Core Python Programming Intro", notes: "https://www.w3schools.com/python/" },
+              { id: "ai-d2", day: "Day 2", topic: "Python Lists, Tuples, Dictionaries", time: "2 Hours", difficulty: "Beg", obj: "Master list slicing, dictionary iteration, and tuple packing.", video: "Python Data Structures", videoUrl: "https://www.youtube.com/watch?v=W8KRzm-HUcc", doc: "https://docs.python.org/3/tutorial/datastructures.html", blog: "Python Collection Types", notes: "https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range" },
+              { id: "ai-d3", day: "Day 3", topic: "Python Functions & OOP Concepts", time: "2.5 Hours", difficulty: "Beg", obj: "Learn functions, args/kwargs, classes, inheritance, and instances.", video: "Python OOP Tutorial", videoUrl: "https://www.youtube.com/watch?v=JeznW_7DlB0", doc: "https://docs.python.org/3/tutorial/classes.html", blog: "Classes and Objects in Python", notes: "https://realpython.com/python3-object-oriented-programming/" },
+              { id: "ai-d4", day: "Day 4", topic: "NumPy Arrays & Vectorization", time: "2.5 Hours", difficulty: "Beg", obj: "Create arrays, handle dimensional slicing, and perform vectorized operations.", video: "NumPy Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=QUT1VHiLgKQ", doc: "https://numpy.org/doc/stable/user/absolute_beginners.html", blog: "Vectorization in NumPy", notes: "https://numpy.org/doc/stable/reference/" },
+              { id: "ai-d5", day: "Day 5", topic: "Matrix Multiplications in NumPy", time: "2 Hours", difficulty: "Beg", obj: "Calculate dot products, transpose, and matrix multiplications using NumPy.", video: "NumPy Matrix Operations", videoUrl: "https://www.youtube.com/watch?v=N8S2N_fNf8c", doc: "https://numpy.org/doc/stable/reference/routines.linalg.html", blog: "Linear Algebra with NumPy", notes: "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html" },
+              { id: "ai-d6", day: "Day 6", topic: "Linear Algebra: Vector Spaces & Matrices", time: "2 Hours", difficulty: "Beg", obj: "Understand linear combinations, spans, bases, and linear transformations.", video: "Essence of Linear Algebra: Chapter 1", videoUrl: "https://www.youtube.com/watch?v=fNk_zzaMoEs", doc: "https://www.khanacademy.org/math/linear-algebra", blog: "Geometric meaning of vector spaces", notes: "https://ocw.mit.edu/courses/mathematics/" },
+              { id: "ai-d7", day: "Day 7", topic: "Linear Algebra: Eigenvalues & Eigenvectors", time: "2 Hours", difficulty: "Beg", obj: "Learn eigenvalues, eigenvectors, and diagonalizing matrices.", video: "Eigenvalues and Eigenvectors Explained", videoUrl: "https://www.youtube.com/watch?v=PFDu9oVAE-g", doc: "https://www.khanacademy.org/math/linear-algebra/alternate-coordinate-systems-for-r-n", blog: "Visualizing Eigenvalues", notes: "https://ocw.mit.edu/resources/" }
+            ]
+          },
+          {
+            name: "Phase 2: Statistics & Exploratory Data Analysis",
+            days: [
+              { id: "ai-d8", day: "Day 8", topic: "Statistics: Probability & Bayes Theorem", time: "2 Hours", difficulty: "Beg", obj: "Calculate probability, conditional probability, and Bayes Theorem.", video: "Bayes Theorem Visualized", videoUrl: "https://www.youtube.com/watch?v=HZGCoVF3YvM", doc: "https://www.khanacademy.org/math/statistics-probability", blog: "Bayes Theorem Explained intuitively", notes: "https://wikipedia.org/wiki/Bayes%27_theorem" },
+              { id: "ai-d9", day: "Day 9", topic: "Statistics: Data Distributions & Center", time: "2.5 Hours", difficulty: "Beg", obj: "Define mean, median, mode, standard deviation, and normal distributions.", video: "Statistics Crash Course", videoUrl: "https://www.youtube.com/watch?v=xxpc-HPKN28", doc: "https://www.khanacademy.org/math/ap-statistics", blog: "Statistical measures in Python", notes: "https://docs.python.org/3/library/statistics.html" },
+              { id: "ai-d10", day: "Day 10", topic: "Pandas Intro & Data Loading", time: "2.5 Hours", difficulty: "Beg", obj: "Load CSV files, inspect rows/columns, and select data.", video: "Pandas Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=vmEHCJofHsg", doc: "https://pandas.pydata.org/docs/user_guide/10min.html", blog: "Pandas Cheat Sheet", notes: "https://pandas.pydata.org/docs/" },
+              { id: "ai-d11", day: "Day 11", topic: "Pandas Data Cleaning & Fill NaNs", time: "2.5 Hours", difficulty: "Int", obj: "Drop records, fill missing values, cast column types, and apply functions.", video: "Pandas Data Cleaning", videoUrl: "https://www.youtube.com/watch?v=Ew113Wk5kLs", doc: "https://pandas.pydata.org/docs/user_guide/missing_data.html", blog: "Data cleansing methodologies", notes: "https://pandas.pydata.org/docs/reference/frame.html" },
+              { id: "ai-d12", day: "Day 12", topic: "Data Visualization with Matplotlib", time: "2 Hours", difficulty: "Beg", obj: "Plot line graphs, bar charts, histograms, and configure labels.", video: "Matplotlib Tutorial", videoUrl: "https://www.youtube.com/watch?v=DAQNHzOcO5A", doc: "https://matplotlib.org/stable/users/index.html", blog: "Effective data visualization", notes: "https://matplotlib.org/stable/tutorials/index.html" },
+              { id: "ai-d13", day: "Day 13", topic: "Statistical Plotting with Seaborn", time: "2 Hours", difficulty: "Beg", obj: "Generate pairplots, heatmaps, box plots, and scatter plots.", video: "Seaborn Tutorial", videoUrl: "https://www.youtube.com/watch?v=GcXxFyWsp84", doc: "https://seaborn.pydata.org/", blog: "Visualizing relationships with Seaborn", notes: "https://seaborn.pydata.org/tutorial.html" },
+              { id: "ai-d14", day: "Day 14", topic: "Exploratory Data Analysis (EDA) Project", time: "3 Hours", difficulty: "Int", obj: "Perform a complete EDA on a Kaggle dataset (e.g. Titanic).", video: "EDA Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=3KBZKBJe7sU", doc: "https://pandas.pydata.org/pandas-docs/stable/user_guide/index.html", blog: "Titanic Dataset EDA walkthrough", notes: "https://kaggle.com/" }
+            ]
+          },
+          {
+            name: "Phase 3: Classical Machine Learning",
+            days: [
+              { id: "ai-d15", day: "Day 15", topic: "Machine Learning Concept Overview", time: "2 Hours", difficulty: "Beg", obj: "Understand supervised, unsupervised, reinforcement learning, and bias-variance tradeoff.", video: "Machine Learning Course", videoUrl: "https://www.youtube.com/watch?v=Gv9_4yMHFhI", doc: "https://scikit-learn.org/stable/user_guide.html", blog: "Introduction to Machine Learning", notes: "https://scikit-learn.org/stable/tutorial/basic/tutorial.html" },
+              { id: "ai-d16", day: "Day 16", topic: "Scikit-Learn Introduction & Estimators", time: "2 Hours", difficulty: "Int", obj: "Learn fit-predict workflow, transformers, and model pipelines.", video: "Scikit-Learn Crash Course", videoUrl: "https://www.youtube.com/watch?v=0Lt9w-ROKFQ", doc: "https://scikit-learn.org/stable/getting_started.html", blog: "Scikit-Learn Pipeline building", notes: "https://scikit-learn.org/stable/modules/classes.html" },
+              { id: "ai-d17", day: "Day 17", topic: "Linear Regression Models", time: "3 Hours", difficulty: "Int", obj: "Implement simple & multiple linear regression, compute MSE & R-squared.", video: "Linear Regression Tutorial", videoUrl: "https://www.youtube.com/watch?v=E5R3UM8J29I", doc: "https://scikit-learn.org/stable/modules/linear_model.html", blog: "Regression analysis basics", notes: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html" },
+              { id: "ai-d18", day: "Day 18", topic: "Logistic Regression & Classification", time: "3 Hours", difficulty: "Int", obj: "Build binary classifiers and analyze sigmoid functions.", video: "Logistic Regression Tutorial", videoUrl: "https://www.youtube.com/watch?v=yIYKR4sgzI8", doc: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html", blog: "Classification in Machine Learning", notes: "https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression" },
+              { id: "ai-d19", day: "Day 19", topic: "Decision Trees & Random Forests", time: "3 Hours", difficulty: "Int", obj: "Learn entropy, information gain, bagging, and ensemble random forests.", video: "Random Forests Explained", videoUrl: "https://www.youtube.com/watch?v=g9c65SJHclw", doc: "https://scikit-learn.org/stable/modules/ensemble.html", blog: "Trees and Ensembles", notes: "https://scikit-learn.org/stable/modules/tree.html" },
+              { id: "ai-d20", day: "Day 20", topic: "Support Vector Machines (SVM)", time: "2.5 Hours", difficulty: "Int", obj: "Understand margins, hyperplanes, and kernel tricks in SVM.", video: "SVM Tutorial", videoUrl: "https://www.youtube.com/watch?v=efR1C6BhCJ8", doc: "https://scikit-learn.org/stable/modules/svm.html", blog: "Support Vector Machine Math", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.svm" },
+              { id: "ai-d21", day: "Day 21", topic: "K-Means Clustering & Unsupervised ML", time: "2.5 Hours", difficulty: "Int", obj: "Apply clustering, select optimal K using elbow method.", video: "K-Means Clustering", videoUrl: "https://www.youtube.com/watch?v=4b5d3muPQmA", doc: "https://scikit-learn.org/stable/modules/clustering.html#k-means", blog: "Unsupervised learning applications", notes: "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html" }
+            ]
+          },
+          {
+            name: "Phase 4: Validation & Tuning",
+            days: [
+              { id: "ai-d22", day: "Day 22", topic: "Model Validation: Train-Test & CV", time: "2.5 Hours", difficulty: "Int", obj: "Master cross validation, K-fold splits, and preventing overfitting.", video: "Cross Validation Explained", videoUrl: "https://www.youtube.com/watch?v=fSytzLH-C_M", doc: "https://scikit-learn.org/stable/modules/cross_validation.html", blog: "Generalization error and Validation", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.model_selection" },
+              { id: "ai-d23", day: "Day 23", topic: "Confusion Matrix & Classification Metrics", time: "2.5 Hours", difficulty: "Int", obj: "Evaluate F1 Score, Precision, Recall, ROC curve, and AUC.", video: "Classification Metrics", videoUrl: "https://www.youtube.com/watch?v=Kdsp6soqA7o", doc: "https://scikit-learn.org/stable/modules/model_evaluation.html", blog: "Precision vs Recall tradeoff", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics" },
+              { id: "ai-d24", day: "Day 24", topic: "Hyperparameter Tuning: Grid Search", time: "3 Hours", difficulty: "Int", obj: "Optimize hyperparameters using GridSearchCV & RandomizedSearchCV.", video: "Grid Search Parameter Tuning", videoUrl: "https://www.youtube.com/watch?v=HdlDYsg7968", doc: "https://scikit-learn.org/stable/modules/grid_search.html", blog: "Automating parameter tuning", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.model_selection" }
+            ]
+          },
+          {
+            name: "Phase 5: Neural Networks & PyTorch",
+            days: [
+              { id: "ai-d25", day: "Day 25", topic: "Intro to Neural Networks", time: "3 Hours", difficulty: "Adv", obj: "Understand perceptrons, activation functions (ReLU, Sigmoid), and backpropagation.", video: "Neural Networks Course", videoUrl: "https://www.youtube.com/watch?v=aircAruvnKk", doc: "https://pytorch.org/docs/stable/index.html", blog: "How Neural Networks learn", notes: "https://deeplearning.ai/" },
+              { id: "ai-d26", day: "Day 26", topic: "PyTorch Basics & Tensors", time: "3 Hours", difficulty: "Adv", obj: "Manipulate tensors, calculate gradients using AutoGrad.", video: "PyTorch Beginner Course", videoUrl: "https://www.youtube.com/watch?v=V_xro1bcAuA", doc: "https://pytorch.org/docs/stable/tensors.html", blog: "Getting Started with PyTorch Tensors", notes: "https://pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html" },
+              { id: "ai-d27", day: "Day 27", topic: "Building Networks with nn.Module", time: "3 Hours", difficulty: "Adv", obj: "Define custom neural network architectures and forward propagation.", video: "Building PyTorch Neural Networks", videoUrl: "https://www.youtube.com/watch?v=c36lUUr864M", doc: "https://pytorch.org/docs/stable/generated/torch.nn.Module.html", blog: "PyTorch Model Creation Guide", notes: "https://pytorch.org/tutorials/beginner/basics/buildmodel_tutorial.html" },
+              { id: "ai-d28", day: "Day 28", topic: "Convolutional Neural Networks (CNNs)", time: "3.5 Hours", difficulty: "Adv", obj: "Understand convolutional layers, pooling, stride, and image features.", video: "CNNs Tutorial", videoUrl: "https://www.youtube.com/watch?v=pDae3aCOz3U", doc: "https://pytorch.org/docs/stable/nn.html#convolution-layers", blog: "Convolutional Neural Network mechanics", notes: "https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html" },
+              { id: "ai-d29", day: "Day 29", topic: "Image Classification Training Loop", time: "3 Hours", difficulty: "Adv", obj: "Configure CrossEntropyLoss, SGD/Adam optimizer, and run training epochs.", video: "Image Classification Tutorial", videoUrl: "https://www.youtube.com/watch?v=GIsg-ZUy0MY", doc: "https://pytorch.org/docs/stable/optim.html", blog: "Training image classification models", notes: "https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html" },
+              { id: "ai-d30", day: "Day 30", topic: "Model Serving via FastAPI & Docker", time: "3 Hours", difficulty: "Adv", obj: "Serve inference predictions using FastAPI endpoints inside Docker.", video: "FastAPI Model Deployment", videoUrl: "https://www.youtube.com/watch?v=vs_e9gntfV0", doc: "https://fastapi.tiangolo.com/", blog: "Deploying PyTorch models to production API", notes: "https://docker.com/docs" }
+            ]
+          }
+        ],
+        projects: {
+          beginner: [
+            { name: "House Value Predictor", desc: "Build a Python script that reads housing parameters and estimates pricing using linear regression models.", tags: ["Python", "NumPy", "Scikit-Learn"], diff: "Beginner", time: "4 Days" }
+          ],
+          intermediate: [
+            { name: "Kaggle Customer Classifier", desc: "Analyze customer shopping patterns and group them into distinct categories using K-means clustering.", tags: ["Pandas", "Matplotlib", "Scikit-Learn"], diff: "Intermediate", time: "7 Days" }
+          ],
+          advanced: [
+            { name: "Holographic Image Defect Classifier", desc: "Train a CNN in PyTorch to spot defects in factory objects and serve predictions through a fast backend.", tags: ["PyTorch", "CNNs", "FastAPI", "Docker"], diff: "Advanced", time: "15 Days" }
+          ]
+        }
+      }
+    };
+
+    // Fallback generator for other categories not detailed explicitly
+    const fallbackTemplate = (interestName, skillLvl, goalLvl) => {
+      const topicTemplates = [
+        { topic: "Development Environment Setup", obj: "Install required compilers, packages, IDE extensions, and print hello world." },
+        { topic: "Core Architecture & Basic Syntax", obj: "Understand execution model, structural syntax rules, and files compilation." },
+        { topic: "Variables, Constants & Data Types", obj: "Learn primitive types, variables allocation, scoping, and data representation." },
+        { topic: "Control Structures & Decision Blocks", obj: "Write conditional blocks (if-else, switch) and implement conditional logic." },
+        { topic: "Iteration Loops & Array Operations", obj: "Execute while/for loops to iterate collections and modify sequential elements." },
+        { topic: "Functions, Parameters & Return Types", obj: "Create reusable code subroutines, manage argument passing, and check stack trace." },
+        { topic: "Data Structures & Structuring Information", obj: "Understand lists, structures, objects, dictionaries, or hashes." },
+        { topic: "Error Handling, Exceptions & Logging", obj: "Handle run-time exceptions, use try-catch blocks, and inspect logs." },
+        { topic: "Packages, Dependencies & Modules", obj: "Import libraries, use package manager (e.g. npm, pip), and scope names." },
+        { topic: "Core Project Planning & Mock Design", obj: "Diagram layout flows, model data structures, and outline modules." },
+        { topic: "Connecting to API Endpoints", obj: "Execute requests (HTTP, TCP, UDP) to retrieve external payload feeds." },
+        { topic: "Persistent Databases & File Storage", obj: "Perform basic read/write operations to filesystem or database schemas." },
+        { topic: "Testing & Basic Assertions", obj: "Implement basic unit checks, execute assertions, and run test suites." },
+        { topic: "Environment Config & Deployment Tools", obj: "Configure credentials, compile optimized bundle production, run build tools." },
+        { topic: "Final Demo Deployment & Diagnostics", obj: "Host code prototype, execute diagnostic validation audits, and compile portfolio." }
+      ];
+
+      const days = topicTemplates.map((item, idx) => {
+        const dayNum = idx + 1;
+        const topicFull = `${interestName} ${item.topic}`;
+        return {
+          id: `fb-d${dayNum}`,
+          day: `Day ${dayNum}`,
+          topic: topicFull,
+          time: "2 Hours",
+          difficulty: dayNum <= 5 ? "Beg" : dayNum <= 10 ? "Int" : "Adv",
+          obj: item.obj,
+          video: `${interestName} Course - Part ${dayNum}`,
+          videoUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(topicFull + " Tutorial Course")}`,
+          doc: "https://google.com",
+          blog: "Intermediate guide to tech stack",
+          notes: "https://wikipedia.org"
+        };
+      });
+
+      return {
+        title: `${interestName} Professional Curriculum`,
+        badge: `${interestName.slice(0, 7)} - ${skillLvl}`,
+        duration: "15 Days",
+        platforms: [
+          { name: "LeetCode", rec: "Practice code solving algorithms" },
+          { name: "GeeksforGeeks", rec: "Read core conceptual documents" }
+        ],
+        phases: [
+          {
+            name: "Phase 1: Foundation (Day 1-5)",
+            days: days.slice(0, 5)
+          },
+          {
+            name: "Phase 2: Development (Day 6-10)",
+            days: days.slice(5, 10)
+          },
+          {
+            name: "Phase 3: Integration & Deploy (Day 11-15)",
+            days: days.slice(10, 15)
+          }
+        ],
+        projects: {
+          beginner: [
+            { name: `Basic ${interestName} Sandbox`, desc: `Build a starter kit configuring all dependencies and core scripts for ${interestName}.`, tags: ["Fundamentals", "Console scripts"], diff: "Beginner", time: "5 Days" }
+          ],
+          intermediate: [
+            { name: `Interactive ${interestName} App`, desc: `Create a fully responsive system integrating basic database elements and UI interactions.`, tags: ["App logic", "APIs"], diff: "Intermediate", time: "10 Days" }
+          ],
+          advanced: [
+            { name: `Enterprise-ready ${interestName} System`, desc: `Deploy a production-grade system incorporating security audits, custom workflows, and automated checks.`, tags: ["Docker", "Scale APIs", "Security"], diff: "Advanced", time: "18 Days" }
+          ]
+        }
+      };
+    };
+
+
+    // -------------------------------------------------------------------------
+    // WIZARD STATE MANAGEMENT
+    // -------------------------------------------------------------------------
+    let currentStep = 1;
+    const totalSteps = 6;
+
+    // Dom elements
+    const wizardContainer = document.getElementById('wizardContainer');
+    const aiLoaderPanel = document.getElementById('aiLoaderPanel');
+    const roadmapOutputPanel = document.getElementById('roadmapOutputPanel');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const progressFill = document.getElementById('progressFill');
+
+    // Form inputs state
+    const formState = {
+      fullName: '',
+      college: '',
+      branch: '',
+      currentYear: '',
+      careerInterests: [],
+      skillLevel: '',
+      existingSkills: [],
+      learningTime: '',
+      goal: ''
+    };
+
+    // Input handlers mapping
+    document.getElementById('fullName').addEventListener('input', (e) => formState.fullName = e.target.value);
+    document.getElementById('college').addEventListener('input', (e) => formState.college = e.target.value);
+    document.getElementById('branch').addEventListener('input', (e) => formState.branch = e.target.value);
+    document.getElementById('currentYear').addEventListener('change', (e) => formState.currentYear = e.target.value);
+
+    // Step 2 Selection (Career interests - Multi)
+    document.getElementById('interestsGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.interest-card');
+      if (!card) return;
+      
+      const interest = card.getAttribute('data-val');
+      const idx = formState.careerInterests.indexOf(interest);
+      if (idx > -1) {
+        formState.careerInterests.splice(idx, 1);
+        card.classList.remove('selected');
+      } else {
+        formState.careerInterests.push(interest);
+        card.classList.add('selected');
+      }
+    });
+
+    // Step 3 Selection (Skill Level - Single)
+    document.getElementById('skillLevelGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.skill-level-card');
+      if (!card) return;
+
+      document.querySelectorAll('.skill-level-card').forEach(c => c.classList.remove('selected'));
+      formState.skillLevel = card.getAttribute('data-val');
+      card.classList.add('selected');
+    });
+
+    // Step 4 Selection (Existing Skills - Multi)
+    document.getElementById('skillsChipsWrapper').addEventListener('click', (e) => {
+      const chip = e.target.closest('.skill-chip');
+      if (!chip) return;
+
+      const skill = chip.getAttribute('data-val');
+      const idx = formState.existingSkills.indexOf(skill);
+      if (idx > -1) {
+        formState.existingSkills.splice(idx, 1);
+        chip.classList.remove('selected');
+      } else {
+        formState.existingSkills.push(skill);
+        chip.classList.add('selected');
+      }
+    });
+
+    // Step 5 Selection (Learning Time - Single)
+    document.getElementById('timeGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.time-card');
+      if (!card) return;
+
+      document.querySelectorAll('.time-card').forEach(c => c.classList.remove('selected'));
+      formState.learningTime = card.getAttribute('data-val');
+      card.classList.add('selected');
+    });
+
+    // Step 6 Selection (Goal - Single)
+    document.getElementById('goalsGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.goal-card');
+      if (!card) return;
+
+      document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+      formState.goal = card.getAttribute('data-val');
+      card.classList.add('selected');
+    });
+
+    // Handle Wizard transitions
+    btnNext.addEventListener('click', () => {
+      if (!validateStep(currentStep)) return;
+
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateWizardDOM();
+      } else {
+        // Trigger AI generator compiling
+        compileRoadmapAI();
+      }
+    });
+
+    btnPrev.addEventListener('click', () => {
+      if (currentStep > 1) {
+        currentStep--;
+        updateWizardDOM();
+      }
+    });
+
+    function validateStep(step) {
+      if (step === 1) {
+        formState.fullName = document.getElementById('fullName').value.trim();
+        formState.college = document.getElementById('college').value.trim();
+        formState.branch = document.getElementById('branch').value.trim();
+        formState.currentYear = document.getElementById('currentYear').value;
+
+        if (!formState.fullName || !formState.college || !formState.branch || !formState.currentYear) {
+          showToast("Please fill in all basic fields.");
+          return false;
+        }
+      } else if (step === 2) {
+        if (formState.careerInterests.length === 0) {
+          showToast("Please select at least one career path.");
+          return false;
+        }
+      } else if (step === 3) {
+        if (!formState.skillLevel) {
+          showToast("Please select your current skill level.");
+          return false;
+        }
+      } else if (step === 5) {
+        if (!formState.learningTime) {
+          showToast("Please choose your daily commitment.");
+          return false;
+        }
+      } else if (step === 6) {
+        if (!formState.goal) {
+          showToast("Please select your ultimate target goal.");
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function updateWizardDOM() {
+      // Toggle panels active state
+      document.querySelectorAll('.step-panel').forEach((panel) => {
+        panel.classList.remove('active');
+        if (parseInt(panel.getAttribute('data-panel')) === currentStep) {
+          panel.classList.add('active');
+        }
+      });
+
+      // Toggle step node visual states
+      document.querySelectorAll('.step-node').forEach((node) => {
+        const stepNum = parseInt(node.getAttribute('data-step'));
+        node.classList.remove('active', 'completed');
+        if (stepNum === currentStep) {
+          node.classList.add('active');
+        } else if (stepNum < currentStep) {
+          node.classList.add('completed');
+        }
+      });
+
+      // Progress bar fill percentage
+      const percent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+      progressFill.style.width = `${percent}%`;
+
+      // Previous button visibility
+      if (currentStep === 1) {
+        btnPrev.style.visibility = 'hidden';
+      } else {
+        btnPrev.style.visibility = 'visible';
+      }
+
+      // Next button text
+      if (currentStep === totalSteps) {
+        btnNext.innerHTML = `Generate My Roadmap 🚀`;
+      } else {
+        btnNext.innerHTML = `Next
+          <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>`;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // AI ROADMAP GENERATION COMPILER
+    // -------------------------------------------------------------------------
+    function compileRoadmapAI() {
+      // Toggle layout visibility
+      wizardContainer.style.display = 'none';
+      aiLoaderPanel.style.display = 'block';
+
+      const terminalLogs = [
+        `> Initializing CodeWave AI Analyzer v3.5...`,
+        `> Scanning user profile metadata...`,
+        `> Analyzing academic status: ${formState.fullName} (${formState.currentYear}, ${formState.college})`,
+        `> Mapping targeted paths: ${formState.careerInterests.join(', ')}`,
+        `> Evaluating current skill standard: ${formState.skillLevel}`,
+        `> Validating existing knowledge: ${formState.existingSkills.join(', ') || 'None'}`,
+        `> Allocating daily commitment: ${formState.learningTime}`,
+        `> Aligning output targets with goal: ${formState.goal}`,
+        `> Building customized 90-day learning curriculum...`,
+        `> Curating resource guides, official documentation and blogs...`,
+        `> Formulating coding practice links and sandbox modules...`,
+        `> Structuring beginner, intermediate and advanced repositories...`,
+        `> Compilation finalized. Loading personalized dashboard!`
+      ];
+
+      const terminal = document.getElementById('terminalConsole');
+      const fill = document.getElementById('loaderFill');
+      const loaderPct = document.getElementById('loaderPercentage');
+      
+      let progress = 0;
+      let logIndex = 0;
+      
+      const compileInterval = setInterval(() => {
+        progress += 1;
+        fill.style.width = `${progress}%`;
+        loaderPct.innerHTML = `${progress}%`;
+
+        // Output lines to console dynamically
+        if (progress % 8 === 0 && logIndex < terminalLogs.length) {
+          const div = document.createElement('div');
+          div.className = 'terminal-line';
+          div.innerHTML = terminalLogs[logIndex];
+          terminal.appendChild(div);
+          terminal.scrollTop = terminal.scrollHeight;
+          logIndex++;
+        }
+
+        if (progress >= 100) {
+          clearInterval(compileInterval);
+          setTimeout(() => {
+            // Render the final compiled dashboard
+            buildDashboardDOM();
+          }, 800);
+        }
+      }, 50);
+    }
+
+    // -------------------------------------------------------------------------
+    // DASHBOARD RENDERING & INTERACTIVE PROGRESS
+    // -------------------------------------------------------------------------
+    let currentRoadmapId = null;
+    let loadedRoadmapData = null; // Stored json structure of the generated roadmap
+
+    function buildDashboardDOM() {
+      // Get primary selected interest
+      const primaryInterest = formState.careerInterests[0] || 'Web Development';
+      
+      // Load detailed template or fallback
+      let data = careerRoadmaps[primaryInterest];
+      if (!data) {
+        data = fallbackTemplate(primaryInterest, formState.skillLevel, formState.goal);
+      }
+
+      loadedRoadmapData = data;
+
+      // Update text details
+      document.getElementById('outputMetaBadge').innerHTML = `${primaryInterest} - ${formState.skillLevel}`;
+      document.getElementById('outputHeading').innerHTML = `${data.title} for ${formState.goal} Preparation`;
+      document.getElementById('outputSubtitle').innerHTML = `Roadmap: ${data.duration} | Created for ${formState.fullName} (${formState.currentYear}, ${formState.college})`;
+
+      // Render Syllabus Timeline
+      renderTimeline(data.phases);
+
+      // Render Practice platforms
+      renderPracticePlatforms(data.platforms);
+
+      // Render Curated Projects
+      renderProjects(data.projects);
+
+      // Calculate initial progress values
+      updateProgressStats();
+
+      // Render Layout
+      aiLoaderPanel.style.display = 'none';
+      roadmapOutputPanel.style.display = 'block';
+
+      // Load mentor introductory query response
+      triggerMentorGreet();
+    }
+
+    function renderTimeline(phases) {
+      const container = document.getElementById('timelineFlowContainer');
+      container.innerHTML = '';
+
+      phases.forEach((phase) => {
+        const phaseGroup = document.createElement('div');
+        phaseGroup.className = 'timeline-phase-group';
+        
+        let phaseHTML = `
+          <div class="timeline-phase-indicator">
+            <span class="phase-bullet"></span>
+            <h4 class="phase-header-title">${phase.name}</h4>
+          </div>
+          <div class="day-node-list">
+        `;
+
+        phase.days.forEach((dayObj) => {
+          phaseHTML += `
+            <div class="day-card" id="card-${dayObj.id}" data-id="${dayObj.id}">
+              <div class="day-header">
+                <div class="day-header-left">
+                  <div class="check-wrapper" onclick="toggleDayComplete(event, '${dayObj.id}')">
+                    <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <span class="day-number-tag">${dayObj.day}:</span>
+                  <span class="day-topic-name">${dayObj.topic}</span>
+                </div>
+                <div class="day-meta-tags">
+                  <span class="difficulty-tag ${dayObj.difficulty.toLowerCase()}">${dayObj.difficulty}</span>
+                  <span class="time-tag">⏱️ ${dayObj.time}</span>
+                </div>
+              </div>
+              
+              <div class="day-details">
+                <div class="details-objectives">
+                  <strong>Learning Focus:</strong> ${dayObj.obj}
+                </div>
+                <div class="day-resources-grid">
+                  <div class="resource-item-card">
+                    <span class="percentage-label" style="font-size:0.65rem; margin-bottom:4px;">VIDEO TUTORIAL</span>
+                    <div class="youtube-mock-thumbnail">
+                      <div class="youtube-play-icon">
+                        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      </div>
+                    </div>
+                    <span class="resource-card-title">${dayObj.video}</span>
+                    <a href="${dayObj.videoUrl || 'https://youtube.com'}" class="btn-resource-link" target="_blank">Watch Video</a>
+                  </div>
+                  <div class="resource-item-card">
+                    <span class="percentage-label" style="font-size:0.65rem; margin-bottom:4px;">DOCUMENTATION</span>
+                    <span class="resource-card-title" style="margin-top:auto;">Official Reference Manual</span>
+                    <a href="${dayObj.doc}" class="btn-resource-link" target="_blank">View Docs</a>
+                  </div>
+                  <div class="resource-item-card">
+                    <span class="percentage-label" style="font-size:0.65rem; margin-bottom:4px;">RECOMMENDED READ</span>
+                    <span class="resource-card-title" style="margin-top:auto;">How to structure projects</span>
+                    <a href="${dayObj.blog}" class="btn-resource-link" target="_blank">Read Article</a>
+                  </div>
+                  <div class="resource-item-card">
+                    <span class="percentage-label" style="font-size:0.65rem; margin-bottom:4px;">NOTES / REVISION</span>
+                    <span class="resource-card-title" style="margin-top:auto;">CodeWave study sheets</span>
+                    <a href="${dayObj.notes}" class="btn-resource-link" target="_blank">Study Notes</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        phaseHTML += `</div>`;
+        phaseGroup.innerHTML = phaseHTML;
+        container.appendChild(phaseGroup);
+      });
+
+      // Expand card details on click
+      container.addEventListener('click', (e) => {
+        const card = e.target.closest('.day-card');
+        const check = e.target.closest('.check-wrapper');
+        const link = e.target.closest('a');
+        
+        if (!card || check || link) return;
+
+        card.classList.toggle('expanded-day');
+      });
+    }
+
+    function renderPracticePlatforms(platforms) {
+      const container = document.getElementById('platformsList');
+      container.innerHTML = '';
+
+      platforms.forEach((p) => {
+        const card = document.createElement('div');
+        card.className = 'platform-card';
+        card.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span class="platform-name">${p.name}</span>
+            <span class="platform-rec-text">${p.rec}</span>
+          </div>
+          <a href="https://${p.name.toLowerCase()}.com" target="_blank" class="btn-practice">Solve Now</a>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderProjects(projects) {
+      renderTierCards('beginner', projects.beginner);
+      renderTierCards('intermediate', projects.intermediate);
+      renderTierCards('advanced', projects.advanced);
+
+      // Handle tier tabs switching
+      document.querySelectorAll('.tier-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.projects-tier-container').forEach(c => c.classList.remove('active'));
+
+          tab.classList.add('active');
+          document.getElementById(`projects-${tab.getAttribute('data-tier')}`).classList.add('active');
+        });
+      });
+    }
+
+    function renderTierCards(tierName, list) {
+      const container = document.getElementById(`projects-${tierName}`);
+      container.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        container.innerHTML = `<div class="step-panel-desc" style="text-align:center;">No project matches for this tier.</div>`;
+        return;
+      }
+
+      list.forEach((p) => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        
+        let tagsHTML = '';
+        p.tags.forEach(t => tagsHTML += `<span class="project-tag">${t}</span>`);
+
+        card.innerHTML = `
+          <div class="project-card-header">
+            <span class="project-name">${p.name}</span>
+            <span class="difficulty-tag ${p.diff.slice(0,3).toLowerCase()}">${p.diff}</span>
+          </div>
+          <p class="project-desc">${p.desc}</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div class="project-tags">${tagsHTML}</div>
+            <span class="time-tag" style="font-size:0.75rem;">⏱️ Est: ${p.time}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Toggle completion status of timeline days
+    window.toggleDayComplete = function(event, dayId) {
+      event.stopPropagation(); // Avoid expanding card
+      
+      const card = document.getElementById(`card-${dayId}`);
+      if (!card) return;
+
+      card.classList.toggle('completed-day');
+      updateProgressStats();
+    };
+
+    function updateProgressStats() {
+      const totalCards = document.querySelectorAll('.day-card').length;
+      const completedCards = document.querySelectorAll('.day-card.completed-day').length;
+
+      // Compute percentage
+      const percent = totalCards > 0 ? Math.round((completedCards / totalCards) * 100) : 0;
+
+      // Update text values
+      document.getElementById('progressPercentageText').innerHTML = `${percent}%`;
+      document.getElementById('statCompletedTopics').innerHTML = completedCards;
+      document.getElementById('statRemainingTopics').innerHTML = totalCards - completedCards;
+
+      // Update radial circle progress stroke
+      const circle = document.getElementById('radialProgressCircle');
+      // circumference = 2 * pi * r = 2 * 3.14159 * 55 = 345.57. Let's adjust dashoffset.
+      const circumference = 345.57;
+      const strokeDashoffset = circumference - (percent / 100) * circumference;
+      circle.style.strokeDasharray = `${circumference}`;
+      circle.style.strokeDashoffset = strokeDashoffset;
+
+      // Calculate streak dynamically
+      let streak = 1;
+      if (completedCards > 0) {
+        streak = Math.min(Math.floor(completedCards / 2) + 1, 14);
+      }
+      document.getElementById('statLearningStreak').innerHTML = `🔥 ${streak} Day Streak`;
+
+      // Update Badges unlock states
+      updateAchievementsDOM(percent);
+    }
+
+    function updateAchievementsDOM(percentage) {
+      // 🥉 Explorer: 10%
+      const badgeExp = document.getElementById('badgeExplorer');
+      if (percentage >= 10) {
+        badgeExp.classList.add('unlocked');
+        badgeExp.querySelector('.badge-status').innerHTML = 'Unlocked';
+      } else {
+        badgeExp.classList.remove('unlocked');
+        badgeExp.querySelector('.badge-status').innerHTML = 'Locked';
+      }
+
+      // 🥈 Learner: 40%
+      const badgeLrn = document.getElementById('badgeLearner');
+      if (percentage >= 40) {
+        badgeLrn.classList.add('unlocked');
+        badgeLrn.querySelector('.badge-status').innerHTML = 'Unlocked';
+      } else {
+        badgeLrn.classList.remove('unlocked');
+        badgeLrn.querySelector('.badge-status').innerHTML = 'Locked';
+      }
+
+      // 🥇 Master: 80%
+      const badgeMst = document.getElementById('badgeMaster');
+      if (percentage >= 80) {
+        badgeMst.classList.add('unlocked');
+        badgeMst.querySelector('.badge-status').innerHTML = 'Unlocked';
+      } else {
+        badgeMst.classList.remove('unlocked');
+        badgeMst.querySelector('.badge-status').innerHTML = 'Locked';
+      }
+
+      // 🏆 Internship Ready: 100%
+      const badgeRdy = document.getElementById('badgeReady');
+      if (percentage >= 100) {
+        badgeRdy.classList.add('unlocked');
+        badgeRdy.querySelector('.badge-status').innerHTML = 'Unlocked';
+      } else {
+        badgeRdy.classList.remove('unlocked');
+        badgeRdy.querySelector('.badge-status').innerHTML = 'Locked';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // AI MENTOR FLOATING CHAT LOGIC
+    // -------------------------------------------------------------------------
+    const btnMentorToggle = document.getElementById('btnMentorToggle');
+    const mentorChatbox = document.getElementById('mentorChatbox');
+    const btnMentorClose = document.getElementById('btnMentorClose');
+    const mentorChatLogs = document.getElementById('mentorChatLogs');
+    const mentorChatInput = document.getElementById('mentorChatInput');
+    const btnMentorSend = document.getElementById('btnMentorSend');
+
+    btnMentorToggle.addEventListener('click', () => {
+      const isVisible = mentorChatbox.style.display === 'flex';
+      mentorChatbox.style.display = isVisible ? 'none' : 'flex';
+      if (!isVisible) {
+        mentorChatInput.focus();
+        mentorChatLogs.scrollTop = mentorChatLogs.scrollHeight;
+      }
+    });
+
+    btnMentorClose.addEventListener('click', () => {
+      mentorChatbox.style.display = 'none';
+    });
+
+    btnMentorSend.addEventListener('click', handleMentorSend);
+    mentorChatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleMentorSend();
+    });
+
+    // Quick prompt clicks
+    document.querySelector('.mentor-quick-prompts').addEventListener('click', (e) => {
+      const btn = e.target.closest('.quick-prompt-btn');
+      if (!btn) return;
+      const queryType = btn.getAttribute('data-query');
+      
+      let text = "";
+      if (queryType === 'next') text = "What should I learn next?";
+      else if (queryType === 'projects') text = "Suggest projects for me.";
+      else if (queryType === 'ready') text = "Am I internship ready?";
+      else if (queryType === 'interview') text = "Generate interview questions.";
+
+      sendUserMessage(text);
+      getMentorReply(queryType);
+    });
+
+    function handleMentorSend() {
+      const text = mentorChatInput.value.trim();
+      if (!text) return;
+
+      sendUserMessage(text);
+      mentorChatInput.value = '';
+
+      // Simple keyword classification
+      let matchedType = 'default';
+      const textLower = text.toLowerCase();
+      if (textLower.includes('next') || textLower.includes('learn') || textLower.includes('start')) {
+        matchedType = 'next';
+      } else if (textLower.includes('project') || textLower.includes('build')) {
+        matchedType = 'projects';
+      } else if (textLower.includes('intern') || textLower.includes('job') || textLower.includes('ready')) {
+        matchedType = 'ready';
+      } else if (textLower.includes('interview') || textLower.includes('question') || textLower.includes('test')) {
+        matchedType = 'interview';
+      }
+
+      getMentorReply(matchedType);
+    }
+
+    function sendUserMessage(text) {
+      const msgHTML = `
+        <div class="mentor-msg outgoing">
+          <div class="mentor-msg-bubble">${text}</div>
+        </div>
+      `;
+      mentorChatLogs.insertAdjacentHTML('beforeend', msgHTML);
+      mentorChatLogs.scrollTop = mentorChatLogs.scrollHeight;
+    }
+
+    function triggerMentorGreet() {
+      // Custom greetings greeting the student by name
+      const greetText = `Welcome, <strong>${formState.fullName}</strong>! I have analyzed your background. For your <strong>${formState.careerInterests[0] || 'Web Development'}</strong> goal, I compiled a learning timeline. Try completing <strong>Phase 1</strong> and let's check off topics. What can I explain first?`;
+      
+      mentorChatLogs.innerHTML = '';
+      sendMentorMessage(greetText);
+    }
+
+    function getMentorReply(queryType) {
+      showMentorTyping();
+
+      setTimeout(() => {
+        removeMentorTyping();
+        
+        let response = "";
+        const primaryInterest = formState.careerInterests[0] || 'Web Development';
+
+        if (queryType === 'next') {
+          response = `Based on your syllabus, you should focus on **Phase 1: Basic Foundations**. Open up the first card in the timeline, study the MDN documentation links, and write down simple sandbox exercises. Once complete, click the checkbox to update your dashboard status!`;
+        } else if (queryType === 'projects') {
+          response = `I highly recommend starting with the **Beginner Project: ${loadedRoadmapData.projects.beginner[0].name}**. It requires: *${loadedRoadmapData.projects.beginner[0].tags.join(', ')}*. Let me know if you want me to write down the user stories or step-by-step setup guides!`;
+        } else if (queryType === 'ready') {
+          const completedCards = document.querySelectorAll('.day-card.completed-day').length;
+          if (completedCards === 0) {
+            response = `You are currently at **0% progress**. We need to get you comfortable with syntax and small projects first. Complete the syllabus elements, earn the **Internship Ready** badge at 100%, and you will be completely prepared!`;
+          } else {
+            response = `You have completed ${completedCards} topic modules! Keep following the timeline. Building the advanced projects will prove you are ready for technical assessment.`;
+          }
+        } else if (queryType === 'interview') {
+          response = `Here are 3 core interview questions for **${primaryInterest}**:\n1. Describe the key differences between synchronous and asynchronous code structures.\n2. How do you optimize web render cycles and database calls?\n3. Explain how you secured passwords/data in your projects.\nTry answering these, and I can review your answers!`;
+        } else {
+          response = `Great question! Focus on the day-to-day modules. Remember to utilize the documentation and videos attached to each step of your curriculum. I am here to explain any terms or debug code blocks you paste!`;
+        }
+
+        sendMentorMessage(response);
+      }, 1000);
+    }
+
+    function sendMentorMessage(text) {
+      const msgHTML = `
+        <div class="mentor-msg incoming">
+          <div class="mentor-msg-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="10" x="3" y="11" rx="2" ry="2"/><path d="M12 2v4M12 5H7M12 5h5M8 15h.01M16 15h.01"/></svg>
+          </div>
+          <div class="mentor-msg-bubble">${text.replace(/\n/g, '<br>')}</div>
+        </div>
+      `;
+      mentorChatLogs.insertAdjacentHTML('beforeend', msgHTML);
+      mentorChatLogs.scrollTop = mentorChatLogs.scrollHeight;
+    }
+
+    function showMentorTyping() {
+      const indicatorHTML = `
+        <div class="mentor-msg incoming" id="mentorTypingIndicator">
+          <div class="mentor-msg-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="10" x="3" y="11" rx="2" ry="2"/><path d="M12 2v4M12 5H7M12 5h5M8 15h.01M16 15h.01"/></svg>
+          </div>
+          <div class="mentor-msg-bubble" style="display:flex; align-items:center; gap:4px; padding:0.5rem 0.8rem;">
+            <span style="width:5px; height:5px; background:white; border-radius:50%; animation:typingDot 1s infinite alternate;"></span>
+            <span style="width:5px; height:5px; background:white; border-radius:50%; animation:typingDot 1s infinite alternate 0.2s;"></span>
+            <span style="width:5px; height:5px; background:white; border-radius:50%; animation:typingDot 1s infinite alternate 0.4s;"></span>
+          </div>
+        </div>
+      `;
+      mentorChatLogs.insertAdjacentHTML('beforeend', indicatorHTML);
+      mentorChatLogs.scrollTop = mentorChatLogs.scrollHeight;
+    }
+
+    function removeMentorTyping() {
+      const indicator = document.getElementById('mentorTypingIndicator');
+      if (indicator) indicator.remove();
+    }
+
+    // CSS Keyframe styles for typing dot loader injected dynamically
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+      @keyframes typingDot {
+        from { transform: translateY(0); opacity: 0.3; }
+        to { transform: translateY(-4px); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+
+
+    // -------------------------------------------------------------------------
+    // DB INTEGRATION: SAVE & LOAD DYNAMICALLY
+    // -------------------------------------------------------------------------
+    const btnSaveRoadmap = document.getElementById('btnSaveRoadmap');
+    const btnShare = document.getElementById('btnShare');
+    const btnCopyUrl = document.getElementById('btnCopyUrl');
+
+    btnSaveRoadmap.addEventListener('click', saveRoadmapToDB);
+    btnShare.addEventListener('click', openShareModal);
+    btnCopyUrl.addEventListener('click', copyShareURL);
+
+    function saveRoadmapToDB() {
+      // Gather completed day cards
+      const completedList = [];
+      document.querySelectorAll('.day-card.completed-day').forEach(card => {
+        completedList.push(card.getAttribute('data-id'));
+      });
+      const progressPercent = document.getElementById('progressPercentageText').textContent.replace('%', '');
+
+      const payload = {
+        id: currentRoadmapId, // Can be null, which means creating a new record
+        full_name: formState.fullName,
+        college: formState.college,
+        branch: formState.branch,
+        current_year: formState.currentYear,
+        career_interest: formState.careerInterests.join(', '),
+        skill_level: formState.skillLevel,
+        existing_skills: formState.existingSkills.join(', '),
+        learning_time: formState.learningTime,
+        goal: formState.goal,
+        generated_roadmap: loadedRoadmapData,
+        progress_percentage: parseInt(progressPercent),
+        completed_topics: completedList.join(','),
+        learning_streak: parseInt(document.getElementById('statLearningStreak').textContent.match(/\d+/)[0])
+      };
+
+      btnSaveRoadmap.innerHTML = `Saving...`;
+      btnSaveRoadmap.disabled = true;
+
+      fetch('/waves/api/roadmap/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken') // Handles standard django csrf tokens if present
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        btnSaveRoadmap.innerHTML = `
+          <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+          Save Roadmap
+        `;
+        btnSaveRoadmap.disabled = false;
+
+        if (data.status === 'success') {
+          currentRoadmapId = data.id;
+          
+          // Modify browser history URL without reloading, so reloading uses the saved id
+          const newUrl = `${window.location.origin}${window.location.pathname}?id=${currentRoadmapId}`;
+          window.history.pushState({ path: newUrl }, '', newUrl);
+
+          showToast("Roadmap saved successfully to database! 💾");
+        } else {
+          showToast(`Error: ${data.message}`);
+        }
+      })
+      .catch(err => {
+        btnSaveRoadmap.innerHTML = `Save Roadmap`;
+        btnSaveRoadmap.disabled = false;
+        showToast("Error connecting to server. Local storage updated.");
+        // Fallback localstorage
+        localStorage.setItem(`roadmap_backup`, JSON.stringify(payload));
+      });
+    }
+
+    function openShareModal() {
+      // First trigger save so they share a live database instance
+      saveRoadmapToDB();
+
+      setTimeout(() => {
+        if (!currentRoadmapId) {
+          showToast("Failed to generate sharing URL.");
+          return;
+        }
+
+        const shareUrl = `${window.location.origin}${window.location.pathname}?id=${currentRoadmapId}`;
+        document.getElementById('shareUrlText').innerHTML = shareUrl;
+
+        // Configure social share links
+        document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?text=Checkout%20my%20personalized%20CodeWave%20learning%20curriculum!%20${encodeURIComponent(shareUrl)}`;
+        document.getElementById('shareLinkedIn').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+
+        document.getElementById('shareModal').classList.add('active');
+      }, 1000);
+    }
+
+    function copyShareURL() {
+      const urlText = document.getElementById('shareUrlText').textContent;
+      navigator.clipboard.writeText(urlText).then(() => {
+        showToast("Link copied to clipboard! 📋");
+        btnCopyUrl.innerHTML = "Copied!";
+        setTimeout(() => btnCopyUrl.innerHTML = "Copy Link", 1500);
+      });
+    }
+
+    // Helper functions
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'neon-toast';
+      toast.innerHTML = `
+        <svg style="width:16px;height:16px;fill:var(--neon-cyan)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) reverse forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // -------------------------------------------------------------------------
+    // LOAD SAVED ROADMAP DIRECTLY (IF QUERY STRING PRESENT)
+    // -------------------------------------------------------------------------
+    if (LOADED_ROADMAP_ID) {
+      // Toggle layout visibility
+      wizardContainer.style.display = 'none';
+      aiLoaderPanel.style.display = 'block';
+
+      // Load via api
+      fetch(`/waves/api/roadmap/load/${LOADED_ROADMAP_ID}/`)
+      .then(res => res.json())
+      .then(response => {
+        if (response.status === 'success') {
+          const data = response.data;
+          
+          currentRoadmapId = data.id;
+          formState.fullName = data.full_name;
+          formState.college = data.college;
+          formState.branch = data.branch;
+          formState.currentYear = data.current_year;
+          formState.careerInterests = data.career_interest.split(', ');
+          formState.skillLevel = data.skill_level;
+          formState.existingSkills = data.existing_skills ? data.existing_skills.split(', ') : [];
+          formState.learningTime = data.learning_time;
+          formState.goal = data.goal;
+
+          loadedRoadmapData = data.generated_roadmap;
+
+          // Render details
+          document.getElementById('outputMetaBadge').innerHTML = `${formState.careerInterests[0]} - ${formState.skillLevel}`;
+          document.getElementById('outputHeading').innerHTML = `${loadedRoadmapData.title} for ${formState.goal} Preparation`;
+          document.getElementById('outputSubtitle').innerHTML = `Roadmap: ${loadedRoadmapData.duration} | Created for ${formState.fullName} (${formState.currentYear}, ${formState.college})`;
+
+          renderTimeline(loadedRoadmapData.phases);
+          renderPracticePlatforms(loadedRoadmapData.platforms);
+          renderProjects(loadedRoadmapData.projects);
+
+          // Apply completion checks
+          const completedList = data.completed_topics ? data.completed_topics.split(',') : [];
+          completedList.forEach(dayId => {
+            const card = document.getElementById(`card-${dayId}`);
+            if (card) card.classList.add('completed-day');
+          });
+
+          updateProgressStats();
+
+          // Hide loader, show dashboard
+          aiLoaderPanel.style.display = 'none';
+          roadmapOutputPanel.style.display = 'block';
+
+          triggerMentorGreet();
+        } else {
+          showToast("Failed to load saved roadmap. Directing to generator.");
+          aiLoaderPanel.style.display = 'none';
+          wizardContainer.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        showToast("Error loading roadmap from database.");
+        aiLoaderPanel.style.display = 'none';
+        wizardContainer.style.display = 'block';
+      });
+    }
+
+  });
+</script>
+{% endblock %}
