@@ -1285,6 +1285,25 @@
     color: white;
   }
 
+  .video-actions-group {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: auto;
+  }
+
+  .btn-watch-video {
+    flex: 1;
+  }
+
+  .btn-search-video {
+    width: 36px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   /* Projects Section inside Dashboard */
   .projects-dashboard-card {
     background: var(--glass-bg);
@@ -1803,7 +1822,7 @@
   <!-- Heading Section -->
   <header class="roadmap-header">
     <div class="db-meta-badge" style="margin-bottom: 0.5rem;">AI ROADMAPS</div>
-    <h1 class="roadmap-title">AI-Powered Personalized <span>Roadmap Generator</span> 🚀</h1>
+    <h1 class="roadmap-title">AI-Powered Personalized <span>Roadmap Generator</span></h1>
     <p class="roadmap-subtitle">
       Tell us about your goals and skills. Our AI will analyze your profile and compile a completely personalized learning roadmap tailored just for you.
     </p>
@@ -2102,6 +2121,10 @@
           <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
           Save Roadmap
         </button>
+        <button class="btn-action" id="btnNewRoadmap" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;">
+          <svg style="width:16px; height:16px; fill:currentColor;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          New Roadmap
+        </button>
       </div>
     </div>
 
@@ -2199,6 +2222,18 @@
           </div>
         </div>
 
+        <!-- Essential Developer Tools -->
+        <div class="practice-platforms-card" style="margin-top: 1.5rem;">
+          <h3 class="tracker-title">
+            <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;color:var(--neon-purple)" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            Essential Developer Tools
+          </h3>
+          
+          <div class="platforms-list" id="toolsList">
+            <!-- Populated dynamically based on interest -->
+          </div>
+        </div>
+
       </div>
 
       <!-- Right column Interactive Timeline -->
@@ -2206,10 +2241,28 @@
         
         <!-- Timeline Card -->
         <div class="timeline-container-card">
-          <h3 class="tracker-title">
-            <svg style="width:18px;height:18px;fill:currentColor;color:var(--neon-cyan)" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-            Interactive Syllabus Timeline
-          </h3>
+          <div class="timeline-header-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <h3 class="tracker-title" style="margin-bottom: 0;">
+              <svg style="width:18px;height:18px;fill:currentColor;color:var(--neon-cyan)" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+              Interactive Syllabus Timeline
+            </h3>
+            
+            <div class="view-mode-tabs" style="display: flex; gap: 0.5rem; background: rgba(30, 41, 59, 0.4); padding: 0.25rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
+              <button class="view-tab active" data-mode="all" style="padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-family: var(--font-main); border: none; background: var(--color-violet); color: white; cursor: pointer; transition: all 0.2s;">Full Syllabus</button>
+              <button class="view-tab" data-mode="daily" style="padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.75rem; font-family: var(--font-main); border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;">Daily Focus 🎯</button>
+            </div>
+          </div>
+
+          <!-- Navigation for Daily Focus mode, hidden by default -->
+          <div class="daily-nav-controls" id="dailyNavControls" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: rgba(99, 102, 241, 0.05); padding: 0.75rem; border-radius: 10px; border: 1px solid rgba(99, 102, 241, 0.15);">
+            <button class="btn-wizard btn-prev" id="btnPrevDay" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(30,41,59,0.3); color: white; cursor: pointer;">
+              ← Previous Day
+            </button>
+            <span id="dailyDayIndicator" style="font-family: var(--font-heading); font-size: 0.85rem; color: var(--neon-cyan); font-weight: 700;">Day 1 of 30</span>
+            <button class="btn-wizard btn-next" id="btnNextDay" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(30,41,59,0.3); color: white; cursor: pointer;">
+              Next Day →
+            </button>
+          </div>
 
           <div class="timeline-flow" id="timelineFlowContainer">
             <!-- Populated dynamically by generator JS -->
@@ -2289,7 +2342,7 @@
   <!-- Share Modal Layout -->
   <div class="share-modal" id="shareModal">
     <div class="share-modal-card">
-      <h4 class="share-modal-title">Share Your Roadmap 🚀</h4>
+      <h4 class="share-modal-title">Share Your Roadmap</h4>
       <p class="step-panel-desc" style="margin-bottom:1rem;">Your personalized CodeWave curriculum is saved. Copy the link below to share your learning goals with friends.</p>
       
       <div class="share-copy-box">
@@ -2329,17 +2382,23 @@
           { name: "Exercism", rec: "Complete the JavaScript and HTML tracks" },
           { name: "GeeksforGeeks", rec: "Learn CSS Flexbox and Grid tutorials" }
         ],
+        tools: [
+          { name: "Git & GitHub", desc: "Version control & collaboration platform.", link: "https://github.com" },
+          { name: "VS Code", desc: "Industry-standard code editor with powerful JS/React plugins.", link: "https://code.visualstudio.com" },
+          { name: "Chrome DevTools", desc: "Built-in browser tool for CSS debugging and JS console logging.", link: "https://developer.chrome.com/docs/devtools" },
+          { name: "Node.js & npm", desc: "JavaScript runtime and dependency manager for React/Express packages.", link: "https://nodejs.org" }
+        ],
         phases: [
           {
             name: "Phase 1: HTML & CSS Essentials",
             days: [
-              { id: "wd-d1", day: "Day 1", topic: "Semantic HTML5 Structure", time: "1.5 Hours", difficulty: "Beg", obj: "Understand the structure of document, semantic components and headers.", video: "HTML Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=OkT5f1-3mP0", doc: "https://developer.mozilla.org/en-US/docs/Web/HTML", blog: "MDN HTML Guide", notes: "https://www.w3schools.com/html/" },
+              { id: "wd-d1", day: "Day 1", topic: "Semantic HTML5 Structure", time: "1.5 Hours", difficulty: "Beg", obj: "Understand the structure of document, semantic components and headers.", video: "HTML Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=qz0aGYrrlhU", doc: "https://developer.mozilla.org/en-US/docs/Web/HTML", blog: "MDN HTML Guide", notes: "https://www.w3schools.com/html/" },
               { id: "wd-d2", day: "Day 2", topic: "HTML Forms & Input Validation", time: "2 Hours", difficulty: "Beg", obj: "Master input tags, textareas, drop-downs, buttons, and form validation.", video: "HTML Forms Tutorial", videoUrl: "https://www.youtube.com/watch?v=fNcJuPIZ2WE", doc: "https://developer.mozilla.org/en-US/docs/Learn/Forms", blog: "CSS-Tricks Guide to Forms", notes: "https://www.w3schools.com/html/html_forms.asp" },
               { id: "wd-d3", day: "Day 3", topic: "CSS Basics & Selectors", time: "2 Hours", difficulty: "Beg", obj: "Learn CSS syntax, selectors (class, id, attribute), colors, and fonts.", video: "CSS Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=1Rs2ND1ryYc", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS", blog: "CSS Basics on MDN", notes: "https://www.w3schools.com/css/" },
-              { id: "wd-d4", day: "Day 4", topic: "CSS Box Model, Margin & Padding", time: "1.5 Hours", difficulty: "Beg", obj: "Deep dive into margin, border, padding, height, width, and box-sizing.", video: "CSS Box Model Tutorial", videoUrl: "https://www.youtube.com/watch?v=n4R2E7O-NLY", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model", blog: "Learn Layout CSS Box Model", notes: "https://css-tricks.com/the-css-box-model/" },
-              { id: "wd-d5", day: "Day 5", topic: "CSS Flexbox Layouts", time: "2.5 Hours", difficulty: "Beg", obj: "Align items horizontally and vertically using flex containers.", video: "CSS Flexbox Course", videoUrl: "https://www.youtube.com/watch?v=fYq5JSgRpx0", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout", blog: "A Complete Guide to Flexbox", notes: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/" },
-              { id: "wd-d6", day: "Day 6", topic: "CSS Grid Layouts", time: "2.5 Hours", difficulty: "Beg", obj: "Create multi-dimensional grid structures and templates.", video: "CSS Grid Tutorial", videoUrl: "https://www.youtube.com/watch?v=8gK1M-s1Qwg", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout", blog: "A Complete Guide to CSS Grid", notes: "https://css-tricks.com/snippets/css/complete-guide-grid/" },
-              { id: "wd-d7", day: "Day 7", topic: "Responsive Web Design & Media Queries", time: "2 Hours", difficulty: "Beg", obj: "Apply mobile-first styling and viewport configuration.", video: "Responsive Web Design Tutorial", videoUrl: "https://www.youtube.com/watch?v=srvUrASg0MY", doc: "https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design", blog: "Responsive Design Best Practices", notes: "https://web.dev/responsive-web-design-basics/" }
+              { id: "wd-d4", day: "Day 4", topic: "CSS Box Model, Margin & Padding", time: "1.5 Hours", difficulty: "Beg", obj: "Deep dive into margin, border, padding, height, width, and box-sizing.", video: "Learn CSS Box-Model in 4 Minutes!", videoUrl: "https://www.youtube.com/watch?v=qvx2SZzoqqQ", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model", blog: "Learn Layout CSS Box Model", notes: "https://css-tricks.com/the-css-box-model/" },
+              { id: "wd-d5", day: "Day 5", topic: "CSS Flexbox Layouts", time: "2.5 Hours", difficulty: "Beg", obj: "Align items horizontally and vertically using flex containers.", video: "Learn Flexbox CSS in 8 minutes", videoUrl: "https://www.youtube.com/watch?v=phWxA89Dy94", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout", blog: "A Complete Guide to Flexbox", notes: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/" },
+              { id: "wd-d6", day: "Day 6", topic: "CSS Grid Layouts", time: "2.5 Hours", difficulty: "Beg", obj: "Create multi-dimensional grid structures and templates.", video: "Learn CSS Grid in 20 Minutes", videoUrl: "https://www.youtube.com/watch?v=rg7Fvvl3taU", doc: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout", blog: "A Complete Guide to CSS Grid", notes: "https://css-tricks.com/snippets/css/complete-guide-grid/" },
+              { id: "wd-d7", day: "Day 7", topic: "Responsive Web Design & Media Queries", time: "2 Hours", difficulty: "Beg", obj: "Apply mobile-first styling and viewport configuration.", video: "Responsive Screen Size Breakpoints  | Mastering CSS Media Queries for Responsive Web Design | CSS", videoUrl: "https://www.youtube.com/watch?v=zlYFDAqAokw", doc: "https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design", blog: "Responsive Design Best Practices", notes: "https://web.dev/responsive-web-design-basics/" }
             ]
           },
           {
@@ -2349,40 +2408,40 @@
               { id: "wd-d9", day: "Day 9", topic: "JS Control Flow & Loops", time: "2 Hours", difficulty: "Beg", obj: "Write if-statements, switch cases, for, while, and do-while loops.", video: "JS Loops and Control Flow", videoUrl: "https://www.youtube.com/watch?v=s9wW2PpJsmQ", doc: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Control_flow_and_error_handling", blog: "Loops and Iteration", notes: "https://javascript.info/while-for" },
               { id: "wd-d10", day: "Day 10", topic: "JS Functions, Scope & Closures", time: "2.5 Hours", difficulty: "Int", obj: "Define functions, arrow functions, lexical scopes, and closures.", video: "JS Functions Course", videoUrl: "https://www.youtube.com/watch?v=PkZNo7MFNFg", doc: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions", blog: "Understanding JS Scope", notes: "https://javascript.info/function-basics" },
               { id: "wd-d11", day: "Day 11", topic: "DOM Selection & DOM Manipulation", time: "2.5 Hours", difficulty: "Int", obj: "Select, traverse, and modify HTML elements dynamically.", video: "JS DOM Crash Course", videoUrl: "https://www.youtube.com/watch?v=5fb2aPlgoys", doc: "https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model", blog: "Intro to DOM manipulation", notes: "https://javascript.info/dom-nodes" },
-              { id: "wd-d12", day: "Day 12", topic: "DOM Events & Event Listeners", time: "2 Hours", difficulty: "Int", obj: "Attach click, hover, submit, and keyboard event handlers.", video: "DOM Events and Event Listeners", videoUrl: "https://www.youtube.com/watch?v=gdI1tV6V14U", doc: "https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener", blog: "Event Bubbling and Capturing", notes: "https://javascript.info/introduction-browser-events" },
+              { id: "wd-d12", day: "Day 12", topic: "DOM Events & Event Listeners", time: "2 Hours", difficulty: "Int", obj: "Attach click, hover, submit, and keyboard event handlers.", video: "Learn JavaScript Event Listeners In 18 Minutes", videoUrl: "https://www.youtube.com/watch?v=XF1_MlZ5l6M", doc: "https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener", blog: "Event Bubbling and Capturing", notes: "https://javascript.info/introduction-browser-events" },
               { id: "wd-d13", day: "Day 13", topic: "Asynchronous JS: Callbacks & Promises", time: "3 Hours", difficulty: "Int", obj: "Master the event loop, callback hell, and Promise states.", video: "Asynchronous JavaScript Explained", videoUrl: "https://www.youtube.com/watch?v=exBgWAIeIeg", doc: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises", blog: "JavaScript Promises Simplified", notes: "https://javascript.info/promise-basics" },
-              { id: "wd-d14", day: "Day 14", topic: "Fetch API & Async/Await", time: "3 Hours", difficulty: "Int", obj: "Perform AJAX network calls, parse JSON response, and catch errors.", video: "Fetch API and Async/Await", videoUrl: "https://www.youtube.com/watch?v=drKGsElgQ7M", doc: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch", blog: "Fetching API Data in JS", notes: "https://javascript.info/async-await" }
+              { id: "wd-d14", day: "Day 14", topic: "Fetch API & Async/Await", time: "3 Hours", difficulty: "Int", obj: "Perform AJAX network calls, parse JSON response, and catch errors.", video: "Using Async/Await with the Fetch API - JavaScript Tutorial", videoUrl: "https://www.youtube.com/watch?v=Yp9KIcSKTNo", doc: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch", blog: "Fetching API Data in JS", notes: "https://javascript.info/async-await" }
             ]
           },
           {
             name: "Phase 3: React.js SPA Development",
             days: [
               { id: "wd-d15", day: "Day 15", topic: "React Intro & JSX Elements", time: "2.5 Hours", difficulty: "Int", obj: "Set up React projects, understand component building blocks & JSX.", video: "ReactJS Full Course for Beginners", videoUrl: "https://www.youtube.com/watch?v=Ke90Tje7VS0", doc: "https://react.dev/learn", blog: "Introducing JSX", notes: "https://react.dev/learn/writing-markup-with-jsx" },
-              { id: "wd-d16", day: "Day 16", topic: "React Components & Props", time: "2 Hours", difficulty: "Int", obj: "Create reusable functional components and pass props dynamically.", video: "React Components and Props", videoUrl: "https://www.youtube.com/watch?v=hQAHJsKyN0s", doc: "https://react.dev/learn/passing-props-to-a-component", blog: "Thinking in React Components", notes: "https://react.dev/learn/your-first-component" },
+              { id: "wd-d16", day: "Day 16", topic: "React Components & Props", time: "2 Hours", difficulty: "Int", obj: "Create reusable functional components and pass props dynamically.", video: "ReactJS Tutorial - 1 - Introduction", videoUrl: "https://www.youtube.com/watch?v=QFaFIcGhPoM", doc: "https://react.dev/learn/passing-props-to-a-component", blog: "Thinking in React Components", notes: "https://react.dev/learn/your-first-component" },
               { id: "wd-d17", day: "Day 17", topic: "React State Management (useState)", time: "3 Hours", difficulty: "Int", obj: "Configure component state and handle user interactive updates.", video: "React useState Hook Tutorial", videoUrl: "https://www.youtube.com/watch?v=O6P86uwfdR0", doc: "https://react.dev/reference/react/useState", blog: "React useState Guide", notes: "https://react.dev/learn/state-a-components-memory" },
               { id: "wd-d18", day: "Day 18", topic: "React Side Effects (useEffect)", time: "3 Hours", difficulty: "Int", obj: "Fetch server data and set up event listener cleanups in useEffect.", video: "React useEffect Hook Tutorial", videoUrl: "https://www.youtube.com/watch?v=0ZJgIjIuY7U", doc: "https://react.dev/reference/react/useEffect", blog: "Synchronizing with Effects", notes: "https://react.dev/learn/synchronizing-with-effects" },
               { id: "wd-d19", day: "Day 19", topic: "React Router V6 Navigation", time: "3 Hours", difficulty: "Int", obj: "Configure page routing, links, dynamic routes, and navigation hooks.", video: "React Router V6 Complete Tutorial", videoUrl: "https://www.youtube.com/watch?v=Ul3y1LXxzdU", doc: "https://reactrouter.com/en/main", blog: "React Router Beginners Guide", notes: "https://reactrouter.com/en/main/start/tutorial" },
-              { id: "wd-d20", day: "Day 20", topic: "React Context API Global State", time: "3 Hours", difficulty: "Int", obj: "Share global application state across nested tree nodes without prop drilling.", video: "React Context API Tutorial", videoUrl: "https://www.youtube.com/watch?v=5LrDIWkK-D0", doc: "https://react.dev/reference/react/useContext", blog: "State Management in React", notes: "https://react.dev/learn/passing-data-deeply-with-context" }
+              { id: "wd-d20", day: "Day 20", topic: "React Context API Global State", time: "3 Hours", difficulty: "Int", obj: "Share global application state across nested tree nodes without prop drilling.", video: "How to Use the React Context API for Global State Management", videoUrl: "https://www.youtube.com/watch?v=aCetxGOp7_8", doc: "https://react.dev/reference/react/useContext", blog: "State Management in React", notes: "https://react.dev/learn/passing-data-deeply-with-context" }
             ]
           },
           {
             name: "Phase 4: Backend Engineering with Node & Express",
             days: [
               { id: "wd-d21", day: "Day 21", topic: "Node.js Basics & Module System", time: "2 Hours", difficulty: "Int", obj: "Understand V8 Engine, require/import modules, and File System API.", video: "Node.js Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=TlB_eWDSMt4", doc: "https://nodejs.org/en/docs", blog: "Node.js Architecture Guide", notes: "https://nodejs.org/en/learn/getting-started/introduction-to-nodejs" },
-              { id: "wd-d22", day: "Day 22", topic: "Express.js Server Setup", time: "2.5 Hours", difficulty: "Int", obj: "Install Express, listen on ports, and manage response content types.", video: "Express.js Crash Course", videoUrl: "https://www.youtube.com/watch?v=SccSCuHh5Hc", doc: "https://expressjs.com/en/starter/installing.html", blog: "Hello World in Express", notes: "https://expressjs.com/en/guide/routing.html" },
+              { id: "wd-d22", day: "Day 22", topic: "Express.js Server Setup", time: "2.5 Hours", difficulty: "Int", obj: "Install Express, listen on ports, and manage response content types.", video: "Install Express JS | Express JS Setup | Express JS Tutorial for Beginners | Simplilearn", videoUrl: "https://www.youtube.com/watch?v=huc9RWb0yX4", doc: "https://expressjs.com/en/starter/installing.html", blog: "Hello World in Express", notes: "https://expressjs.com/en/guide/routing.html" },
               { id: "wd-d23", day: "Day 23", topic: "REST API Design & Route Parameters", time: "3 Hours", difficulty: "Int", obj: "Build GET, POST, PUT, DELETE REST API endpoints with status codes.", video: "Build a REST API in Node.js", videoUrl: "https://www.youtube.com/watch?v=-MTSQjw5DrM", doc: "https://expressjs.com/en/guide/routing.html", blog: "Best practices for REST API design", notes: "https://restfulapi.net/" },
-              { id: "wd-d24", day: "Day 24", topic: "Express Middleware Flow", time: "2.5 Hours", difficulty: "Int", obj: "Learn app-level, router-level, error-handling, and third-party middlewares.", video: "Express Middleware Tutorial", videoUrl: "https://www.youtube.com/watch?v=lY6icfarp2A", doc: "https://expressjs.com/en/guide/using-middleware.html", blog: "Writing middleware for Express", notes: "https://expressjs.com/en/guide/writing-middleware.html" }
+              { id: "wd-d24", day: "Day 24", topic: "Express Middleware Flow", time: "2.5 Hours", difficulty: "Int", obj: "Learn app-level, router-level, error-handling, and third-party middlewares.", video: "Express Middleware", videoUrl: "https://www.youtube.com/watch?v=n2c0mf1sza4", doc: "https://expressjs.com/en/guide/using-middleware.html", blog: "Writing middleware for Express", notes: "https://expressjs.com/en/guide/writing-middleware.html" }
             ]
           },
           {
             name: "Phase 5: Databases, Security & Cloud Deployment",
             days: [
               { id: "wd-d25", day: "Day 25", topic: "SQL Databases & PostgreSQL Basics", time: "3 Hours", difficulty: "Adv", obj: "Create schemas, write SELECT, JOIN, INSERT, and UPDATE queries.", video: "SQL & Database Tutorial", videoUrl: "https://www.youtube.com/watch?v=HXV3zeQKqGY", doc: "https://www.postgresql.org/docs/", blog: "SQL vs NoSQL Comparison", notes: "https://www.w3schools.com/sql/" },
-              { id: "wd-d26", day: "Day 26", topic: "NoSQL Databases & MongoDB Basics", time: "3 Hours", difficulty: "Adv", obj: "Understand document storage, collections, document filtering, and aggregations.", video: "MongoDB Crash Course", videoUrl: "https://www.youtube.com/watch?v=ExcRbA71_18", doc: "https://www.mongodb.com/docs/", blog: "Introduction to MongoDB", notes: "https://www.mongodb.com/docs/manual/introduction/" },
-              { id: "wd-d27", day: "Day 27", topic: "Mongoose ODM with Express", time: "3 Hours", difficulty: "Adv", obj: "Define schemas, models, validation rules, and run queries in Node.", video: "Mongoose Crash Course", videoUrl: "https://www.youtube.com/watch?v=DXUAOS1OdEs", doc: "https://mongoosejs.com/docs/guide.html", blog: "Connecting Express to Mongo via Mongoose", notes: "https://mongoosejs.com/docs/index.html" },
+              { id: "wd-d26", day: "Day 26", topic: "NoSQL Databases & MongoDB Basics", time: "3 Hours", difficulty: "Adv", obj: "Understand document storage, collections, document filtering, and aggregations.", video: "How do NoSQL databases work? Simply Explained!", videoUrl: "https://www.youtube.com/watch?v=0buKQHokLK8", doc: "https://www.mongodb.com/docs/", blog: "Introduction to MongoDB", notes: "https://www.mongodb.com/docs/manual/introduction/" },
+              { id: "wd-d27", day: "Day 27", topic: "Mongoose ODM with Express", time: "3 Hours", difficulty: "Adv", obj: "Define schemas, models, validation rules, and run queries in Node.", video: "Mongoose with Express: Easy Setup, Schema, Model, and Data Insertion Explained", videoUrl: "https://www.youtube.com/watch?v=sIQekA1W0ZY", doc: "https://mongoosejs.com/docs/guide.html", blog: "Connecting Express to Mongo via Mongoose", notes: "https://mongoosejs.com/docs/index.html" },
               { id: "wd-d28", day: "Day 28", topic: "User Auth, Bcrypt & JWT Hashing", time: "3.5 Hours", difficulty: "Adv", obj: "Secure logins using password hashing and JSON Web Tokens.", video: "JWT Auth Tutorial", videoUrl: "https://www.youtube.com/watch?v=mbsmsi7l3r4", doc: "https://jwt.io/introduction", blog: "Secure authentication patterns", notes: "https://jwt.io/" },
-              { id: "wd-d29", day: "Day 29", topic: "Git & Collaborative Workflows", time: "2 Hours", difficulty: "Beg", obj: "Manage git branches, commits, merges, push to GitHub, and handle conflicts.", video: "Git & GitHub Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=apGV9AdZyms", doc: "https://git-scm.com/doc", blog: "GitHub Flow Explained", notes: "https://git-scm.com/book/en/v2" },
-              { id: "wd-d30", day: "Day 30", topic: "Cloud Deployments & Performance Audits", time: "3 Hours", difficulty: "Adv", obj: "Deploy to Render and Vercel. Optimize bundle sizes and load times.", video: "MERN Stack Deployment Tutorial", videoUrl: "https://www.youtube.com/watch?v=2a0GIIk2014", doc: "https://render.com/docs", blog: "Optimizing web performance", notes: "https://web.dev/measure/" }
+              { id: "wd-d29", day: "Day 29", topic: "Git & Collaborative Workflows", time: "2 Hours", difficulty: "Beg", obj: "Manage git branches, commits, merges, push to GitHub, and handle conflicts.", video: "How to use GIT when working with a team?", videoUrl: "https://www.youtube.com/watch?v=jhtbhSpV5YA", doc: "https://git-scm.com/doc", blog: "GitHub Flow Explained", notes: "https://git-scm.com/book/en/v2" },
+              { id: "wd-d30", day: "Day 30", topic: "Cloud Deployments & Performance Audits", time: "3 Hours", difficulty: "Adv", obj: "Deploy to Render and Vercel. Optimize bundle sizes and load times.", video: "Auditing Cloud Infrastructure using Scout Suite", videoUrl: "https://www.youtube.com/watch?v=d8O9Z-KBTcg", doc: "https://render.com/docs", blog: "Optimizing web performance", notes: "https://web.dev/measure/" }
             ]
           }
         ],
@@ -2407,6 +2466,12 @@
           { name: "Exercism", rec: "Solve the Python numerical track" },
           { name: "GeeksforGeeks", rec: "Study Calculus and Statistics for ML" }
         ],
+        tools: [
+          { name: "Git & GitHub", desc: "Version control and model version tracking.", link: "https://github.com" },
+          { name: "VS Code & Jupyter", desc: "IDE environment with interactive notebooks for model training.", link: "https://code.visualstudio.com" },
+          { name: "Anaconda / Conda", desc: "Data science distribution and environment/package manager.", link: "https://www.anaconda.com" },
+          { name: "FastAPI & Docker", desc: "API framework and container engine to deploy ML models to production.", link: "https://fastapi.tiangolo.com" }
+        ],
         phases: [
           {
             name: "Phase 1: Python & Numerical Foundations",
@@ -2414,9 +2479,9 @@
               { id: "ai-d1", day: "Day 1", topic: "Python Setup & Variable Basics", time: "2 Hours", difficulty: "Beg", obj: "Set up Jupyter notebook, learn variables, numbers, strings, and operators.", video: "Python for Beginners", videoUrl: "https://www.youtube.com/watch?v=kqtD5dpn9C8", doc: "https://docs.python.org/3/", blog: "Core Python Programming Intro", notes: "https://www.w3schools.com/python/" },
               { id: "ai-d2", day: "Day 2", topic: "Python Lists, Tuples, Dictionaries", time: "2 Hours", difficulty: "Beg", obj: "Master list slicing, dictionary iteration, and tuple packing.", video: "Python Data Structures", videoUrl: "https://www.youtube.com/watch?v=W8KRzm-HUcc", doc: "https://docs.python.org/3/tutorial/datastructures.html", blog: "Python Collection Types", notes: "https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range" },
               { id: "ai-d3", day: "Day 3", topic: "Python Functions & OOP Concepts", time: "2.5 Hours", difficulty: "Beg", obj: "Learn functions, args/kwargs, classes, inheritance, and instances.", video: "Python OOP Tutorial", videoUrl: "https://www.youtube.com/watch?v=JeznW_7DlB0", doc: "https://docs.python.org/3/tutorial/classes.html", blog: "Classes and Objects in Python", notes: "https://realpython.com/python3-object-oriented-programming/" },
-              { id: "ai-d4", day: "Day 4", topic: "NumPy Arrays & Vectorization", time: "2.5 Hours", difficulty: "Beg", obj: "Create arrays, handle dimensional slicing, and perform vectorized operations.", video: "NumPy Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=QUT1VHiLgKQ", doc: "https://numpy.org/doc/stable/user/absolute_beginners.html", blog: "Vectorization in NumPy", notes: "https://numpy.org/doc/stable/reference/" },
-              { id: "ai-d5", day: "Day 5", topic: "Matrix Multiplications in NumPy", time: "2 Hours", difficulty: "Beg", obj: "Calculate dot products, transpose, and matrix multiplications using NumPy.", video: "NumPy Matrix Operations", videoUrl: "https://www.youtube.com/watch?v=N8S2N_fNf8c", doc: "https://numpy.org/doc/stable/reference/routines.linalg.html", blog: "Linear Algebra with NumPy", notes: "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html" },
-              { id: "ai-d6", day: "Day 6", topic: "Linear Algebra: Vector Spaces & Matrices", time: "2 Hours", difficulty: "Beg", obj: "Understand linear combinations, spans, bases, and linear transformations.", video: "Essence of Linear Algebra: Chapter 1", videoUrl: "https://www.youtube.com/watch?v=fNk_zzaMoEs", doc: "https://www.khanacademy.org/math/linear-algebra", blog: "Geometric meaning of vector spaces", notes: "https://ocw.mit.edu/courses/mathematics/" },
+              { id: "ai-d4", day: "Day 4", topic: "NumPy Arrays & Vectorization", time: "2.5 Hours", difficulty: "Beg", obj: "Create arrays, handle dimensional slicing, and perform vectorized operations.", video: "Advanced NumPy Course - Vectorization, Masking, Broadcasting &amp; More", videoUrl: "https://www.youtube.com/watch?v=pQt8yQuPOGo", doc: "https://numpy.org/doc/stable/user/absolute_beginners.html", blog: "Vectorization in NumPy", notes: "https://numpy.org/doc/stable/reference/" },
+              { id: "ai-d5", day: "Day 5", topic: "Matrix Multiplications in NumPy", time: "2 Hours", difficulty: "Beg", obj: "Calculate dot products, transpose, and matrix multiplications using NumPy.", video: "Multiplication of two matrix using numpy", videoUrl: "https://www.youtube.com/watch?v=wzfX-GKZNCc", doc: "https://numpy.org/doc/stable/reference/routines.linalg.html", blog: "Linear Algebra with NumPy", notes: "https://numpy.org/doc/stable/reference/generated/numpy.matmul.html" },
+              { id: "ai-d6", day: "Day 6", topic: "Linear Algebra: Vector Spaces & Matrices", time: "2 Hours", difficulty: "Beg", obj: "Understand linear combinations, spans, bases, and linear transformations.", video: "Identify Linear Combinations Fast | Vector Space Concepts", videoUrl: "https://www.youtube.com/watch?v=ICCAPfLkaHE", doc: "https://www.khanacademy.org/math/linear-algebra", blog: "Geometric meaning of vector spaces", notes: "https://ocw.mit.edu/courses/mathematics/" },
               { id: "ai-d7", day: "Day 7", topic: "Linear Algebra: Eigenvalues & Eigenvectors", time: "2 Hours", difficulty: "Beg", obj: "Learn eigenvalues, eigenvectors, and diagonalizing matrices.", video: "Eigenvalues and Eigenvectors Explained", videoUrl: "https://www.youtube.com/watch?v=PFDu9oVAE-g", doc: "https://www.khanacademy.org/math/linear-algebra/alternate-coordinate-systems-for-r-n", blog: "Visualizing Eigenvalues", notes: "https://ocw.mit.edu/resources/" }
             ]
           },
@@ -2425,31 +2490,31 @@
             days: [
               { id: "ai-d8", day: "Day 8", topic: "Statistics: Probability & Bayes Theorem", time: "2 Hours", difficulty: "Beg", obj: "Calculate probability, conditional probability, and Bayes Theorem.", video: "Bayes Theorem Visualized", videoUrl: "https://www.youtube.com/watch?v=HZGCoVF3YvM", doc: "https://www.khanacademy.org/math/statistics-probability", blog: "Bayes Theorem Explained intuitively", notes: "https://wikipedia.org/wiki/Bayes%27_theorem" },
               { id: "ai-d9", day: "Day 9", topic: "Statistics: Data Distributions & Center", time: "2.5 Hours", difficulty: "Beg", obj: "Define mean, median, mode, standard deviation, and normal distributions.", video: "Statistics Crash Course", videoUrl: "https://www.youtube.com/watch?v=xxpc-HPKN28", doc: "https://www.khanacademy.org/math/ap-statistics", blog: "Statistical measures in Python", notes: "https://docs.python.org/3/library/statistics.html" },
-              { id: "ai-d10", day: "Day 10", topic: "Pandas Intro & Data Loading", time: "2.5 Hours", difficulty: "Beg", obj: "Load CSV files, inspect rows/columns, and select data.", video: "Pandas Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=vmEHCJofHsg", doc: "https://pandas.pydata.org/docs/user_guide/10min.html", blog: "Pandas Cheat Sheet", notes: "https://pandas.pydata.org/docs/" },
-              { id: "ai-d11", day: "Day 11", topic: "Pandas Data Cleaning & Fill NaNs", time: "2.5 Hours", difficulty: "Int", obj: "Drop records, fill missing values, cast column types, and apply functions.", video: "Pandas Data Cleaning", videoUrl: "https://www.youtube.com/watch?v=Ew113Wk5kLs", doc: "https://pandas.pydata.org/docs/user_guide/missing_data.html", blog: "Data cleansing methodologies", notes: "https://pandas.pydata.org/docs/reference/frame.html" },
+              { id: "ai-d10", day: "Day 10", topic: "Pandas Intro & Data Loading", time: "2.5 Hours", difficulty: "Beg", obj: "Load CSV files, inspect rows/columns, and select data.", video: "Learn how to use PANDAS in Python in 15 minutes - with 10 real examples", videoUrl: "https://www.youtube.com/watch?v=mkYBJwX_dMs", doc: "https://pandas.pydata.org/docs/user_guide/10min.html", blog: "Pandas Cheat Sheet", notes: "https://pandas.pydata.org/docs/" },
+              { id: "ai-d11", day: "Day 11", topic: "Pandas Data Cleaning & Fill NaNs", time: "2.5 Hours", difficulty: "Int", obj: "Drop records, fill missing values, cast column types, and apply functions.", video: "Data Cleaning in Pandas | Python Pandas Tutorials", videoUrl: "https://www.youtube.com/watch?v=bDhvCp3_lYw", doc: "https://pandas.pydata.org/docs/user_guide/missing_data.html", blog: "Data cleansing methodologies", notes: "https://pandas.pydata.org/docs/reference/frame.html" },
               { id: "ai-d12", day: "Day 12", topic: "Data Visualization with Matplotlib", time: "2 Hours", difficulty: "Beg", obj: "Plot line graphs, bar charts, histograms, and configure labels.", video: "Matplotlib Tutorial", videoUrl: "https://www.youtube.com/watch?v=DAQNHzOcO5A", doc: "https://matplotlib.org/stable/users/index.html", blog: "Effective data visualization", notes: "https://matplotlib.org/stable/tutorials/index.html" },
-              { id: "ai-d13", day: "Day 13", topic: "Statistical Plotting with Seaborn", time: "2 Hours", difficulty: "Beg", obj: "Generate pairplots, heatmaps, box plots, and scatter plots.", video: "Seaborn Tutorial", videoUrl: "https://www.youtube.com/watch?v=GcXxFyWsp84", doc: "https://seaborn.pydata.org/", blog: "Visualizing relationships with Seaborn", notes: "https://seaborn.pydata.org/tutorial.html" },
-              { id: "ai-d14", day: "Day 14", topic: "Exploratory Data Analysis (EDA) Project", time: "3 Hours", difficulty: "Int", obj: "Perform a complete EDA on a Kaggle dataset (e.g. Titanic).", video: "EDA Tutorial for Beginners", videoUrl: "https://www.youtube.com/watch?v=3KBZKBJe7sU", doc: "https://pandas.pydata.org/pandas-docs/stable/user_guide/index.html", blog: "Titanic Dataset EDA walkthrough", notes: "https://kaggle.com/" }
+              { id: "ai-d13", day: "Day 13", topic: "Statistical Plotting with Seaborn", time: "2 Hours", difficulty: "Beg", obj: "Generate pairplots, heatmaps, box plots, and scatter plots.", video: "How to Visualize Data in Python Using Seaborn | Seaborn Tutorial.", videoUrl: "https://www.youtube.com/watch?v=LnGz20B3nTU", doc: "https://seaborn.pydata.org/", blog: "Visualizing relationships with Seaborn", notes: "https://seaborn.pydata.org/tutorial.html" },
+              { id: "ai-d14", day: "Day 14", topic: "Exploratory Data Analysis (EDA) Project", time: "3 Hours", difficulty: "Int", obj: "Perform a complete EDA on a Kaggle dataset (e.g. Titanic).", video: "Python Data Analysis Portfolio Project - Book Sales", videoUrl: "https://www.youtube.com/watch?v=rAI4ITRMkTY", doc: "https://pandas.pydata.org/pandas-docs/stable/user_guide/index.html", blog: "Titanic Dataset EDA walkthrough", notes: "https://kaggle.com/" }
             ]
           },
           {
             name: "Phase 3: Classical Machine Learning",
             days: [
               { id: "ai-d15", day: "Day 15", topic: "Machine Learning Concept Overview", time: "2 Hours", difficulty: "Beg", obj: "Understand supervised, unsupervised, reinforcement learning, and bias-variance tradeoff.", video: "Machine Learning Course", videoUrl: "https://www.youtube.com/watch?v=Gv9_4yMHFhI", doc: "https://scikit-learn.org/stable/user_guide.html", blog: "Introduction to Machine Learning", notes: "https://scikit-learn.org/stable/tutorial/basic/tutorial.html" },
-              { id: "ai-d16", day: "Day 16", topic: "Scikit-Learn Introduction & Estimators", time: "2 Hours", difficulty: "Int", obj: "Learn fit-predict workflow, transformers, and model pipelines.", video: "Scikit-Learn Crash Course", videoUrl: "https://www.youtube.com/watch?v=0Lt9w-ROKFQ", doc: "https://scikit-learn.org/stable/getting_started.html", blog: "Scikit-Learn Pipeline building", notes: "https://scikit-learn.org/stable/modules/classes.html" },
-              { id: "ai-d17", day: "Day 17", topic: "Linear Regression Models", time: "3 Hours", difficulty: "Int", obj: "Implement simple & multiple linear regression, compute MSE & R-squared.", video: "Linear Regression Tutorial", videoUrl: "https://www.youtube.com/watch?v=E5R3UM8J29I", doc: "https://scikit-learn.org/stable/modules/linear_model.html", blog: "Regression analysis basics", notes: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html" },
+              { id: "ai-d16", day: "Day 16", topic: "Scikit-Learn Introduction & Estimators", time: "2 Hours", difficulty: "Int", obj: "Learn fit-predict workflow, transformers, and model pipelines.", video: "What Is Scikit-Learn | Introduction To Scikit-Learn | Machine Learning Tutorial | Intellipaat", videoUrl: "https://www.youtube.com/watch?v=7z8-QWlbmoo", doc: "https://scikit-learn.org/stable/getting_started.html", blog: "Scikit-Learn Pipeline building", notes: "https://scikit-learn.org/stable/modules/classes.html" },
+              { id: "ai-d17", day: "Day 17", topic: "Linear Regression Models", time: "3 Hours", difficulty: "Int", obj: "Implement simple & multiple linear regression, compute MSE & R-squared.", video: "Linear Regression in 3 Minutes", videoUrl: "https://www.youtube.com/watch?v=3dhcmeOTZ_Q", doc: "https://scikit-learn.org/stable/modules/linear_model.html", blog: "Regression analysis basics", notes: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html" },
               { id: "ai-d18", day: "Day 18", topic: "Logistic Regression & Classification", time: "3 Hours", difficulty: "Int", obj: "Build binary classifiers and analyze sigmoid functions.", video: "Logistic Regression Tutorial", videoUrl: "https://www.youtube.com/watch?v=yIYKR4sgzI8", doc: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html", blog: "Classification in Machine Learning", notes: "https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression" },
-              { id: "ai-d19", day: "Day 19", topic: "Decision Trees & Random Forests", time: "3 Hours", difficulty: "Int", obj: "Learn entropy, information gain, bagging, and ensemble random forests.", video: "Random Forests Explained", videoUrl: "https://www.youtube.com/watch?v=g9c65SJHclw", doc: "https://scikit-learn.org/stable/modules/ensemble.html", blog: "Trees and Ensembles", notes: "https://scikit-learn.org/stable/modules/tree.html" },
-              { id: "ai-d20", day: "Day 20", topic: "Support Vector Machines (SVM)", time: "2.5 Hours", difficulty: "Int", obj: "Understand margins, hyperplanes, and kernel tricks in SVM.", video: "SVM Tutorial", videoUrl: "https://www.youtube.com/watch?v=efR1C6BhCJ8", doc: "https://scikit-learn.org/stable/modules/svm.html", blog: "Support Vector Machine Math", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.svm" },
+              { id: "ai-d19", day: "Day 19", topic: "Decision Trees & Random Forests", time: "3 Hours", difficulty: "Int", obj: "Learn entropy, information gain, bagging, and ensemble random forests.", video: "StatQuest: Random Forests Part 1 - Building, Using and Evaluating", videoUrl: "https://www.youtube.com/watch?v=J4Wdy0Wc_xQ", doc: "https://scikit-learn.org/stable/modules/ensemble.html", blog: "Trees and Ensembles", notes: "https://scikit-learn.org/stable/modules/tree.html" },
+              { id: "ai-d20", day: "Day 20", topic: "Support Vector Machines (SVM)", time: "2.5 Hours", difficulty: "Int", obj: "Understand margins, hyperplanes, and kernel tricks in SVM.", video: "Support Vector Machine (SVM) in 2 minutes", videoUrl: "https://www.youtube.com/watch?v=_YPScrckx28", doc: "https://scikit-learn.org/stable/modules/svm.html", blog: "Support Vector Machine Math", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.svm" },
               { id: "ai-d21", day: "Day 21", topic: "K-Means Clustering & Unsupervised ML", time: "2.5 Hours", difficulty: "Int", obj: "Apply clustering, select optimal K using elbow method.", video: "K-Means Clustering", videoUrl: "https://www.youtube.com/watch?v=4b5d3muPQmA", doc: "https://scikit-learn.org/stable/modules/clustering.html#k-means", blog: "Unsupervised learning applications", notes: "https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html" }
             ]
           },
           {
             name: "Phase 4: Validation & Tuning",
             days: [
-              { id: "ai-d22", day: "Day 22", topic: "Model Validation: Train-Test & CV", time: "2.5 Hours", difficulty: "Int", obj: "Master cross validation, K-fold splits, and preventing overfitting.", video: "Cross Validation Explained", videoUrl: "https://www.youtube.com/watch?v=fSytzLH-C_M", doc: "https://scikit-learn.org/stable/modules/cross_validation.html", blog: "Generalization error and Validation", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.model_selection" },
+              { id: "ai-d22", day: "Day 22", topic: "Model Validation: Train-Test & CV", time: "2.5 Hours", difficulty: "Int", obj: "Master cross validation, K-fold splits, and preventing overfitting.", video: "Why do we split data into train test and validation sets?", videoUrl: "https://www.youtube.com/watch?v=dSCFk168vmo", doc: "https://scikit-learn.org/stable/modules/cross_validation.html", blog: "Generalization error and Validation", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.model_selection" },
               { id: "ai-d23", day: "Day 23", topic: "Confusion Matrix & Classification Metrics", time: "2.5 Hours", difficulty: "Int", obj: "Evaluate F1 Score, Precision, Recall, ROC curve, and AUC.", video: "Classification Metrics", videoUrl: "https://www.youtube.com/watch?v=Kdsp6soqA7o", doc: "https://scikit-learn.org/stable/modules/model_evaluation.html", blog: "Precision vs Recall tradeoff", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics" },
-              { id: "ai-d24", day: "Day 24", topic: "Hyperparameter Tuning: Grid Search", time: "3 Hours", difficulty: "Int", obj: "Optimize hyperparameters using GridSearchCV & RandomizedSearchCV.", video: "Grid Search Parameter Tuning", videoUrl: "https://www.youtube.com/watch?v=HdlDYsg7968", doc: "https://scikit-learn.org/stable/modules/grid_search.html", blog: "Automating parameter tuning", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.model_selection" }
+              { id: "ai-d24", day: "Day 24", topic: "Hyperparameter Tuning: Grid Search", time: "3 Hours", difficulty: "Int", obj: "Optimize hyperparameters using GridSearchCV & RandomizedSearchCV.", video: "Machine Learning Tutorial Python - 16: Hyper parameter Tuning (GridSearchCV)", videoUrl: "https://www.youtube.com/watch?v=HdlDYng8g9s", doc: "https://scikit-learn.org/stable/modules/grid_search.html", blog: "Automating parameter tuning", notes: "https://scikit-learn.org/stable/modules/classes.html#module-sklearn.model_selection" }
             ]
           },
           {
@@ -2458,9 +2523,9 @@
               { id: "ai-d25", day: "Day 25", topic: "Intro to Neural Networks", time: "3 Hours", difficulty: "Adv", obj: "Understand perceptrons, activation functions (ReLU, Sigmoid), and backpropagation.", video: "Neural Networks Course", videoUrl: "https://www.youtube.com/watch?v=aircAruvnKk", doc: "https://pytorch.org/docs/stable/index.html", blog: "How Neural Networks learn", notes: "https://deeplearning.ai/" },
               { id: "ai-d26", day: "Day 26", topic: "PyTorch Basics & Tensors", time: "3 Hours", difficulty: "Adv", obj: "Manipulate tensors, calculate gradients using AutoGrad.", video: "PyTorch Beginner Course", videoUrl: "https://www.youtube.com/watch?v=V_xro1bcAuA", doc: "https://pytorch.org/docs/stable/tensors.html", blog: "Getting Started with PyTorch Tensors", notes: "https://pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html" },
               { id: "ai-d27", day: "Day 27", topic: "Building Networks with nn.Module", time: "3 Hours", difficulty: "Adv", obj: "Define custom neural network architectures and forward propagation.", video: "Building PyTorch Neural Networks", videoUrl: "https://www.youtube.com/watch?v=c36lUUr864M", doc: "https://pytorch.org/docs/stable/generated/torch.nn.Module.html", blog: "PyTorch Model Creation Guide", notes: "https://pytorch.org/tutorials/beginner/basics/buildmodel_tutorial.html" },
-              { id: "ai-d28", day: "Day 28", topic: "Convolutional Neural Networks (CNNs)", time: "3.5 Hours", difficulty: "Adv", obj: "Understand convolutional layers, pooling, stride, and image features.", video: "CNNs Tutorial", videoUrl: "https://www.youtube.com/watch?v=pDae3aCOz3U", doc: "https://pytorch.org/docs/stable/nn.html#convolution-layers", blog: "Convolutional Neural Network mechanics", notes: "https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html" },
+              { id: "ai-d28", day: "Day 28", topic: "Convolutional Neural Networks (CNNs)", time: "3.5 Hours", difficulty: "Adv", obj: "Understand convolutional layers, pooling, stride, and image features.", video: "Simple explanation of convolutional neural network | Deep Learning Tutorial 23 (Tensorflow &amp; Python)", videoUrl: "https://www.youtube.com/watch?v=zfiSAzpy9NM", doc: "https://pytorch.org/docs/stable/nn.html#convolution-layers", blog: "Convolutional Neural Network mechanics", notes: "https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html" },
               { id: "ai-d29", day: "Day 29", topic: "Image Classification Training Loop", time: "3 Hours", difficulty: "Adv", obj: "Configure CrossEntropyLoss, SGD/Adam optimizer, and run training epochs.", video: "Image Classification Tutorial", videoUrl: "https://www.youtube.com/watch?v=GIsg-ZUy0MY", doc: "https://pytorch.org/docs/stable/optim.html", blog: "Training image classification models", notes: "https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html" },
-              { id: "ai-d30", day: "Day 30", topic: "Model Serving via FastAPI & Docker", time: "3 Hours", difficulty: "Adv", obj: "Serve inference predictions using FastAPI endpoints inside Docker.", video: "FastAPI Model Deployment", videoUrl: "https://www.youtube.com/watch?v=vs_e9gntfV0", doc: "https://fastapi.tiangolo.com/", blog: "Deploying PyTorch models to production API", notes: "https://docker.com/docs" }
+              { id: "ai-d30", day: "Day 30", topic: "Model Serving via FastAPI & Docker", time: "3 Hours", difficulty: "Adv", obj: "Serve inference predictions using FastAPI endpoints inside Docker.", video: "Deploy ML models with FastAPI, Docker, and Heroku | Tutorial", videoUrl: "https://www.youtube.com/watch?v=h5wLuVDr0oc", doc: "https://fastapi.tiangolo.com/", blog: "Deploying PyTorch models to production API", notes: "https://docker.com/docs" }
             ]
           }
         ],
@@ -2523,6 +2588,12 @@
         platforms: [
           { name: "LeetCode", rec: "Practice code solving algorithms" },
           { name: "GeeksforGeeks", rec: "Read core conceptual documents" }
+        ],
+        tools: [
+          { name: "Git & GitHub", desc: "Version control and codebase hosting.", link: "https://github.com" },
+          { name: "VS Code", desc: "Lightweight and versatile coding environment.", link: "https://code.visualstudio.com" },
+          { name: "Terminal / CLI", desc: "Command line interface for running scripts and automation.", link: "https://git-scm.com" },
+          { name: "Package Manager", desc: "Standard language package tool (pip, npm, cargo, etc.).", link: "https://google.com" }
         ],
         phases: [
           {
@@ -2736,7 +2807,7 @@
 
       // Next button text
       if (currentStep === totalSteps) {
-        btnNext.innerHTML = `Generate My Roadmap 🚀`;
+        btnNext.innerHTML = `Generate My Roadmap`;
       } else {
         btnNext.innerHTML = `Next
           <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>`;
@@ -2750,6 +2821,8 @@
       // Toggle layout visibility
       wizardContainer.style.display = 'none';
       aiLoaderPanel.style.display = 'block';
+      const header = document.querySelector('.roadmap-header');
+      if (header) header.style.display = 'none';
 
       const terminalLogs = [
         `> Initializing CodeWave AI Analyzer v3.5...`,
@@ -2828,6 +2901,9 @@
       // Render Practice platforms
       renderPracticePlatforms(data.platforms);
 
+      // Render Essential Tools
+      renderTools(data.tools || defaultToolsForTrack(primaryInterest));
+
       // Render Curated Projects
       renderProjects(data.projects);
 
@@ -2888,7 +2964,14 @@
                       </div>
                     </div>
                     <span class="resource-card-title">${dayObj.video}</span>
-                    <a href="${dayObj.videoUrl || 'https://youtube.com'}" class="btn-resource-link" target="_blank">Watch Video</a>
+                    <div class="video-actions-group">
+                      <a href="${dayObj.videoUrl || 'https://youtube.com'}" class="btn-resource-link btn-watch-video" target="_blank">
+                        Watch Video
+                      </a>
+                      <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(dayObj.topic + ' Tutorial')}" class="btn-resource-link btn-search-video" target="_blank" title="Search on YouTube if link is broken">
+                        <svg style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                      </a>
+                    </div>
                   </div>
                   <div class="resource-item-card">
                     <span class="percentage-label" style="font-size:0.65rem; margin-bottom:4px;">DOCUMENTATION</span>
@@ -2946,6 +3029,52 @@
       });
     }
 
+    function renderTools(tools) {
+      const container = document.getElementById('toolsList');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const list = tools || [];
+      list.forEach((t) => {
+        const card = document.createElement('div');
+        card.className = 'platform-card';
+        card.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span class="platform-name">${t.name}</span>
+            <span class="platform-rec-text">${t.desc}</span>
+          </div>
+          <a href="${t.link || 'https://google.com'}" target="_blank" class="btn-practice">Setup 🛠️</a>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function defaultToolsForTrack(interest) {
+      const cleanedInterest = interest ? interest.toLowerCase() : '';
+      if (cleanedInterest.includes('web') || cleanedInterest.includes('full')) {
+        return [
+          { name: "Git & GitHub", desc: "Version control & collaboration platform.", link: "https://github.com" },
+          { name: "VS Code", desc: "Industry-standard code editor with powerful JS/React plugins.", link: "https://code.visualstudio.com" },
+          { name: "Chrome DevTools", desc: "Built-in browser tool for CSS debugging and JS console logging.", link: "https://developer.chrome.com/docs/devtools" },
+          { name: "Node.js & npm", desc: "JavaScript runtime and dependency manager for React/Express packages.", link: "https://nodejs.org" }
+        ];
+      } else if (cleanedInterest.includes('ai') || cleanedInterest.includes('machine') || cleanedInterest.includes('ml')) {
+        return [
+          { name: "Git & GitHub", desc: "Version control and model version tracking.", link: "https://github.com" },
+          { name: "VS Code & Jupyter", desc: "IDE environment with interactive notebooks for model training.", link: "https://code.visualstudio.com" },
+          { name: "Anaconda / Conda", desc: "Data science distribution and environment/package manager.", link: "https://www.anaconda.com" },
+          { name: "FastAPI & Docker", desc: "API framework and container engine to deploy ML models to production.", link: "https://fastapi.tiangolo.com" }
+        ];
+      } else {
+        return [
+          { name: "Git & GitHub", desc: "Version control and codebase hosting.", link: "https://github.com" },
+          { name: "VS Code", desc: "Lightweight and versatile coding environment.", link: "https://code.visualstudio.com" },
+          { name: "Terminal / CLI", desc: "Command line interface for running scripts and automation.", link: "https://git-scm.com" },
+          { name: "Package Manager", desc: "Standard language package tool (pip, npm, cargo, etc.).", link: "https://google.com" }
+        ];
+      }
+    }
+
     function renderProjects(projects) {
       renderTierCards('beginner', projects.beginner);
       renderTierCards('intermediate', projects.intermediate);
@@ -2994,6 +3123,47 @@
       });
     }
 
+    let timelineViewMode = 'all';
+    let activeFocusedDayIndex = 0;
+
+    function applyTimelineFilter() {
+      const cards = document.querySelectorAll('.day-card');
+      const groups = document.querySelectorAll('.timeline-phase-group');
+      const dailyControls = document.getElementById('dailyNavControls');
+      
+      if (timelineViewMode === 'all') {
+        dailyControls.style.display = 'none';
+        groups.forEach(g => g.style.display = 'block');
+        cards.forEach(c => {
+          c.style.display = 'block';
+        });
+      } else {
+        dailyControls.style.display = 'flex';
+        groups.forEach(g => g.style.display = 'none');
+        
+        cards.forEach((card, idx) => {
+          if (idx === activeFocusedDayIndex) {
+            card.style.display = 'block';
+            card.classList.add('expanded-day');
+            
+            const parentGroup = card.closest('.timeline-phase-group');
+            if (parentGroup) parentGroup.style.display = 'block';
+            
+            const dayText = card.querySelector('.day-number-tag').textContent;
+            const topicText = card.querySelector('.day-topic-name').textContent;
+            document.getElementById('dailyDayIndicator').innerHTML = `Focus: ${dayText} ${topicText}`;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+        
+        document.getElementById('btnPrevDay').disabled = (activeFocusedDayIndex === 0);
+        document.getElementById('btnNextDay').disabled = (activeFocusedDayIndex === cards.length - 1);
+        document.getElementById('btnPrevDay').style.opacity = (activeFocusedDayIndex === 0) ? '0.4' : '1';
+        document.getElementById('btnNextDay').style.opacity = (activeFocusedDayIndex === cards.length - 1) ? '0.4' : '1';
+      }
+    }
+
     // Toggle completion status of timeline days
     window.toggleDayComplete = function(event, dayId) {
       event.stopPropagation(); // Avoid expanding card
@@ -3003,6 +3173,34 @@
 
       card.classList.toggle('completed-day');
       updateProgressStats();
+      
+      // Auto-save progress if already saved to DB
+      if (currentRoadmapId) {
+        saveRoadmapToDB();
+      } else {
+        const completedList = [];
+        document.querySelectorAll('.day-card.completed-day').forEach(c => {
+          completedList.push(c.getAttribute('data-id'));
+        });
+        const progressPercent = document.getElementById('progressPercentageText').textContent.replace('%', '');
+        const backupPayload = {
+          id: null,
+          full_name: formState.fullName,
+          college: formState.college,
+          branch: formState.branch,
+          current_year: formState.currentYear,
+          career_interest: formState.careerInterests.join(', '),
+          skill_level: formState.skillLevel,
+          existing_skills: formState.existingSkills.join(', '),
+          learning_time: formState.learningTime,
+          goal: formState.goal,
+          generated_roadmap: loadedRoadmapData,
+          progress_percentage: parseInt(progressPercent),
+          completed_topics: completedList.join(','),
+          learning_streak: parseInt(document.getElementById('statLearningStreak').textContent.match(/\d+/)[0])
+        };
+        localStorage.setItem('active_roadmap_backup', JSON.stringify(backupPayload));
+      }
     };
 
     function updateProgressStats() {
@@ -3296,6 +3494,8 @@
 
         if (data.status === 'success') {
           currentRoadmapId = data.id;
+          localStorage.setItem('active_roadmap_id', currentRoadmapId);
+          localStorage.removeItem('active_roadmap_backup'); // Clear local temporary backup
           
           // Modify browser history URL without reloading, so reloading uses the saved id
           const newUrl = `${window.location.origin}${window.location.pathname}?id=${currentRoadmapId}`;
@@ -3377,6 +3577,62 @@
       return cookieValue;
     }
 
+    // Wire up New Roadmap button reset action
+    const btnNewRoadmap = document.getElementById('btnNewRoadmap');
+    if (btnNewRoadmap) {
+      btnNewRoadmap.addEventListener('click', () => {
+        localStorage.removeItem('active_roadmap_id');
+        localStorage.removeItem('active_roadmap_backup');
+        window.location.href = window.location.pathname;
+      });
+    }
+
+    // Wire up Daily Focus tab filters
+    document.querySelectorAll('.view-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.view-tab').forEach(t => {
+          t.classList.remove('active');
+          t.style.background = 'transparent';
+          t.style.color = 'var(--text-muted)';
+        });
+        
+        tab.classList.add('active');
+        tab.style.background = 'var(--color-violet)';
+        tab.style.color = 'white';
+        
+        timelineViewMode = tab.getAttribute('data-mode');
+        
+        if (timelineViewMode === 'daily') {
+          const cards = document.querySelectorAll('.day-card');
+          let firstIncompleteIdx = 0;
+          for (let i = 0; i < cards.length; i++) {
+            if (!cards[i].classList.contains('completed-day')) {
+              firstIncompleteIdx = i;
+              break;
+            }
+          }
+          activeFocusedDayIndex = firstIncompleteIdx;
+        }
+        
+        applyTimelineFilter();
+      });
+    });
+
+    document.getElementById('btnPrevDay').addEventListener('click', () => {
+      if (activeFocusedDayIndex > 0) {
+        activeFocusedDayIndex--;
+        applyTimelineFilter();
+      }
+    });
+
+    document.getElementById('btnNextDay').addEventListener('click', () => {
+      const cards = document.querySelectorAll('.day-card');
+      if (activeFocusedDayIndex < cards.length - 1) {
+        activeFocusedDayIndex++;
+        applyTimelineFilter();
+      }
+    });
+
     // -------------------------------------------------------------------------
     // LOAD SAVED ROADMAP DIRECTLY (IF QUERY STRING PRESENT)
     // -------------------------------------------------------------------------
@@ -3384,6 +3640,10 @@
       // Toggle layout visibility
       wizardContainer.style.display = 'none';
       aiLoaderPanel.style.display = 'block';
+      const header = document.querySelector('.roadmap-header');
+      if (header) header.style.display = 'none';
+
+      localStorage.setItem('active_roadmap_id', LOADED_ROADMAP_ID);
 
       // Load via api
       fetch(`/waves/api/roadmap/load/${LOADED_ROADMAP_ID}/`)
@@ -3405,6 +3665,55 @@
 
           loadedRoadmapData = data.generated_roadmap;
 
+          // Fix old dead links dynamically on load
+          const linkFixes = {
+            'https://www.youtube.com/watch?v=OkT5f1-3mP0': 'https://www.youtube.com/watch?v=qz0aGYrrlhU',
+            'https://www.youtube.com/watch?v=n4R2E7O-NLY': 'https://www.youtube.com/watch?v=qvx2SZzoqqQ',
+            'https://www.youtube.com/watch?v=r12p91_z72k': 'https://www.youtube.com/watch?v=qvx2SZzoqqQ',
+            'https://www.youtube.com/watch?v=fYq5JSgRpx0': 'https://www.youtube.com/watch?v=phWxA89Dy94',
+            'https://www.youtube.com/watch?v=K74l26pE4vE': 'https://www.youtube.com/watch?v=phWxA89Dy94',
+            'https://www.youtube.com/watch?v=8gK1M-s1Qwg': 'https://www.youtube.com/watch?v=rg7Fvvl3taU',
+            'https://www.youtube.com/watch?v=0xMaUnUvJCU': 'https://www.youtube.com/watch?v=rg7Fvvl3taU',
+            'https://www.youtube.com/watch?v=srvUrASg0MY': 'https://www.youtube.com/watch?v=zlYFDAqAokw',
+            'https://www.youtube.com/watch?v=VQravn0X9n4': 'https://www.youtube.com/watch?v=zlYFDAqAokw',
+            'https://www.youtube.com/watch?v=gdI1tV6V14U': 'https://www.youtube.com/watch?v=XF1_MlZ5l6M',
+            'https://www.youtube.com/watch?v=drKGsElgQ7M': 'https://www.youtube.com/watch?v=Yp9KIcSKTNo',
+            'https://www.youtube.com/watch?v=hQAHJsKyN0s': 'https://www.youtube.com/watch?v=QFaFIcGhPoM',
+            'https://www.youtube.com/watch?v=5LrDIWkK-D0': 'https://www.youtube.com/watch?v=aCetxGOp7_8',
+            'https://www.youtube.com/watch?v=SccSCuHh5Hc': 'https://www.youtube.com/watch?v=huc9RWb0yX4',
+            'https://www.youtube.com/watch?v=lY6icfarp2A': 'https://www.youtube.com/watch?v=n2c0mf1sza4',
+            'https://www.youtube.com/watch?v=ExcRbA71_18': 'https://www.youtube.com/watch?v=0buKQHokLK8',
+            'https://www.youtube.com/watch?v=DXUAOS1OdEs': 'https://www.youtube.com/watch?v=sIQekA1W0ZY',
+            'https://www.youtube.com/watch?v=apGV9AdZyms': 'https://www.youtube.com/watch?v=jhtbhSpV5YA',
+            'https://www.youtube.com/watch?v=2a0GIIk2014': 'https://www.youtube.com/watch?v=d8O9Z-KBTcg',
+            'https://www.youtube.com/watch?v=QUT1VHiLgKQ': 'https://www.youtube.com/watch?v=pQt8yQuPOGo',
+            'https://www.youtube.com/watch?v=N8S2N_fNf8c': 'https://www.youtube.com/watch?v=wzfX-GKZNCc',
+            'https://www.youtube.com/watch?v=fNk_zzaMoEs': 'https://www.youtube.com/watch?v=ICCAPfLkaHE',
+            'https://www.youtube.com/watch?v=vmEHCJofHsg': 'https://www.youtube.com/watch?v=mkYBJwX_dMs',
+            'https://www.youtube.com/watch?v=Ew113Wk5kLs': 'https://www.youtube.com/watch?v=bDhvCp3_lYw',
+            'https://www.youtube.com/watch?v=GcXxFyWsp84': 'https://www.youtube.com/watch?v=LnGz20B3nTU',
+            'https://www.youtube.com/watch?v=3KBZKBJe7sU': 'https://www.youtube.com/watch?v=rAI4ITRMkTY',
+            'https://www.youtube.com/watch?v=0Lt9w-ROKFQ': 'https://www.youtube.com/watch?v=7z8-QWlbmoo',
+            'https://www.youtube.com/watch?v=E5R3UM8J29I': 'https://www.youtube.com/watch?v=3dhcmeOTZ_Q',
+            'https://www.youtube.com/watch?v=g9c65SJHclw': 'https://www.youtube.com/watch?v=J4Wdy0Wc_xQ',
+            'https://www.youtube.com/watch?v=efR1C6BhCJ8': 'https://www.youtube.com/watch?v=_YPScrckx28',
+            'https://www.youtube.com/watch?v=fSytzLH-C_M': 'https://www.youtube.com/watch?v=dSCFk168vmo',
+            'https://www.youtube.com/watch?v=HdlDYsg7968': 'https://www.youtube.com/watch?v=HdlDYng8g9s',
+            'https://www.youtube.com/watch?v=pDae3aCOz3U': 'https://www.youtube.com/watch?v=zfiSAzpy9NM',
+            'https://www.youtube.com/watch?v=vs_e9gntfV0': 'https://www.youtube.com/watch?v=h5wLuVDr0oc'
+          };
+          if (loadedRoadmapData && loadedRoadmapData.phases) {
+            loadedRoadmapData.phases.forEach(phase => {
+              if (phase.days) {
+                phase.days.forEach(day => {
+                  if (linkFixes[day.videoUrl]) {
+                    day.videoUrl = linkFixes[day.videoUrl];
+                  }
+                });
+              }
+            });
+          }
+
           // Render details
           document.getElementById('outputMetaBadge').innerHTML = `${formState.careerInterests[0]} - ${formState.skillLevel}`;
           document.getElementById('outputHeading').innerHTML = `${loadedRoadmapData.title} for ${formState.goal} Preparation`;
@@ -3412,6 +3721,7 @@
 
           renderTimeline(loadedRoadmapData.phases);
           renderPracticePlatforms(loadedRoadmapData.platforms);
+          renderTools(loadedRoadmapData.tools || defaultToolsForTrack(formState.careerInterests[0]));
           renderProjects(loadedRoadmapData.projects);
 
           // Apply completion checks
@@ -3422,6 +3732,7 @@
           });
 
           updateProgressStats();
+          applyTimelineFilter();
 
           // Hide loader, show dashboard
           aiLoaderPanel.style.display = 'none';
@@ -3430,15 +3741,25 @@
           triggerMentorGreet();
         } else {
           showToast("Failed to load saved roadmap. Directing to generator.");
+          localStorage.removeItem('active_roadmap_id');
+          window.history.replaceState({}, document.title, window.location.pathname);
           aiLoaderPanel.style.display = 'none';
           wizardContainer.style.display = 'block';
         }
       })
       .catch(err => {
         showToast("Error loading roadmap from database.");
+        localStorage.removeItem('active_roadmap_id');
+        window.history.replaceState({}, document.title, window.location.pathname);
         aiLoaderPanel.style.display = 'none';
         wizardContainer.style.display = 'block';
       });
+    } else {
+      // Auto-load if active_roadmap_id is in local storage
+      const activeId = localStorage.getItem('active_roadmap_id');
+      if (activeId) {
+        window.location.search = `?id=${activeId}`;
+      }
     }
 
   });

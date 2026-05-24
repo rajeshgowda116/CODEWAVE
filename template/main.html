@@ -964,6 +964,41 @@
   </div>
 </section>
 
+<!-- Active Roadmap Progress Panel (Visible only if user has a generated roadmap) -->
+<section id="activeRoadmapPanel" style="display: none; margin-bottom: 2rem;">
+  <div class="dashboard-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(34, 211, 238, 0.1) 100%); border-color: rgba(34, 211, 238, 0.35); box-shadow: 0 8px 32px rgba(34, 211, 238, 0.05); padding: 1.75rem; border-radius: 16px; position: relative; overflow: hidden;">
+    
+    <!-- Neon decoration background glow -->
+    <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(34, 211, 238, 0.2); filter: blur(50px); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: absolute; bottom: -50px; left: -50px; width: 150px; height: 150px; background: rgba(168, 85, 247, 0.15); filter: blur(50px); border-radius: 50%; pointer-events: none;"></div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; position: relative; z-index: 1;">
+      <div style="flex: 1; min-width: 280px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+          <span style="font-size: 0.75rem; font-family: var(--font-heading); font-weight: 700; color: var(--color-cyan); background: rgba(34, 211, 238, 0.1); padding: 0.25rem 0.6rem; border-radius: 99px;" id="dashRoadmapBadge">WEB DEV</span>
+          <span style="font-size: 0.75rem; font-family: var(--font-heading); font-weight: 700; color: #fb923c; background: rgba(251, 146, 60, 0.1); padding: 0.25rem 0.6rem; border-radius: 99px;" id="dashRoadmapStreak">🔥 1 Day Streak</span>
+        </div>
+        <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 0.5rem;" id="dashRoadmapTitle">Full-Stack Web Developer Curriculum</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;" id="dashRoadmapFocus"><strong>Next Up:</strong> Day 8 - JavaScript Variables & Data Types</p>
+        
+        <!-- Progress Bar -->
+        <div style="display: flex; align-items: center; gap: 12px; margin-top: 1rem;">
+          <div style="flex: 1; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 99px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.03);">
+            <div id="dashProgressFill" style="height: 100%; width: 45%; background: linear-gradient(90deg, var(--color-cyan), var(--color-purple)); border-radius: 99px; transition: width 0.5s ease;"></div>
+          </div>
+          <span id="dashProgressText" style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--color-cyan);">45%</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <a id="dashResumeBtn" href="/waves/roadmap/" class="btn-primary" style="padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: var(--neon-cyan-glow);">
+          Resume Learning 🚀
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Dashboard Main Grid Container -->
 <section class="dashboard-grid">
 
@@ -1248,6 +1283,83 @@
       'about': 'CodeWave is a premier developer community of passionate tech builders. We host weekly hackathons, solve coding challenges, and share development resources!',
       'default': 'Interesting question! Our team is looking into this. Make sure to check our Roadmaps or join our Community to find more information.'
     };
+
+    // Load active roadmap info if present
+    const activeRoadmapId = localStorage.getItem('active_roadmap_id');
+    const activeRoadmapBackupStr = localStorage.getItem('active_roadmap_backup');
+    let activeRoadmapData = null;
+
+    if (activeRoadmapId) {
+      fetch(`/waves/api/roadmap/load/${activeRoadmapId}/`)
+      .then(res => res.json())
+      .then(response => {
+        if (response.status === 'success') {
+          activeRoadmapData = response.data;
+          renderDashboardRoadmapCard(activeRoadmapData);
+        } else if (activeRoadmapBackupStr) {
+          activeRoadmapData = JSON.parse(activeRoadmapBackupStr);
+          renderDashboardRoadmapCard(activeRoadmapData);
+        }
+      })
+      .catch(err => {
+        if (activeRoadmapBackupStr) {
+          activeRoadmapData = JSON.parse(activeRoadmapBackupStr);
+          renderDashboardRoadmapCard(activeRoadmapData);
+        }
+      });
+    } else if (activeRoadmapBackupStr) {
+      activeRoadmapData = JSON.parse(activeRoadmapBackupStr);
+      renderDashboardRoadmapCard(activeRoadmapData);
+    }
+
+    function renderDashboardRoadmapCard(data) {
+      const panel = document.getElementById('activeRoadmapPanel');
+      if (!panel) return;
+      
+      const badge = document.getElementById('dashRoadmapBadge');
+      const streak = document.getElementById('dashRoadmapStreak');
+      const title = document.getElementById('dashRoadmapTitle');
+      const focus = document.getElementById('dashRoadmapFocus');
+      const fill = document.getElementById('dashProgressFill');
+      const pctText = document.getElementById('dashProgressText');
+      const resumeBtn = document.getElementById('dashResumeBtn');
+      
+      const isBackup = !data.generated_roadmap && data.id === null;
+      const roadmapObj = isBackup ? data : (data.generated_roadmap || {});
+      const completedList = (data.completed_topics || "").split(',');
+      
+      let nextTopicText = "Curriculum Complete! 🎉";
+      if (roadmapObj.phases) {
+        let found = false;
+        for (const phase of roadmapObj.phases) {
+          for (const day of phase.days) {
+            if (!completedList.includes(day.id)) {
+              nextTopicText = `<strong>Today's Focus:</strong> ${day.day} - ${day.topic}`;
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+      }
+      
+      badge.textContent = `${isBackup ? data.career_interest : data.career_interest.split(', ')[0]} - ${data.skill_level}`;
+      streak.textContent = `🔥 ${data.learning_streak || 1} Day Streak`;
+      title.textContent = roadmapObj.title || "Your Learning Roadmap";
+      focus.innerHTML = nextTopicText;
+      
+      const pct = data.progress_percentage || 0;
+      fill.style.width = `${pct}%`;
+      pctText.textContent = `${pct}%`;
+      
+      const resumeUrl = data.id ? `/waves/roadmap/?id=${data.id}` : `/waves/roadmap/`;
+      resumeBtn.href = resumeUrl;
+      
+      // Update Chatbot reply dynamically!
+      replies['roadmap'] = `You are currently working on your **${roadmapObj.title || "Personalized Roadmap"}**! You have completed **${completedList.filter(x=>x).length}** topics (${pct}% progress). ${nextTopicText}.<br><br><a href="${resumeUrl}" class="chat-chip" style="margin-top:8px; display:inline-flex; align-items:center; text-decoration:none; color:white; background:var(--color-violet);">Resume Roadmap 🚀</a>`;
+      
+      panel.style.display = 'block';
+    }
     
     // Message sender utility
     const sendMessage = (text, isUser = true) => {
