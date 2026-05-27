@@ -1,0 +1,212 @@
+{% extends 'codewave_admin/base_admin.html' %}
+
+{% block page_title %}Announcements Manager{% endblock %}
+{% block page_subtitle %}Publish, pin, and manage announcements for the community homepage{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="padding: 2rem; margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <h3 style="font-family: var(--font-heading); font-size: 0.95rem; color: white;">📢 Active Announcements</h3>
+    <button class="btn-neon" onclick="openAddModal()">
+      <svg style="width:16px; height:16px; stroke:currentColor; fill:none;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Announcement
+    </button>
+  </div>
+
+  <div style="overflow-x: auto; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; color: var(--text-muted);">
+      <thead>
+        <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); color: white;">
+          <th style="padding: 1rem 1.5rem;">PIN</th>
+          <th style="padding: 1rem 1.5rem;">TITLE</th>
+          <th style="padding: 1rem 1.5rem;">PRIORITY</th>
+          <th style="padding: 1rem 1.5rem;">PUBLISH DATE</th>
+          <th style="padding: 1rem 1.5rem; text-align: right;">ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in announcements %}
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.01)'" onmouseout="this.style.background='none'">
+            <td style="padding: 1rem 1.5rem;">
+              <a href="{% url 'codewave_admin:announcement_pin_toggle' a.pk %}" style="text-decoration: none; font-size: 1.1rem;" title="Toggle Pin">
+                {% if a.is_pinned %}📌{% else %}📍{% endif %}
+              </a>
+            </td>
+            <td style="padding: 1rem 1.5rem; font-weight: 600; color: white;">
+              <div>{{ a.title }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ a.description }}
+              </div>
+            </td>
+            <td style="padding: 1rem 1.5rem;">
+              {% if a.priority == 'high' %}
+                <span class="badge badge-pink">High</span>
+              {% elif a.priority == 'medium' %}
+                <span class="badge badge-purple">Medium</span>
+              {% else %}
+                <span class="badge badge-cyan">Low</span>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem 1.5rem;">{{ a.publish_date }}</td>
+            <td style="padding: 1rem 1.5rem; text-align: right;">
+              <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button class="btn-logout" style="color:var(--neon-cyan); background:rgba(6,182,212,0.05)" onclick="openEditModal('{{ a.pk }}', '{{ a.title|escapejs }}', '{{ a.description|escapejs }}', '{{ a.priority }}', '{{ a.publish_date|date:'Y-m-d' }}', {{ a.is_pinned|yesno:'true,false' }})" title="Edit">
+                  <svg style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <a href="{% url 'codewave_admin:announcement_delete' a.pk %}" class="btn-logout" onclick="return confirm('Are you sure you want to delete this announcement?');" title="Delete">
+                  <svg style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              No announcements available. Create one to get started!
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Announcement Modal -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">📢 Add New Announcement</h3>
+      <button class="modal-close" onclick="closeAddModal()">&times;</button>
+    </div>
+    <form action="{% url 'codewave_admin:announcement_add' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="add_title">Title</label>
+        <input type="text" id="add_title" name="title" class="input-neon" required placeholder="Important update...">
+      </div>
+      
+      <div class="form-group">
+        <label for="add_desc">Description</label>
+        <textarea id="add_desc" name="description" class="textarea-neon" required placeholder="Write details here..."></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="add_priority">Priority</label>
+          <select id="add_priority" name="priority" class="input-neon" style="background:#04060f; color:white;">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="add_date">Publish Date</label>
+          <input type="date" id="add_date" name="publish_date" class="input-neon">
+        </div>
+      </div>
+
+      <div class="form-group" style="flex-direction: row; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+        <input type="checkbox" id="add_pinned" name="is_pinned" style="accent-color:var(--neon-cyan); width:16px; height:16px;">
+        <label for="add_pinned" style="margin: 0; cursor: pointer;">Pin Announcement on Home</label>
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="add_image">Image Banner (Optional)</label>
+        <input type="file" id="add_image" name="image" class="input-neon" style="padding-top: 0.6rem;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-logout" style="border:1px solid rgba(255,255,255,0.1); color:white; padding:0.6rem 1.2rem;" onclick="closeAddModal()">Cancel</button>
+        <button type="submit" class="btn-neon">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Announcement Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">🛠️ Edit Announcement</h3>
+      <button class="modal-close" onclick="closeEditModal()">&times;</button>
+    </div>
+    <form id="editForm" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="edit_title">Title</label>
+        <input type="text" id="edit_title" name="title" class="input-neon" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="edit_desc">Description</label>
+        <textarea id="edit_desc" name="description" class="textarea-neon" required></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="edit_priority">Priority</label>
+          <select id="edit_priority" name="priority" class="input-neon" style="background:#04060f; color:white;">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit_date">Publish Date</label>
+          <input type="date" id="edit_date" name="publish_date" class="input-neon">
+        </div>
+      </div>
+
+      <div class="form-group" style="flex-direction: row; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+        <input type="checkbox" id="edit_pinned" name="is_pinned" style="accent-color:var(--neon-cyan); width:16px; height:16px;">
+        <label for="edit_pinned" style="margin: 0; cursor: pointer;">Pin Announcement on Home</label>
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="edit_image">Replace Banner (Optional)</label>
+        <input type="file" id="edit_image" name="image" class="input-neon" style="padding-top: 0.6rem;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-logout" style="border:1px solid rgba(255,255,255,0.1); color:white; padding:0.6rem 1.2rem;" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn-neon">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const addModal = document.getElementById('addModal');
+  const editModal = document.getElementById('editModal');
+  const editForm = document.getElementById('editForm');
+
+  function openAddModal() {
+    addModal.style.display = 'flex';
+  }
+  function closeAddModal() {
+    addModal.style.display = 'none';
+  }
+
+  function openEditModal(pk, title, desc, priority, date, isPinned) {
+    editForm.action = `/codewave-admin/announcements/edit/${pk}/`;
+    document.getElementById('edit_title').value = title;
+    document.getElementById('edit_desc').value = desc;
+    document.getElementById('edit_priority').value = priority;
+    document.getElementById('edit_date').value = date;
+    document.getElementById('edit_pinned').checked = isPinned;
+    editModal.style.display = 'flex';
+  }
+  
+  function closeEditModal() {
+    editModal.style.display = 'none';
+  }
+
+  // Close modals when clicking outside
+  window.onclick = function(event) {
+    if (event.target == addModal) closeAddModal();
+    if (event.target == editModal) closeEditModal();
+  }
+</script>
+{% endblock %}

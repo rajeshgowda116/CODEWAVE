@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeWave - Admin Secure Access</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@700;800;900&family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #020306;
+      --card-bg: rgba(6, 10, 26, 0.65);
+      --card-border: rgba(99, 102, 241, 0.15);
+      --neon-cyan: #06b6d4;
+      --neon-purple: #a855f7;
+      --neon-pink: #ec4899;
+      --text-muted: #8a9fc4;
+      
+      --neon-cyan-glow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: #ffffff;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+    }
+
+    /* Grid overlay pattern */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: -1;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      padding: 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Glowing top line */
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-wave {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+      animation: wave-bounce 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes wave-bounce {
+      0% { transform: translateY(0) rotate(0); }
+      100% { transform: translateY(-6px) rotate(10deg); }
+    }
+
+    .logo-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+      text-shadow: var(--neon-cyan-glow);
+    }
+
+    .logo-title span {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      letter-spacing: 0.02em;
+    }
+
+    .input-neon {
+      background: rgba(4, 6, 15, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      height: 52px;
+      padding: 0 1rem;
+      color: white;
+      outline: none;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+
+    .input-neon:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+    }
+
+    .btn-submit {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.25);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 6px 20px rgba(6, 182, 212, 0.4),
+        0 0 15px rgba(168, 85, 247, 0.2);
+    }
+
+    .error-card {
+      background: rgba(236, 72, 153, 0.1);
+      border: 1px solid rgba(236, 72, 153, 0.25);
+      border-radius: 10px;
+      padding: 0.85rem;
+      color: #f472b6;
+      font-size: 0.8rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <span class="logo-wave">🌊</span>
+        <h1 class="logo-title">CODEWAVE <span>ADMIN</span></h1>
+        <p class="subtitle">Secure Control Access</p>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="error-card">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" class="input-neon" required placeholder="admin_user">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" class="input-neon" required placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn-submit">Authenticate</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

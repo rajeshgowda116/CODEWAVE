@@ -1,0 +1,55 @@
+{% extends 'codewave_admin/base_admin.html' %}
+
+{% block page_title %}AI Configuration Panel{% endblock %}
+{% block page_subtitle %}Adjust generative parameters, system prompt architectures, and conversational behavior flags{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="padding: 2.5rem; max-width: 800px; margin: 0 auto;">
+  <div style="display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; margin-bottom: 2rem;">
+    <span style="font-size: 1.8rem;">🤖</span>
+    <h3 style="font-family: var(--font-heading); font-size: 1.05rem; color: white;">AI agent parameters</h3>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <label for="prompt_template">Base Core System Prompt</label>
+      <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+        This template defines the AI persona, rules, formatting instructions, and input variables (e.g. {fullName}, {college}) when assembling custom roadmap cards.
+      </p>
+      <textarea id="prompt_template" name="prompt_template" class="textarea-neon" style="min-height: 180px; font-family: monospace; font-size: 0.8rem; line-height: 1.5;" required>{{ prompt_template }}</textarea>
+    </div>
+
+    <div class="form-group" style="margin-top: 1.5rem;">
+      <label for="chatbot_greeting">WaveBot Welcome Message</label>
+      <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+        Initial text displayed by the chatbot widget when loaded on the student dashboard home.
+      </p>
+      <input type="text" id="chatbot_greeting" name="chatbot_greeting" class="input-neon" value="{{ chatbot_greeting }}" required>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+      <div class="form-group">
+        <label for="ai_temperature">LLM Model Temperature</label>
+        <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          Higher numbers make generation more creative, lower numbers make it deterministic. Range: 0.0 to 1.0.
+        </p>
+        <input type="number" step="0.1" min="0" max="1" id="ai_temperature" name="ai_temperature" class="input-neon" value="{{ ai_temperature }}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Active Generative Model</label>
+        <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          Current model used for executing prompt templates (Inherited automatically).
+        </p>
+        <input type="text" class="input-neon" value="Gemini 3.5 Flash" disabled style="opacity: 0.6; cursor: not-allowed; background: rgba(255,255,255,0.02);">
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+      <button type="submit" class="btn-neon">Save Configuration</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

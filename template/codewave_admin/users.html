@@ -1,0 +1,195 @@
+{% extends 'codewave_admin/base_admin.html' %}
+
+{% block page_title %}User Management{% endblock %}
+{% block page_subtitle %}Search users, assign administrator privileges, ban or suspend accounts, and reset passwords{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="padding: 2rem; margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <h3 style="font-family: var(--font-heading); font-size: 0.95rem; color: white;">👥 Registered Community Members</h3>
+    
+    <!-- Search Bar -->
+    <form method="GET" style="display: flex; gap: 0.5rem; width: 100%; max-width: 320px;">
+      <input type="text" name="search" class="input-neon" style="height:38px; flex:1;" placeholder="Search username, email..." value="{{ search_query }}">
+      <button type="submit" class="btn-neon" style="padding:0 1rem; height:38px;">Search</button>
+    </form>
+  </div>
+
+  <div style="overflow-x: auto; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; color: var(--text-muted);">
+      <thead>
+        <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); color: white;">
+          <th style="padding: 1rem 1.5rem;">MEMBER</th>
+          <th style="padding: 1rem 1.5rem;">EMAIL</th>
+          <th style="padding: 1rem 1.5rem;">ROLE</th>
+          <th style="padding: 1rem 1.5rem;">STATUS</th>
+          <th style="padding: 1rem 1.5rem;">JOINED DATE</th>
+          <th style="padding: 1rem 1.5rem; text-align: right;">CONTROLS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.01)'" onmouseout="this.style.background='none'">
+            <td style="padding: 1rem 1.5rem; font-weight: 600; color: white; display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--neon-cyan);">
+                {{ u.username|make_list|first|upper }}
+              </div>
+              <span>{{ u.username }}</span>
+            </td>
+            <td style="padding: 1rem 1.5rem;">{{ u.email }}</td>
+            <td style="padding: 1rem 1.5rem;">
+              {% if u.is_superuser %}
+                <span class="badge badge-pink" style="box-shadow:0 0 10px rgba(236,72,153,0.2)">SUPERUSER</span>
+              {% elif u.is_staff %}
+                <span class="badge badge-purple">STAFF ADMIN</span>
+              {% else %}
+                <span class="badge badge-cyan">STUDENT</span>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem 1.5rem;">
+              {% if u.is_active %}
+                <span class="badge badge-green">ACTIVE</span>
+              {% else %}
+                <span class="badge badge-pink" style="opacity: 0.85;">SUSPENDED</span>
+              {% endif %}
+            </td>
+            <td style="padding: 1rem 1.5rem;">{{ u.date_joined|date:"M d, Y" }}</td>
+            <td style="padding: 1rem 1.5rem; text-align: right;">
+              <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                
+                <!-- Action Controls Form Trigger -->
+                <button class="btn-logout" style="color:var(--neon-cyan); background:rgba(6,182,212,0.05); padding: 5px;" onclick="openRoleModal('{{ u.id }}', '{{ u.username }}', '{{ u.is_staff|yesno:'admin,student' }}')" title="Change Role">
+                  🛡️
+                </button>
+                <button class="btn-logout" style="color:var(--neon-purple); background:rgba(168,85,247,0.05); padding: 5px;" onclick="openPasswordModal('{{ u.id }}', '{{ u.username }}')" title="Reset Password">
+                  🔑
+                </button>
+                
+                {% if u.is_active %}
+                  <form action="{% url 'codewave_admin:user_action' %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                    <input type="hidden" name="action" value="suspend">
+                    <button type="submit" class="btn-logout" style="color:#f472b6; background:rgba(236,72,153,0.05); padding:5px;" onclick="return confirm('Suspend user {{ u.username }}?');" title="Suspend/Ban">
+                      🚫
+                    </button>
+                  </form>
+                {% else %}
+                  <form action="{% url 'codewave_admin:user_action' %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                    <input type="hidden" name="action" value="activate">
+                    <button type="submit" class="btn-logout" style="color:var(--neon-green); background:rgba(16,185,129,0.05); padding:5px;" title="Unsuspend/Activate">
+                      ✅
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              No users match your query.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Role Change Modal -->
+<div class="modal" id="roleModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">🛡️ Change User Role</h3>
+      <button class="modal-close" onclick="closeRoleModal()">&times;</button>
+    </div>
+    <form action="{% url 'codewave_admin:user_action' %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" id="role_user_id" name="user_id">
+      <input type="hidden" name="action" value="change_role">
+      
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        Modify administrative permissions for user: <span id="role_username" style="color:white; font-weight:700;"></span>
+      </p>
+
+      <div class="form-group">
+        <label for="user_role">Role Privilege</label>
+        <select id="user_role" name="role" class="input-neon" style="background:#04060f; color:white;">
+          <option value="student">Student (Standard User)</option>
+          <option value="admin">Staff Admin (Dashboard Access)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-logout" style="border:1px solid rgba(255,255,255,0.1); color:white; padding:0.6rem 1.2rem;" onclick="closeRoleModal()">Cancel</button>
+        <button type="submit" class="btn-neon">Save Role</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal" id="pwdModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">🔑 Force Password Reset</h3>
+      <button class="modal-close" onclick="closePasswordModal()">&times;</button>
+    </div>
+    <form action="{% url 'codewave_admin:user_action' %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" id="pwd_user_id" name="user_id">
+      <input type="hidden" name="action" value="reset_password">
+      
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        Set a new password for: <span id="pwd_username" style="color:white; font-weight:700;"></span>
+      </p>
+
+      <div class="form-group">
+        <label for="new_password">New Password</label>
+        <input type="password" id="new_password" name="new_password" class="input-neon" required placeholder="Enter new password...">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-logout" style="border:1px solid rgba(255,255,255,0.1); color:white; padding:0.6rem 1.2rem;" onclick="closePasswordModal()">Cancel</button>
+        <button type="submit" class="btn-neon">Update Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const roleModal = document.getElementById('roleModal');
+  const pwdModal = document.getElementById('pwdModal');
+
+  function openRoleModal(userId, username, role) {
+    document.getElementById('role_user_id').value = userId;
+    document.getElementById('role_username').innerText = username;
+    document.getElementById('user_role').value = role;
+    roleModal.style.display = 'flex';
+  }
+  function closeRoleModal() {
+    roleModal.style.display = 'none';
+  }
+
+  function openPasswordModal(userId, username) {
+    document.getElementById('pwd_user_id').value = userId;
+    document.getElementById('pwd_username').innerText = username;
+    document.getElementById('new_password').value = '';
+    pwdModal.style.display = 'flex';
+  }
+  function closePasswordModal() {
+    pwdModal.style.display = 'none';
+  }
+
+  // Close modals when clicking outside
+  window.onclick = function(event) {
+    if (event.target == roleModal) closeRoleModal();
+    if (event.target == pwdModal) closePasswordModal();
+  }
+</script>
+{% endblock %}

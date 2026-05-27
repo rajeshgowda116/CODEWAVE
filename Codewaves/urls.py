@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 
@@ -24,5 +26,11 @@ urlpatterns = [
     path('',views.index,name='index'),
     path('waves/',include('waves.urls')),
     path('user/',include('User.urls')),
+    path('codewave-admin/', include('codewave_admin.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 

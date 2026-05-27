@@ -1,0 +1,120 @@
+{% extends 'codewave_admin/base_admin.html' %}
+
+{% block page_title %}Meme Zone Management{% endblock %}
+{% block page_subtitle %}Review, upload, pin trending or remove memes from the developer board{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="padding: 2rem; margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <h3 style="font-family: var(--font-heading); font-size: 0.95rem; color: white;">😂 Developer Meme Board</h3>
+    <button class="btn-neon" onclick="openAddModal()">
+      <svg style="width:16px; height:16px; stroke:currentColor; fill:none;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Upload Meme
+    </button>
+  </div>
+
+  <!-- Memes Grid Layout -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem;">
+    {% for m in memes %}
+      <div style="background: rgba(4,6,15,0.5); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: all 0.3s; position: relative;">
+        
+        <!-- Pinned badge -->
+        <div style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+          <a href="{% url 'codewave_admin:meme_pin_toggle' m.pk %}" style="text-decoration: none;" title="Toggle Pin">
+            {% if m.is_pinned %}
+              <span class="badge badge-pink" style="box-shadow: 0 0 10px var(--neon-pink);">🔥 TRENDING</span>
+            {% else %}
+              <span class="badge badge-cyan" style="opacity: 0.7;">📍 PIN IT</span>
+            {% endif %}
+          </a>
+        </div>
+
+        <div style="width: 100%; height: 200px; background: #000; border-bottom: 1px solid rgba(255,255,255,0.03); position: relative;">
+          <img src="{{ m.image.url }}" alt="Developer Meme" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+
+        <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; justify-content: space-between;">
+          <div>
+            <p style="font-size: 0.82rem; font-weight: 600; color: white; line-height: 1.4; margin-bottom: 0.5rem;">
+              {{ m.caption|default:"No caption provided" }}
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+              {% if m.tags %}
+                {% for tag in m.tags.split %}
+                  <span class="badge badge-purple" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">#{{ tag }}</span>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 0.75rem; margin-top: 0.5rem;">
+            <span style="font-size: 0.68rem; color: var(--text-muted);">Uploaded {{ m.created_at|date:"M d, Y" }}</span>
+            <a href="{% url 'codewave_admin:meme_delete' m.pk %}" class="btn-logout" style="padding:4px;" onclick="return confirm('Are you sure you want to remove this meme?');" title="Delete">
+              <svg style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;">
+        No memes available. Upload something fun to cheer up the coders!
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Upload Meme Modal -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">😂 Upload Developer Meme</h3>
+      <button class="modal-close" onclick="closeAddModal()">&times;</button>
+    </div>
+    <form action="{% url 'codewave_admin:meme_add' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="add_image">Select Meme File</label>
+        <input type="file" id="add_image" name="image" class="input-neon" required style="padding-top: 0.6rem;">
+      </div>
+
+      <div class="form-group">
+        <label for="add_caption">Caption</label>
+        <input type="text" id="add_caption" name="caption" class="input-neon" placeholder="When the production server goes down...">
+      </div>
+
+      <div class="form-group">
+        <label for="add_tags">Tags (separated by space)</label>
+        <input type="text" id="add_tags" name="tags" class="input-neon" placeholder="django programming python bug">
+      </div>
+
+      <div class="form-group" style="flex-direction: row; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+        <input type="checkbox" id="add_pinned" name="is_pinned" style="accent-color:var(--neon-cyan); width:16px; height:16px;">
+        <label for="add_pinned" style="margin: 0; cursor: pointer;">Pin as Trending Meme</label>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-logout" style="border:1px solid rgba(255,255,255,0.1); color:white; padding:0.6rem 1.2rem;" onclick="closeAddModal()">Cancel</button>
+        <button type="submit" class="btn-neon">Upload Meme</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const addModal = document.getElementById('addModal');
+
+  function openAddModal() {
+    addModal.style.display = 'flex';
+  }
+  function closeAddModal() {
+    addModal.style.display = 'none';
+  }
+
+  // Close modals when clicking outside
+  window.onclick = function(event) {
+    if (event.target == addModal) closeAddModal();
+  }
+</script>
+{% endblock %}

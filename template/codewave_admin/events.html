@@ -1,0 +1,244 @@
+{% extends 'codewave_admin/base_admin.html' %}
+
+{% block page_title %}Upcoming Events{% endblock %}
+{% block page_subtitle %}Manage webinars, workshops, meetings, speakers, and event schedules{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 2rem; align-items: start;">
+  
+  <!-- Left Side: Custom Calendar + Actions -->
+  <div class="glass-card" style="padding: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="font-family: var(--font-heading); font-size: 0.95rem; color: white;">📅 Event Schedule</h3>
+      <button class="btn-neon" onclick="openAddModal()">
+        <svg style="width:16px; height:16px; stroke:currentColor; fill:none;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Event
+      </button>
+    </div>
+
+    <!-- Calendar Mock UI Grid (Interactive look) -->
+    <div style="background: rgba(4,6,15,0.6); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; color: white; font-weight: 700; font-size: 0.9rem;">
+        <span>MAY 2026</span>
+        <div style="display: flex; gap: 0.5rem;">
+          <button style="background:none; border:none; color:var(--text-muted); cursor:pointer;">&lt;</button>
+          <button style="background:none; border:none; color:var(--text-muted); cursor:pointer;">&gt;</button>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">
+        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center; font-size: 0.8rem; color: white;">
+        <!-- Calendar days mock -->
+        <div style="color:var(--text-muted); opacity:0.3;">26</div>
+        <div style="color:var(--text-muted); opacity:0.3;">27</div>
+        <div style="color:var(--text-muted); opacity:0.3;">28</div>
+        <div style="color:var(--text-muted); opacity:0.3;">29</div>
+        <div style="color:var(--text-muted); opacity:0.3;">30</div>
+        <div>1</div><div>2</div>
+        <div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div>
+        <div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div>
+        <div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div>
+        <div>24</div><div>25</div><div>26</div>
+        <div style="background:rgba(6,182,212,0.15); border:1px solid var(--neon-cyan); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; margin:0 auto; font-weight:700; color:var(--neon-cyan); box-shadow:var(--neon-cyan-glow)">27</div>
+        <div>28</div><div>29</div><div>30</div><div>31</div>
+        <div style="color:var(--text-muted); opacity:0.3;">1</div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 1.5rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.6;">
+      <p>💡 Tip: You can set meetings link, add speakers names, upload customized banners and manage community participations.</p>
+    </div>
+  </div>
+
+  <!-- Right Side: Event list -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    {% for e in events %}
+      <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid var(--neon-purple);">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+          <div>
+            <span class="badge badge-purple" style="margin-bottom: 0.5rem;">{{ e.date }} @ {{ e.time }}</span>
+            <h3 style="font-family: var(--font-heading); font-size: 1.05rem; color: white;">{{ e.name }}</h3>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn-logout" style="color:var(--neon-cyan); background:rgba(6,182,212,0.05); padding: 5px;" onclick="openEditModal('{{ e.pk }}', '{{ e.name|escapejs }}', '{{ e.description|escapejs }}', '{{ e.date|date:'Y-m-d' }}', '{{ e.time|time:'H:i' }}', '{{ e.meeting_link|escapejs }}', '{{ e.speaker_name|escapejs }}')" title="Edit">
+              <svg style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <a href="{% url 'codewave_admin:event_delete' e.pk %}" class="btn-logout" style="padding: 5px;" onclick="return confirm('Are you sure you want to delete this event?');" title="Delete">
+              <svg style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
+          {{ e.description }}
+        </p>
+
+        {% if e.banner %}
+          <div style="width: 100%; height: 120px; border-radius: 8px; overflow: hidden; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.05);">
+            <img src="{{ e.banner.url }}" alt="Event Banner" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+        {% endif %}
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 0.85rem; font-size: 0.8rem;">
+          <span style="color: white; font-weight: 600;">🎙️ Speaker: <span style="color: var(--neon-cyan);">{{ e.speaker_name|default:"Not specified" }}</span></span>
+          {% if e.meeting_link %}
+            <a href="{{ e.meeting_link }}" target="_blank" class="badge badge-cyan" style="text-decoration:none; display:flex; align-items:center; gap:3px;">
+              Join Link 🔗
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="glass-card" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        No upcoming events created.
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">📅 Create New Event</h3>
+      <button class="modal-close" onclick="closeAddModal()">&times;</button>
+    </div>
+    <form action="{% url 'codewave_admin:event_add' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="add_name">Event Name</label>
+        <input type="text" id="add_name" name="name" class="input-neon" required placeholder="AI/ML Workshop...">
+      </div>
+
+      <div class="form-group">
+        <label for="add_desc">Description</label>
+        <textarea id="add_desc" name="description" class="textarea-neon" required placeholder="Enter description..."></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="add_date">Event Date</label>
+          <input type="date" id="add_date" name="date" class="input-neon">
+        </div>
+        <div class="form-group">
+          <label for="add_time">Time</label>
+          <input type="time" id="add_time" name="time" class="input-neon">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="add_speaker">Speaker Name</label>
+        <input type="text" id="add_speaker" name="speaker_name" class="input-neon" placeholder="John Doe">
+      </div>
+
+      <div class="form-group">
+        <label for="add_link">Meeting / Streaming Link</label>
+        <input type="url" id="add_link" name="meeting_link" class="input-neon" placeholder="https://zoom.us/...">
+      </div>
+
+      <div class="form-group">
+        <label for="add_banner">Event Banner (Optional)</label>
+        <input type="file" id="add_banner" name="banner" class="input-neon" style="padding-top: 0.6rem;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-logout" style="border:1px solid rgba(255,255,255,0.1); color:white; padding:0.6rem 1.2rem;" onclick="closeAddModal()">Cancel</button>
+        <button type="submit" class="btn-neon">Create Event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">🛠️ Edit Event</h3>
+      <button class="modal-close" onclick="closeEditModal()">&times;</button>
+    </div>
+    <form id="editForm" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="edit_name">Event Name</label>
+        <input type="text" id="edit_name" name="name" class="input-neon" required>
+      </div>
+
+      <div class="form-group">
+        <label for="edit_desc">Description</label>
+        <textarea id="edit_desc" name="description" class="textarea-neon" required></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="edit_date">Event Date</label>
+          <input type="date" id="edit_date" name="date" class="input-neon">
+        </div>
+        <div class="form-group">
+          <label for="edit_time">Time</label>
+          <input type="time" id="edit_time" name="time" class="input-neon">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="edit_speaker">Speaker Name</label>
+        <input type="text" id="edit_speaker" name="speaker_name" class="input-neon">
+      </div>
+
+      <div class="form-group">
+        <label for="edit_link">Meeting / Streaming Link</label>
+        <input type="url" id="edit_link" name="meeting_link" class="input-neon">
+      </div>
+
+      <div class="form-group">
+        <label for="edit_banner">Replace Banner (Optional)</label>
+        <input type="file" id="edit_banner" name="banner" class="input-neon" style="padding-top: 0.6rem;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-logout" style="border:1px solid rgba(255,255,255,0.1); color:white; padding:0.6rem 1.2rem;" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn-neon">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const addModal = document.getElementById('addModal');
+  const editModal = document.getElementById('editModal');
+  const editForm = document.getElementById('editForm');
+
+  function openAddModal() {
+    addModal.style.display = 'flex';
+  }
+  function closeAddModal() {
+    addModal.style.display = 'none';
+  }
+
+  function openEditModal(pk, name, desc, date, time, link, speaker) {
+    editForm.action = `/codewave-admin/events/edit/${pk}/`;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_desc').value = desc;
+    document.getElementById('edit_date').value = date;
+    document.getElementById('edit_time').value = time;
+    document.getElementById('edit_link').value = link;
+    document.getElementById('edit_speaker').value = speaker;
+    editModal.style.display = 'flex';
+  }
+  
+  function closeEditModal() {
+    editModal.style.display = 'none';
+  }
+
+  // Close modals when clicking outside
+  window.onclick = function(event) {
+    if (event.target == addModal) closeAddModal();
+    if (event.target == editModal) closeEditModal();
+  }
+</script>
+{% endblock %}

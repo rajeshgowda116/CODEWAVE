@@ -1,0 +1,139 @@
+{% extends 'codewave_admin/base_admin.html' %}
+
+{% block page_title %}Analytics & Insights{% endblock %}
+{% block page_subtitle %}Review community skill standard metrics, roadmap categories, and platform analytics{% endblock %}
+
+{% block content %}
+<!-- Charts Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+  
+  <!-- Category Interest Breakdown -->
+  <div class="glass-card" style="padding: 2rem;">
+    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: white; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+      <span style="display:inline-block; width:6px; height:6px; background:var(--neon-cyan); border-radius:50%;"></span>
+      Popular Roadmap Categories
+    </h4>
+    <div style="height: 280px; position: relative;">
+      <canvas id="interestsChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Skill Level Distribution -->
+  <div class="glass-card" style="padding: 2rem;">
+    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: white; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+      <span style="display:inline-block; width:6px; height:6px; background:var(--neon-purple); border-radius:50%;"></span>
+      Skill Level Distribution
+    </h4>
+    <div style="height: 280px; position: relative; display: flex; justify-content: center; align-items: center;">
+      <div style="width: 240px; height: 240px;">
+        <canvas id="skillsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Additional Telemetry Section -->
+<div class="glass-card" style="padding: 2rem;">
+  <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: white; margin-bottom: 1.5rem;">📈 Platform Vital Statistics</h4>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; text-align: center;">
+    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 1.5rem;">
+      <span style="font-size: 1.8rem; display:block; margin-bottom: 0.5rem;">⚡</span>
+      <h3 style="font-family: var(--font-display); font-size: 1.45rem; color: white;">99.8%</h3>
+      <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">API Server Uptime</span>
+    </div>
+    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 1.5rem;">
+      <span style="font-size: 1.8rem; display:block; margin-bottom: 0.5rem;">🚀</span>
+      <h3 style="font-family: var(--font-display); font-size: 1.45rem; color: white;">245ms</h3>
+      <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Average AI Inference Time</span>
+    </div>
+    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 1.5rem;">
+      <span style="font-size: 1.8rem; display:block; margin-bottom: 0.5rem;">📚</span>
+      <h3 style="font-family: var(--font-display); font-size: 1.45rem; color: white;">12 / Day</h3>
+      <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Daily Roadmap Compilations</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Popular Categories Chart (Bar Chart)
+    const ctxBar = document.getElementById('interestsChart').getContext('2d');
+    const interestsLabels = {{ interests_labels|safe }};
+    const interestsData = {{ interests_data|safe }};
+    
+    new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels: interestsLabels,
+        datasets: [{
+          label: 'Generated Paths',
+          data: interestsData,
+          backgroundColor: 'rgba(6, 182, 212, 0.45)',
+          borderColor: '#06b6d4',
+          borderWidth: 2,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.03)' },
+            ticks: { color: '#8a9fc4', font: { family: 'Poppins', size: 10 } }
+          },
+          y: {
+            grid: { color: 'rgba(255, 255, 255, 0.03)' },
+            ticks: { color: '#8a9fc4', font: { family: 'Poppins' } }
+          }
+        }
+      }
+    });
+
+    // 2. Skill Level Distribution (Doughnut Chart)
+    const ctxDoughnut = document.getElementById('skillsChart').getContext('2d');
+    const skillsData = {{ skills_data|safe }};
+    
+    new Chart(ctxDoughnut, {
+      type: 'doughnut',
+      data: {
+        labels: ['Beginner', 'Intermediate', 'Advanced'],
+        datasets: [{
+          data: skillsData,
+          backgroundColor: [
+            'rgba(6, 182, 212, 0.65)',
+            'rgba(168, 85, 247, 0.65)',
+            'rgba(236, 72, 153, 0.65)'
+          ],
+          borderColor: [
+            '#06b6d4',
+            '#a855f7',
+            '#ec4899'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#8a9fc4',
+              font: { family: 'Poppins', size: 11 }
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

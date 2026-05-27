@@ -1,0 +1,753 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeWave - Futuristic Admin Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Orbitron:wght@700;800;900&family=Unbounded:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Premium Cyberpunk / Glassmorphic Admin Theme CSS Variables */
+    :root {
+      --bg-color: #030409;
+      --card-bg: rgba(6, 10, 26, 0.7);
+      --card-border: rgba(99, 102, 241, 0.18);
+      --card-border-hover: rgba(6, 182, 212, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #8a9fc4;
+      
+      --neon-cyan: #06b6d4;
+      --neon-blue: #3b82f6;
+      --neon-purple: #a855f7;
+      --neon-pink: #ec4899;
+      --neon-green: #10b981;
+      
+      --neon-cyan-glow: 0 0 15px rgba(6, 182, 212, 0.4);
+      --neon-purple-glow: 0 0 15px rgba(168, 85, 247, 0.4);
+      
+      --font-main: 'Poppins', sans-serif;
+      --font-heading: 'Unbounded', sans-serif;
+      --font-display: 'Orbitron', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020306;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.25);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--neon-cyan);
+      box-shadow: var(--neon-cyan-glow);
+    }
+
+    /* Grid overlay pattern */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+    }
+
+    /* SIDEBAR NAV */
+    .sidebar {
+      background: rgba(4, 6, 15, 0.85);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.5rem;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: var(--neon-cyan-glow);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo span {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-logo-wave {
+      font-size: 1.3rem;
+      animation: wave-bounce 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes wave-bounce {
+      0% { transform: translateY(0) rotate(0); }
+      100% { transform: translateY(-4px) rotate(10deg); }
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .menu-header {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 1.25rem 0 0.5rem 0.5rem;
+    }
+
+    .menu-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .menu-item a svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .menu-item a:hover {
+      color: #ffffff;
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.2);
+      transform: translateX(4px);
+    }
+
+    .menu-item.active a {
+      color: var(--neon-cyan);
+      background: rgba(6, 182, 212, 0.08);
+      border-color: rgba(6, 182, 212, 0.25);
+      font-weight: 600;
+      box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.05);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .admin-profile-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 0.65rem;
+      border-radius: 10px;
+    }
+
+    .admin-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--neon-purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 0.85rem;
+      box-shadow: var(--neon-purple-glow);
+    }
+
+    .admin-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .admin-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .admin-role {
+      font-size: 0.68rem;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-logout {
+      color: #fb7185;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(251, 113, 133, 0.1);
+      transform: scale(1.05);
+    }
+
+    /* MAIN CONTAINER */
+    .app-main {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(3, 4, 9, 0.4);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .page-title-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .page-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.01em;
+    }
+
+    .page-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .notification-bell {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .notification-bell:hover {
+      color: white;
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+    }
+
+    .bell-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--neon-pink);
+      border-radius: 50%;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      box-shadow: 0 0 8px var(--neon-pink);
+    }
+
+    /* CONTENT BODY */
+    .content-body {
+      flex: 1;
+      padding: 2rem 2.5rem;
+      animation: page-fade 0.4s ease forwards;
+    }
+
+    @keyframes page-fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARD SYSTEM */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card:hover {
+      border-color: var(--card-border-hover);
+      box-shadow: 0 12px 35px rgba(6, 182, 212, 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* BUTTONS */
+    .btn-neon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      background: rgba(6, 182, 212, 0.08);
+      color: var(--neon-cyan);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .btn-neon:hover {
+      background: var(--neon-cyan);
+      color: #030409;
+      box-shadow: var(--neon-cyan-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-purple {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      background: rgba(168, 85, 247, 0.08);
+      color: var(--neon-purple);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .btn-purple:hover {
+      background: var(--neon-purple);
+      color: #ffffff;
+      box-shadow: var(--neon-purple-glow);
+      transform: translateY(-1px);
+    }
+
+    /* NEON BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-cyan { background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.25); color: var(--neon-cyan); }
+    .badge-purple { background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); color: var(--neon-purple); }
+    .badge-pink { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.25); color: var(--neon-pink); }
+    .badge-green { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: var(--neon-green); }
+
+    /* FORM INPUTS */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .input-neon {
+      background: rgba(4, 6, 15, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      height: 46px;
+      padding: 0 1rem;
+      color: white;
+      outline: none;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+
+    .input-neon:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+    }
+
+    .textarea-neon {
+      background: rgba(4, 6, 15, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      color: white;
+      outline: none;
+      font-family: inherit;
+      min-height: 100px;
+      resize: vertical;
+      transition: all 0.3s;
+    }
+
+    .textarea-neon:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+    }
+
+    /* MODAL SYSTEM */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(2, 3, 6, 0.8);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 580px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      position: relative;
+      animation: modal-enter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes modal-enter {
+      from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.75rem;
+    }
+
+    .modal-title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      color: white;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: white;
+    }
+
+    /* TOAST ALERTS */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toast-card {
+      background: rgba(6, 10, 26, 0.95);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--neon-cyan);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      min-width: 300px;
+      animation: toast-slide 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes toast-slide {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* RESPONSIVENESS */
+    @media (max-width: 990px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        display: none; /* Add responsive menu support in the future */
+      }
+      .topbar {
+        padding: 0 1.5rem;
+      }
+      .content-body {
+        padding: 1.5rem 1.25rem;
+      }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Side Navigation menu -->
+  <aside class="sidebar">
+    <a href="{% url 'codewave_admin:admin_dashboard' %}" class="brand-area">
+      <span class="brand-logo-wave">🌊</span>
+      <span class="brand-logo">CODEWAVE <span>ADMIN</span></span>
+    </a>
+    
+    <ul class="sidebar-menu">
+      <li class="menu-header">Overview</li>
+      <li class="menu-item {% if active_tab == 'dashboard' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:admin_dashboard' %}">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </li>
+      <li class="menu-item {% if active_tab == 'analytics' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:analytics_view' %}">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </a>
+      </li>
+      
+      <li class="menu-header">Management</li>
+      <li class="menu-item {% if active_tab == 'announcements' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:announcements_view' %}">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Announcements
+        </a>
+      </li>
+      <li class="menu-item {% if active_tab == 'events' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:events_view' %}">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Events
+        </a>
+      </li>
+      <li class="menu-item {% if active_tab == 'quotes' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:quotes_view' %}">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Developer Quotes
+        </a>
+      </li>
+      <li class="menu-item {% if active_tab == 'memes' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:memes_view' %}">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M20.4 14.5L16 10 9.4 16.6 6 13.2 3.6 15.6"/></svg>
+          Meme Zone
+        </a>
+      </li>
+      
+      <li class="menu-header">Control Panel</li>
+      <li class="menu-item {% if active_tab == 'users' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:users_view' %}">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </a>
+      </li>
+      <li class="menu-item {% if active_tab == 'roadmaps' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:roadmaps_view' %}">
+          <svg viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          Roadmaps
+        </a>
+      </li>
+      <li class="menu-item {% if active_tab == 'ai-settings' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:ai_settings_view' %}">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v4M7 5h10M8 15h.01M16 15h.01"/></svg>
+          AI Management
+        </a>
+      </li>
+      <li class="menu-item {% if active_tab == 'settings' %}active{% endif %}">
+        <a href="{% url 'codewave_admin:settings_view' %}">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="admin-profile-pill">
+        <div class="admin-avatar">
+          {{ request.user.username|make_list|first|upper }}
+        </div>
+        <div class="admin-info">
+          <div class="admin-name">{{ request.user.username }}</div>
+          <div class="admin-role">ADMINISTRATOR</div>
+        </div>
+        <a href="{% url 'codewave_admin:admin_logout' %}" class="btn-logout" title="Logout">
+          <svg style="width:16px; height:16px; stroke:#fb7185; fill:none;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main section -->
+  <main class="app-main">
+    <header class="topbar">
+      <div class="page-title-area">
+        <h2 class="page-title">
+          {% block page_title %}Dashboard{% endblock %}
+        </h2>
+        <p class="page-subtitle">
+          {% block page_subtitle %}Overview metrics & logs{% endblock %}
+        </p>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Live status bar indicator -->
+        <span class="badge badge-cyan" style="gap: 5px; font-family: var(--font-display);">
+          <span style="display:inline-block; width:6px; height:6px; background:var(--neon-cyan); border-radius:50%; box-shadow:var(--neon-cyan-glow)"></span>
+          SYSTEM SECURE
+        </span>
+
+        <div class="notification-bell">
+          <svg style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="bell-dot"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-body">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </main>
+
+  <!-- Toast notification alerts -->
+  <div class="toast-container" id="toastContainer">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="toast-card" style="border-left-color: {% if message.tags == 'success' %}var(--neon-green){% else %}var(--neon-pink){% endif %};">
+          <span style="font-size:1.1rem">
+            {% if message.tags == 'success' %}✨{% else %}⚠️{% endif %}
+          </span>
+          <div>{{ message }}</div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <script>
+    // Automatically close toast cards after 4.5 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const toasts = document.querySelectorAll('.toast-card');
+        toasts.forEach(toast => {
+          toast.style.transition = 'all 0.4s ease';
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(50px)';
+          setTimeout(() => toast.remove(), 400);
+        });
+      }, 4500);
+    });
+  </script>
+  
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

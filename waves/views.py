@@ -1,14 +1,22 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserRoadmap
 import json
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load env variables
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 # Create your views here.
 def codelogin(request):
     if request.method == 'POST':
       code=request.POST.get('input-text')
-      if code=='C2O0D2E6':
+      login_code = os.environ.get('LOGIN_CODE', 'C2O0D2E6')
+      if code==login_code:
         return redirect('main')
       else:
         return redirect('code_error') 
